@@ -23,18 +23,7 @@ A 3D viewer is used to visualize the point cloud and the partitions created by t
 
 ## Installation
 
-Clone the repository:
-
-```bash
-git clone <repository-url>
-cd 3D-space-partitioning
-```
-
-Use the correct Node version:
-
-```bash
-nvm use
-```
+Make sure you are using Node.js version 20 or higher.
 
 Install dependencies:
 
@@ -42,7 +31,7 @@ Install dependencies:
 npm install
 ```
 
-Run the project
+## Run the project
 
 Start the development server:
 
@@ -50,9 +39,7 @@ Start the development server:
 npm run dev
 ```
 
-Then open the URL shown in the terminal (usually http://localhost:5173).
-
 ## Authors
 
 - Antonio Romero Martín
-  Computer Graphics – Ghent University
+- Siebe Ternest
