@@ -6,7 +6,7 @@ dist/
 build/
 
 # Datasets
-public/data/
+public/data/*.pcd
 
 # Auxiliary files
 aux/
