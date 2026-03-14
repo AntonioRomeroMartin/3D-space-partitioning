@@ -26,4 +26,6 @@ export function fitCameraToObject(camera, object) {
   camera.position.set(center.x, center.y, center.z + distance);
   camera.lookAt(center);
 
+  return { center, size: box.getSize(new THREE.Vector3()) };
+
 }
