@@ -3,77 +3,148 @@
 <head>
   <meta charset="UTF-8" />
   <title>3D Space Partitioning Viewer</title>
+  <style>
+    /* --- GLOBAL RESETS (Fixes scrollbars and white borders) --- */
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden; /* Removes scrollbars completely */
+      background-color: #000000;
+    }
+
+    canvas {
+      display: block; /* Removes the tiny gap under inline canvases */
+    }
+
+    /* --- TOP LEFT CONTROLS CONTAINER --- */
+    #top-controls {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      z-index: 10;
+      background-color: rgba(0, 0, 0, 0.7);
+      color: #f2f2f2;
+      padding: 15px 20px;
+      border-radius: 8px;
+      font-family: sans-serif;
+      font-size: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px; /* Spaces out the checkboxes nicely */
+    }
+
+    #top-controls label {
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+    }
+
+    #top-controls select {
+      margin-left: 8px;
+      background: #333;
+      color: white;
+      border: 1px solid #555;
+      padding: 3px 6px;
+      border-radius: 4px;
+    }
+
+    /* --- BOTTOM LEFT OVERLAY --- */
+    #controls-overlay {
+      position: absolute;
+      bottom: 20px;
+      left: 20px;
+      background-color: rgba(0, 0, 0, 0.7);
+      color: #ffffff;
+      padding: 15px 20px;
+      border-radius: 8px;
+      font-family: monospace, sans-serif;
+      font-size: 14px;
+      line-height: 1.5;
+      z-index: 100;
+      pointer-events: none; /* Prevents blocking mouse drag */
+    }
+
+    #controls-overlay h2 {
+      color: #ffcc00; 
+      margin: 0 0 10px 0;
+      font-size: 18px;
+    }
+
+    #controls-overlay h3 {
+      margin: 0 0 10px 0;
+      font-size: 16px;
+      color: #4da6ff; 
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    #controls-overlay ul {
+      list-style-type: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    #controls-overlay li {
+      margin-bottom: 6px;
+    }
+
+    #controls-overlay b {
+      color: #ffcc00; 
+    }
+  </style>
 </head>
 
 <body>
 
-  <label for="dataset" style="position: fixed; top: 12px; left: 12px; z-index: 10; color: #f2f2f2; font-family: sans-serif;">
-    Dataset:
-    <select id="dataset" style="margin-left: 6px;">
-      <option value="/data/ufo.pcd" selected>UFO</option>
-      <option value="/data/corridor_telin.pcd">Corridor Telin</option>
-      <option value="/data/hasselt.pcd">Hasselt</option>
-    </select>
-  </label>
+  <div id="top-controls">
+    <label for="dataset">
+      Dataset:
+      <select id="dataset">
+        <option value="/data/ufo.pcd" selected>UFO</option>
+        <option value="/data/corridor_telin.pcd">Corridor Telin</option>
+        <option value="/data/hasselt.pcd">Hasselt</option>
+      </select>
+    </label>
 
-  <label for="show-axes" style="position: fixed; top: 48px; left: 12px; z-index: 10; color: #f2f2f2; font-family: sans-serif;">
-    <input id="show-axes" type="checkbox" checked />
-    Show axes
-  </label>
+    <label for="show-axes">
+      <input id="show-axes" type="checkbox" checked /> Show axes
+    </label>
 
-<script type="module" src="/src/main.js"></script>
+    <label for="show-cubes">
+      <input id="show-cubes" type="checkbox" checked /> Show Solid Cubes
+    </label>
+    
+    <label for="show-wireframe">
+      <input id="show-wireframe" type="checkbox" checked /> Show Wireframe
+    </label>
 
-<style>
-  #controls-overlay {
-    position: absolute;
-    bottom: 20px;
-    left: 20px;
-    background-color: rgba(0, 0, 0, 0.7);
-    color: #ffffff;
-    padding: 15px 20px;
-    border-radius: 8px;
-    font-family: monospace, sans-serif;
-    font-size: 14px;
-    line-height: 1.5;
-    z-index: 100;
-    /* Crucial: prevents the overlay from blocking your mouse clicks/drags */
-    pointer-events: none; 
-  }
+    <label for="algorithm">
+      Algorithm:
+      <select id="algorithm">
+        <option value="octree" selected>Octree</option>
+        <option value="kdtree">k-d Tree</option>
+        <option value="bsp">BSP Tree</option>
+      </select>
+    </label>
 
-  #controls-overlay h3 {
-    margin: 0 0 10px 0;
-    font-size: 16px;
-    color: #4da6ff; /* A nice Three.js blue */
-    text-transform: uppercase;
-    letter-spacing: 1px;
-  }
+  </div>
 
-  #controls-overlay ul {
-    list-style-type: none;
-    padding: 0;
-    margin: 0;
-  }
+  <div id="controls-overlay">
+    <h2>Current Depth: <span id="depth-display">1</span></h2>
+    <h3>Fly Controls (AZERTY)</h3>
+    <ul>
+      <li><b>Z / S</b> : Move Forward / Backward</li>
+      <li><b>Q / D</b> : Move Left / Right</li>
+      <li><b>R / F</b> : Move Up / Down</li>
+      <li><b>A / E</b> : Roll Left / Right</li>
+      <li><b>Arrows</b> : Pitch / Yaw (Turn Camera)</li>
+      <li><b>Left Click + Drag</b> : Look Around</li>
+      <li><b>+ / -</b> : Change Octree Depth</li>
+    </ul>
+  </div>
 
-  #controls-overlay li {
-    margin-bottom: 6px;
-  }
-
-  #controls-overlay b {
-    color: #ffcc00; /* Highlights the keys */
-  }
-</style>
-
-<div id="controls-overlay">
-  <h3>Fly Controls (AZERTY)</h3>
-  <ul>
-    <li><b>Z / S</b> : Move Forward / Backward</li>
-    <li><b>Q / D</b> : Move Left / Right</li>
-    <li><b>R / F</b> : Move Up / Down</li>
-    <li><b>A / E</b> : Roll Left / Right</li>
-    <li><b>Arrows</b> : Pitch / Yaw (Turn Camera)</li>
-    <li><b>Left Click + Drag</b> : Look Around</li>
-  </ul>
-</div>
-
+  <script type="module" src="/src/main.js"></script>
 </body>
 </html>

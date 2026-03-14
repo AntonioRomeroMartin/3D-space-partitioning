@@ -21,8 +21,8 @@ export function createFlyControls(camera, domElement) {
   const controls = new FlyControls(camera, domElement);
 
   // Apply your preferred configurations here
-  controls.movementSpeed = 50.0;
-  controls.rollSpeed = 0.3;
+  controls.movementSpeed = 5.0;
+  controls.rollSpeed = 0.5;
   controls.dragToLook = true;
   controls.autoForward = false;
 

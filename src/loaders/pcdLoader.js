@@ -10,7 +10,7 @@ export function loadPointCloud(scene, datasetPath, onLoaded, onError) {
 
       console.log("Point cloud loaded");
 
-      points.geometry.center();
+      //points.geometry.center();
       scene.add(points);
 
       if (onLoaded) {
