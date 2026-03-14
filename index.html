@@ -3,20 +3,101 @@
 <head>
   <meta charset="UTF-8" />
   <title>3D Space Partitioning Viewer</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body { overflow: hidden; background: #000; }
+
+    #ui {
+      position: fixed;
+      top: 12px;
+      left: 12px;
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      font-family: sans-serif;
+      color: #f2f2f2;
+    }
+
+    #dataset-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    #controls-panel {
+      background: rgba(0, 0, 0, 0.55);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 6px;
+      padding: 10px 14px;
+      font-size: 12px;
+      line-height: 1.8;
+    }
+
+    #controls-panel table {
+      border-collapse: collapse;
+    }
+
+    #controls-panel td {
+      padding: 1px 8px 1px 0;
+    }
+
+    #controls-panel td:first-child {
+      color: #aad4ff;
+      font-weight: bold;
+      white-space: nowrap;
+    }
+
+    #controls-toggle {
+      background: none;
+      border: none;
+      color: #aad4ff;
+      font-size: 12px;
+      cursor: pointer;
+      padding: 0;
+      text-align: left;
+    }
+
+    #controls-toggle:hover {
+      color: #fff;
+    }
+  </style>
 </head>
 
 <body>
 
-  <label for="dataset" style="position: fixed; top: 12px; left: 12px; z-index: 10; color: #f2f2f2; font-family: sans-serif;">
-    Dataset:
-    <select id="dataset" style="margin-left: 6px;">
-      <option value="/data/ufo.pcd" selected>UFO</option>
-      <option value="/data/corridor_telin.pcd">Corridor Telin</option>
-      <option value="/data/hasselt.pcd">Hasselt</option>
-    </select>
-  </label>
+  <div id="ui">
 
-<script type="module" src="/src/main.js"></script>
+    <div id="dataset-row">
+      <label for="dataset">Dataset:</label>
+      <select id="dataset">
+        <option value="/data/ufo.pcd" selected>UFO</option>
+        <option value="/data/corridor_telin.pcd">Corridor Telin</option>
+        <option value="/data/hasselt.pcd">Hasselt</option>
+      </select>
+    </div>
+
+    <div id="controls-panel">
+      <button id="controls-toggle" onclick="
+        const t = document.getElementById('controls-table');
+        t.style.display = t.style.display === 'none' ? '' : 'none';
+        this.textContent = t.style.display === 'none' ? '▶ Controls' : '▼ Controls';
+      ">▼ Controls</button>
+      <table id="controls-table">
+        <tr><td>W / S</td><td>Forward / Backward</td></tr>
+        <tr><td>A / D</td><td>Strafe Left / Right</td></tr>
+        <tr><td>Q / E</td><td>Up / Down</td></tr>
+        <tr><td>Z / C</td><td>Roll Left / Right</td></tr>
+        <tr><td>↑ ↓ ← →</td><td>Pitch &amp; Yaw</td></tr>
+        <tr><td>Mouse drag</td><td>Look around</td></tr>
+        <tr><td>Shift</td><td>Slow mode</td></tr>
+      </table>
+    </div>
+
+  </div>
+
+  <script type="module" src="/src/main.js"></script>
 
 </body>
 </html>
