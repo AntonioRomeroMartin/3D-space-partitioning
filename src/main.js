@@ -9,7 +9,7 @@ import { getHeightColor } from "./viewer/colorRamp.js";
 
 import { loadPointCloud } from "./loaders/pcdLoader.js";
 import { Octree } from "./algorithms/ocTree.js";
-import { KDTree } from "./algorithms/kdTree.js"; // <--- ADD THIS LINE
+//import { KDTree } from "./algorithms/kdTree.js"; // <--- ADD THIS LINE
 
 import { TreeVisualizer } from "./viewer/visualizer.js";
 
