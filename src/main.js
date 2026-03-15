@@ -3,25 +3,34 @@ import * as THREE from "three";
 import { createScene } from "./viewer/scene.js";
 import { createCamera, fitCameraToObject } from "./viewer/camera.js";
 import { createRenderer } from "./viewer/renderer.js";
-import { createFlyControls } from "./viewer/controls.js";
+// Using your exact exports from controls.js
+import { createControls, createFlyControls } from "./viewer/controls.js"; 
 import { createLabeledAxes } from "./viewer/helpers.js";
 import { getHeightColor } from "./viewer/colorRamp.js"; 
 
 import { loadPointCloud } from "./loaders/pcdLoader.js";
 import { Octree } from "./algorithms/ocTree.js";
-//import { KDTree } from "./algorithms/kdTree.js"; // <--- ADD THIS LINE
 
 import { TreeVisualizer } from "./viewer/visualizer.js";
 
 const scene = createScene();
 const camera = createCamera();
 const renderer = createRenderer();
+
+// --- INITIALIZE BOTH CONTROLS ---
 const flyControls = createFlyControls(camera, renderer.domElement);
+const orbitControls = createControls(camera, renderer.domElement);
+
+// Set default states (Orbit is disabled to start)
+orbitControls.enabled = false;
+let activeCameraMode = "fly"; 
+
 const clock = new THREE.Clock();
 
 // --- DOM ELEMENTS ---
 const datasetSelect = document.getElementById("dataset");
-const algorithmSelect = document.getElementById("algorithm"); // NEW!
+const algorithmSelect = document.getElementById("algorithm");
+const cameraModeSelect = document.getElementById("camera-mode"); // Make sure this is in your index.html!
 const showAxesCheckbox = document.getElementById("show-axes");
 const showCubesCheckbox = document.getElementById("show-cubes");
 const showWireframesCheckbox = document.getElementById("show-wireframe");
@@ -32,7 +41,6 @@ let currentTree = null;
 let currentDepth = 1; 
 let globalZMin = 0;
 let globalZMax = 0;
-
 let currentPointCloud = null;
 let axes = null;
 
@@ -60,13 +68,25 @@ function syncAxesVisibility() {
   if (axes) axes.visible = !showAxesCheckbox || showAxesCheckbox.checked;
 }
 
+// --- CAMERA TOGGLE LOGIC ---
+function syncCameraMode() {
+  activeCameraMode = cameraModeSelect.value;
+  
+  if (activeCameraMode === "fly") {
+    orbitControls.enabled = false;
+    flyControls.enabled = true;
+  } else {
+    flyControls.enabled = false;
+    orbitControls.enabled = true;
+  }
+}
+
 // --- CORE LOGIC: LAZY LOADING TREES ---
 function buildOrGetTree() {
   if (!currentPointCloud) return;
 
   const activeAlgorithm = algorithmSelect ? algorithmSelect.value : "octree";
 
-  // 1. Check cache
   if (cachedTrees[activeAlgorithm]) {
     currentTree = cachedTrees[activeAlgorithm];
     currentDepth = 1; 
@@ -74,7 +94,6 @@ function buildOrGetTree() {
     return;
   }
 
-  // 2. Not cached? Get config and build!
   const positions = currentPointCloud.geometry.attributes.position.array;
   const config = datasetConfigs[datasetSelect.value] || { maxDepth: 6, maxPoints: 50 };
 
@@ -86,14 +105,13 @@ function buildOrGetTree() {
     cachedTrees.octree = currentTree;
   } 
   else if (activeAlgorithm === "kdtree") {
-    // CODE FOR BUILDING k-d TREE GOES HERE
-    currentTree = new KDTree(config.maxDepth, config.maxPoints);
-    currentTree.build(positions);
-    cachedTrees.kdtree = currentTree;
+    // Reverted to a warning for your teammates!
+    console.warn("k-d tree is not implemented yet!");
+    currentTree = null;
+    visualizer.clear();
     return;
   } 
   else if (activeAlgorithm === "bsp") {
-    // CODE FOR BUILDING BSP TREE GOES HERE
     console.warn("BSP tree is not implemented yet!");
     currentTree = null;
     visualizer.clear();
@@ -107,7 +125,9 @@ function buildOrGetTree() {
 function updateVisualization() {
   if (!currentTree) return;
   const activeNodes = currentTree.getNodesAtDepth(currentDepth);
-  visualizer.update(activeNodes, globalZMin, globalZMax);
+  
+  const activeAlgorithm = algorithmSelect ? algorithmSelect.value : "octree";
+  visualizer.update(activeNodes, globalZMin, globalZMax, activeAlgorithm);
 
   const depthDisplay = document.getElementById("depth-display");
   if (depthDisplay) depthDisplay.innerText = currentDepth;
@@ -134,12 +154,10 @@ function loadSelectedDataset() {
       const { center, size } = fitCameraToObject(camera, points);
       const axisScale = Math.max(size.x, size.y, size.z) / 2;
 
-      // 1. Z Bounds
       const boundingBox = new THREE.Box3().setFromObject(points);
       globalZMin = boundingBox.min.z;
       globalZMax = boundingBox.max.z;
 
-      // 2. Color the points globally
       const positions = points.geometry.attributes.position.array;
       const pointCount = points.geometry.attributes.position.count;
       const colors = new Float32Array(pointCount * 3);
@@ -159,7 +177,6 @@ function loadSelectedDataset() {
         vertexColors: true 
       });
 
-      // 3. Setup Axes
       if (axes) scene.remove(axes);
       axes = createLabeledAxes();
       axes.position.copy(center);
@@ -167,7 +184,10 @@ function loadSelectedDataset() {
       syncAxesVisibility();
       scene.add(axes);
 
-      // 4. CLEAR CACHE & BUILD ALGORITHM
+      // Tell orbit controls where to look so it orbits the center of the PCD
+      orbitControls.target.copy(center);
+      orbitControls.update(); // Initialize the orbit target
+
       cachedTrees = { octree: null, kdtree: null, bsp: null };
       buildOrGetTree();
 
@@ -184,7 +204,8 @@ if (showCubesCheckbox) showCubesCheckbox.addEventListener("change", syncTreeVisi
 if (showWireframesCheckbox) showWireframesCheckbox.addEventListener("change", syncTreeVisibility);
 if (showAxesCheckbox) showAxesCheckbox.addEventListener("change", syncAxesVisibility);
 if (datasetSelect) datasetSelect.addEventListener("change", loadSelectedDataset);
-if (algorithmSelect) algorithmSelect.addEventListener("change", buildOrGetTree); // Trigger when dropdown changes
+if (algorithmSelect) algorithmSelect.addEventListener("change", buildOrGetTree); 
+if (cameraModeSelect) cameraModeSelect.addEventListener("change", syncCameraMode);
 
 window.addEventListener("keydown", (event) => {
   if (!currentTree) return;
@@ -211,7 +232,14 @@ loadSelectedDataset();
 function animate() {
   requestAnimationFrame(animate);
   const delta = clock.getDelta();
-  flyControls.update(delta);
+  
+  // Conditionally update the active controls
+  if (activeCameraMode === "fly") {
+    flyControls.update(delta);
+  } else {
+    orbitControls.update();
+  }
+  
   renderer.render(scene, camera);
 }
 
