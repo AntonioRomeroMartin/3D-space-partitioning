@@ -21,7 +21,7 @@ export function fitCameraToObject(camera, object) {
   const size = box.getSize(new THREE.Vector3()).length();
   const center = box.getCenter(new THREE.Vector3());
 
-  const distance = size || 1;
+  const distance = (size || 1) * 1.25;
 
   camera.position.set(center.x, center.y, center.z + distance);
   camera.lookAt(center);

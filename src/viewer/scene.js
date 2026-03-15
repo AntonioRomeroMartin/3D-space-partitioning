@@ -14,7 +14,7 @@ export function createScene() {
   dirLight.position.set(50, 100, 50);
   scene.add(dirLight);
 
-  // Extra lampje vanaf de andere kant om te donkere schaduwen op te lichten
+  // Add a fill light from the opposite side to soften harsh shadows.
   const backLight = new THREE.DirectionalLight(0xffffff, 2.0);
   backLight.position.set(-50, 50, -50);
   scene.add(backLight);
