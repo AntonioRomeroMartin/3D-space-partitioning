@@ -2,12 +2,14 @@ import { createDatasetService } from "./services/datasetService.js";
 import { createPartitionService } from "./services/partitionService.js";
 
 import { Octree } from "./algorithms/ocTree.js";
+import { KdTree } from "./algorithms/kdTree.js";
 
 import { createScene } from "./viewer/scene.js";
 import { createCamera } from "./viewer/camera.js";
 import { createRenderer } from "./viewer/renderer.js";
 import { createControls } from "./viewer/controls.js";
 import { OctreeVisualizer } from "./viewer/visualizers/octreeVisualizer.js";
+import { KdTreeVisualizer } from "./viewer/visualizers/kdTreeVisualizer.js";
 
 const scene = createScene();
 const camera = createCamera();
@@ -23,7 +25,13 @@ const showCubesCheckbox = document.getElementById("show-cubes");
 const showWireframesCheckbox = document.getElementById("show-wireframe");
 
 // --- GLOBAL VARIABLES ---
-const visualizer = new OctreeVisualizer(scene);
+const octreeVisualizer = new OctreeVisualizer(scene);
+const kdTreeVisualizer = new KdTreeVisualizer(scene);
+
+const visualizersByAlgorithm = {
+  octree: octreeVisualizer,
+  kdtree: kdTreeVisualizer,
+};
 
 // --- CONFIGURATION & CACHING ---
 const datasetConfigs = {
@@ -41,6 +49,11 @@ const partitionService = createPartitionService({
       tree.build(positions);
       return tree;
     },
+    kdtree: (positions, config) => {
+      const tree = new KdTree(config.maxDepth, config.maxPoints);
+      tree.build(positions);
+      return tree;
+    },
   },
 });
 
@@ -48,6 +61,8 @@ const partitionService = createPartitionService({
 function syncTreeVisibility() {
   const showCubes = showCubesCheckbox ? showCubesCheckbox.checked : true;
   const showWireframes = showWireframesCheckbox ? showWireframesCheckbox.checked : true;
+  const activeAlgorithm = algorithmSelect ? algorithmSelect.value : "octree";
+  const visualizer = visualizersByAlgorithm[activeAlgorithm] || octreeVisualizer;
   visualizer.setVisibility(showCubes, showWireframes);
 }
 
@@ -70,7 +85,8 @@ function buildOrGetTree() {
 
   if (!result.supported) {
     console.warn(result.message);
-    visualizer.clear();
+    octreeVisualizer.clear();
+    kdTreeVisualizer.clear();
     return;
   }
 
@@ -84,8 +100,13 @@ function buildOrGetTree() {
 function updateVisualization() {
   if (!partitionService.getCurrentTree()) return;
 
+  octreeVisualizer.clear();
+  kdTreeVisualizer.clear();
+
   const activeNodes = partitionService.getActiveNodes();
   const { zMin, zMax } = datasetService.getHeightRange();
+  const activeAlgorithm = algorithmSelect ? algorithmSelect.value : "octree";
+  const visualizer = visualizersByAlgorithm[activeAlgorithm] || octreeVisualizer;
 
   visualizer.update(activeNodes, zMin, zMax);
 
@@ -98,7 +119,8 @@ async function loadSelectedDataset() {
   if (!datasetSelect) return;
   datasetSelect.disabled = true;
 
-  visualizer.clear();
+  octreeVisualizer.clear();
+  kdTreeVisualizer.clear();
   partitionService.clearCache();
 
   try {

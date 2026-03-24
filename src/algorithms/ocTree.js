@@ -1,22 +1,15 @@
 import { Box3, Vector3 } from "three";
-
-export class OctreeNode {
-  constructor(bounds, depth) {
-    this.bounds = bounds; // THREE.Box3 representing the spatial volume
-    this.depth = depth;   // How deep this node is in the tree (Root is 0)
-    this.children = [];   // Will hold up to 8 child OctreeNodes
-    this.points = [];     // Array of THREE.Vector3 points inside this node
-    this.isLeaf = true;   // True if it hasn't been split
-    this.pointCount = 0;
-
-  }
-}
+import { TreeNode } from "./treeNode.js";
 
 export class Octree {
   constructor(maxDepth, maxPointsPerNode) {
     this.maxDepth = maxDepth;
     this.maxPointsPerNode = maxPointsPerNode;
     this.root = null;
+
+    // Reused temporaries to reduce per-build allocations.
+    this._tmpSize = new Vector3();
+    this._tmpCenter = new Vector3();
   }
 
   /**
@@ -36,11 +29,11 @@ export class Octree {
     }
 
     // --- NEW: FORCE ROOT BOUNDS INTO A PERFECT CUBE ---
-    const size = new Vector3();
+    const size = this._tmpSize;
     bounds.getSize(size);
     const maxDim = Math.max(size.x, size.y, size.z); // Find the longest side
-    
-    const center = new Vector3();
+
+    const center = this._tmpCenter;
     bounds.getCenter(center);
 
     // Expand the box equally in all directions based on the longest side
@@ -49,7 +42,7 @@ export class Octree {
     // --------------------------------------------------
 
     // 2. Initialize the root node with the global bounds and all points
-    this.root = new OctreeNode(bounds, 0);
+    this.root = new TreeNode(bounds, 0);
     this.root.points = points;
 
     // 3. Begin the recursive splitting
@@ -69,8 +62,9 @@ export class Octree {
 
     node.isLeaf = false;
 
-    const center = new Vector3();
-    node.bounds.getCenter(center);
+    const centerX = (node.bounds.min.x + node.bounds.max.x) * 0.5;
+    const centerY = (node.bounds.min.y + node.bounds.max.y) * 0.5;
+    const centerZ = (node.bounds.min.z + node.bounds.max.z) * 0.5;
 
     // Create 8 empty buckets for our points
     const pointBuckets = Array.from({ length: 8 }, () => []);
@@ -78,9 +72,9 @@ export class Octree {
     // Distribute points into the 8 buckets based on their position relative to the center
     for (const point of node.points) {
       let octantIndex = 0;
-      if (point.x >= center.x) octantIndex |= 1; // Bit 0 represents X
-      if (point.y >= center.y) octantIndex |= 2; // Bit 1 represents Y
-      if (point.z >= center.z) octantIndex |= 4; // Bit 2 represents Z
+      if (point.x >= centerX) octantIndex |= 1; // Bit 0 represents X
+      if (point.y >= centerY) octantIndex |= 2; // Bit 1 represents Y
+      if (point.z >= centerZ) octantIndex |= 4; // Bit 2 represents Z
       
       pointBuckets[octantIndex].push(point);
     }
@@ -96,18 +90,18 @@ export class Octree {
         
         // Calculate the bounding box for this specific octant
         const childMin = new Vector3(
-          (i & 1) ? center.x : min.x,
-          (i & 2) ? center.y : min.y,
-          (i & 4) ? center.z : min.z
+          (i & 1) ? centerX : min.x,
+          (i & 2) ? centerY : min.y,
+          (i & 4) ? centerZ : min.z
         );
         const childMax = new Vector3(
-          (i & 1) ? max.x : center.x,
-          (i & 2) ? max.y : center.y,
-          (i & 4) ? max.z : center.z
+          (i & 1) ? max.x : centerX,
+          (i & 2) ? max.y : centerY,
+          (i & 4) ? max.z : centerZ
         );
 
         const childBounds = new Box3(childMin, childMax);
-        const childNode = new OctreeNode(childBounds, node.depth + 1);
+        const childNode = new TreeNode(childBounds, node.depth + 1);
         childNode.points = pointBuckets[i];
 
         node.children.push(childNode);
@@ -126,23 +120,26 @@ export class Octree {
    * This allows dynamic resolution changes in the viewer without rebuilding.
    */
   getNodesAtDepth(targetDepth) {
+    const safeDepth = Math.max(0, targetDepth | 0);
     const result = [];
-    this._collectNodesAtDepth(this.root, targetDepth, result);
+    if (!this.root) return result;
+
+    // Iterative DFS to keep logic in a single method while preserving node order.
+    const stack = [this.root];
+    while (stack.length > 0) {
+      const node = stack.pop();
+      if (!node) continue;
+
+      if (node.depth === safeDepth || node.isLeaf) {
+        result.push(node);
+        continue;
+      }
+
+      for (let i = node.children.length - 1; i >= 0; i--) {
+        stack.push(node.children[i]);
+      }
+    }
+
     return result;
-  }
-
-  _collectNodesAtDepth(node, targetDepth, result) {
-    if (!node) return;
-
-    // If we've reached the requested depth, OR if we hit a leaf early, collect it
-    if (node.depth === targetDepth || node.isLeaf) {
-      result.push(node);
-      return;
-    }
-
-    // Otherwise, keep digging
-    for (const child of node.children) {
-      this._collectNodesAtDepth(child, targetDepth, result);
-    }
   }
 }
