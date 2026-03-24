@@ -10,12 +10,11 @@ export function createDatasetService({ scene, camera, controls }) {
   let axes = null;
   let globalZMin = 0;
   let globalZMax = 0;
+  const datasetCache = new Map();
 
-  function clear() {
+  function clearCurrentView() {
     if (currentPointCloud) {
       scene.remove(currentPointCloud);
-      currentPointCloud.geometry.dispose();
-      currentPointCloud.material.dispose();
       currentPointCloud = null;
     }
 
@@ -23,6 +22,29 @@ export function createDatasetService({ scene, camera, controls }) {
       scene.remove(axes);
       axes = null;
     }
+  }
+
+  function disposePointCloud(points) {
+    if (!points) return;
+    if (points.geometry) points.geometry.dispose();
+    if (points.material) points.material.dispose();
+  }
+
+  function clear() {
+    clearCurrentView();
+
+    const uniquePointClouds = new Set();
+    for (const cached of datasetCache.values()) {
+      if (cached?.points) uniquePointClouds.add(cached.points);
+    }
+
+    for (const points of uniquePointClouds) {
+      disposePointCloud(points);
+    }
+
+    datasetCache.clear();
+    globalZMin = 0;
+    globalZMax = 0;
   }
 
   function colorizePointCloud(points) {
@@ -56,8 +78,36 @@ export function createDatasetService({ scene, camera, controls }) {
     scene.add(axes);
   }
 
+  function focusCameraOnBounds(center, size) {
+    const distance = (size.length() || 1) * 1.25;
+    camera.position.set(center.x, center.y, center.z + distance);
+    camera.lookAt(center);
+  }
+
   function load(datasetPath) {
-    clear();
+    clearCurrentView();
+
+    const cached = datasetCache.get(datasetPath);
+    if (cached) {
+      currentPointCloud = cached.points;
+      globalZMin = cached.zMin;
+      globalZMax = cached.zMax;
+
+      scene.add(currentPointCloud);
+      updateAxes(cached.center, cached.size);
+      focusCameraOnBounds(cached.center, cached.size);
+
+      controls.target.copy(cached.center);
+      controls.update();
+
+      return Promise.resolve({
+        points: currentPointCloud,
+        center: cached.center,
+        size: cached.size,
+        zMin: globalZMin,
+        zMax: globalZMax,
+      });
+    }
 
     return new Promise((resolve, reject) => {
       loadPointCloud(
@@ -78,10 +128,18 @@ export function createDatasetService({ scene, camera, controls }) {
           controls.target.copy(center);
           controls.update();
 
+          datasetCache.set(datasetPath, {
+            points,
+            center: center.clone(),
+            size: size.clone(),
+            zMin: globalZMin,
+            zMax: globalZMax,
+          });
+
           resolve({
             points,
-            center,
-            size,
+            center: center.clone(),
+            size: size.clone(),
             zMin: globalZMin,
             zMax: globalZMax,
           });

@@ -1,11 +1,10 @@
-import { Box3, Vector3 } from "three";
+import { Box3 } from "three";
 import { TreeNode } from "./treeNode.js";
+import { BaseTree } from "./baseTree.js";
 
-export class KdTree {
+export class KdTree extends BaseTree {
   constructor(maxDepth, maxPointsPerNode) {
-    this.maxDepth = maxDepth;
-    this.maxPointsPerNode = maxPointsPerNode;
-    this.root = null;
+    super(maxDepth, maxPointsPerNode);
   }
 
   /**
@@ -13,13 +12,10 @@ export class KdTree {
    * @param {Float32Array} positions
    */
   build(positions) {
-    const bounds = new Box3();
-    const points = [];
-
-    for (let i = 0; i < positions.length; i += 3) {
-      const point = new Vector3(positions[i], positions[i + 1], positions[i + 2]);
-      points.push(point);
-      bounds.expandByPoint(point);
+    const { points, bounds } = this._positionsToPointsAndBounds(positions);
+    if (points.length === 0) {
+      this.root = null;
+      return;
     }
 
     this.root = new TreeNode(bounds, 0);
@@ -30,8 +26,7 @@ export class KdTree {
 
   _splitNode(node) {
     if (node.depth >= this.maxDepth || node.points.length <= this.maxPointsPerNode) {
-      node.pointCount = node.points.length;
-      node.points = null;
+      this._finalizeLeaf(node);
       return;
     }
 
@@ -60,8 +55,7 @@ export class KdTree {
 
     // Degenerate split protection: stop if partition didn't separate points.
     if (leftPoints.length === 0 || rightPoints.length === 0) {
-      node.pointCount = node.points.length;
-      node.points = null;
+      this._finalizeLeaf(node);
       return;
     }
 
@@ -94,32 +88,5 @@ export class KdTree {
 
     this._splitNode(leftNode);
     this._splitNode(rightNode);
-  }
-
-  /**
-   * Returns occupied nodes at a target depth, or earlier leaves where branches end.
-   */
-  getNodesAtDepth(targetDepth) {
-    const safeDepth = Math.max(0, targetDepth | 0);
-    const result = [];
-    if (!this.root) return result;
-
-    const stack = [this.root];
-
-    while (stack.length > 0) {
-      const node = stack.pop();
-      if (!node) continue;
-
-      if (node.depth === safeDepth || node.isLeaf) {
-        result.push(node);
-        continue;
-      }
-
-      for (let i = node.children.length - 1; i >= 0; i--) {
-        stack.push(node.children[i]);
-      }
-    }
-
-    return result;
   }
 }

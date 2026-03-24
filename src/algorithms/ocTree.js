@@ -1,11 +1,10 @@
 import { Box3, Vector3 } from "three";
 import { TreeNode } from "./treeNode.js";
+import { BaseTree } from "./baseTree.js";
 
-export class Octree {
+export class Octree extends BaseTree {
   constructor(maxDepth, maxPointsPerNode) {
-    this.maxDepth = maxDepth;
-    this.maxPointsPerNode = maxPointsPerNode;
-    this.root = null;
+    super(maxDepth, maxPointsPerNode);
 
     // Reused temporaries to reduce per-build allocations.
     this._tmpSize = new Vector3();
@@ -17,16 +16,13 @@ export class Octree {
    * @param {Float32Array} positions - The raw position array from PCD geometry
    */
   build(positions) {
-    const bounds = new Box3();
-    const points = [];
-
-    // 1. Convert flat array [x,y,z, x,y,z] into Vector3s and find the global bounding box
-    for (let i = 0; i < positions.length; i += 3) {
-      const point = new Vector3(positions[i], positions[i + 1], positions[i + 2]);
-      points.push(point);
-      bounds.expandByPoint(point);
-
+    const { points, bounds } = this._positionsToPointsAndBounds(positions);
+    if (points.length === 0) {
+      this.root = null;
+      return;
     }
+
+    // 1. Convert to points and compute global bounds (shared in BaseTree)
 
     // --- NEW: FORCE ROOT BOUNDS INTO A PERFECT CUBE ---
     const size = this._tmpSize;
@@ -55,12 +51,9 @@ export class Octree {
   _splitNode(node) {
     // Stopping conditions: Reached max depth, or not enough points to justify a split
     if (node.depth >= this.maxDepth || node.points.length <= this.maxPointsPerNode) {
-            node.pointCount = node.points.length
-            node.points = null; // Free memory since we won't need the actual points anymore
+      this._finalizeLeaf(node);
       return;
     }
-
-    node.isLeaf = false;
 
     const centerX = (node.bounds.min.x + node.bounds.max.x) * 0.5;
     const centerY = (node.bounds.min.y + node.bounds.max.y) * 0.5;
@@ -75,9 +68,11 @@ export class Octree {
       if (point.x >= centerX) octantIndex |= 1; // Bit 0 represents X
       if (point.y >= centerY) octantIndex |= 2; // Bit 1 represents Y
       if (point.z >= centerZ) octantIndex |= 4; // Bit 2 represents Z
-      
+
       pointBuckets[octantIndex].push(point);
     }
+
+    node.isLeaf = false;
 
     // Create child nodes for each octant
     const min = node.bounds.min;
@@ -87,7 +82,7 @@ export class Octree {
       // We only create a child node if it actually contains points.
       // This is a crucial optimization to save memory.
       if (pointBuckets[i].length > 0) {
-        
+
         // Calculate the bounding box for this specific octant
         const childMin = new Vector3(
           (i & 1) ? centerX : min.x,
@@ -113,33 +108,5 @@ export class Octree {
 
     // Free up memory in the parent node since the children now own the points
     node.points = null;
-  }
-
-  /**
-   * Retrieves all occupied nodes at a specific depth level.
-   * This allows dynamic resolution changes in the viewer without rebuilding.
-   */
-  getNodesAtDepth(targetDepth) {
-    const safeDepth = Math.max(0, targetDepth | 0);
-    const result = [];
-    if (!this.root) return result;
-
-    // Iterative DFS to keep logic in a single method while preserving node order.
-    const stack = [this.root];
-    while (stack.length > 0) {
-      const node = stack.pop();
-      if (!node) continue;
-
-      if (node.depth === safeDepth || node.isLeaf) {
-        result.push(node);
-        continue;
-      }
-
-      for (let i = node.children.length - 1; i >= 0; i--) {
-        stack.push(node.children[i]);
-      }
-    }
-
-    return result;
   }
 }

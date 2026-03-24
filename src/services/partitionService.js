@@ -14,6 +14,10 @@ export function createPartitionService({ datasetConfigs, builders, defaultConfig
     reset();
   }
 
+  function getCacheKey(algorithm, datasetPath) {
+    return `${algorithm}::${datasetPath || "__no_dataset__"}`;
+  }
+
   function buildOrGetTree({ algorithm, datasetPath, pointCloud }) {
     if (!pointCloud) {
       return { supported: false, message: "No point cloud loaded." };
@@ -28,8 +32,10 @@ export function createPartitionService({ datasetConfigs, builders, defaultConfig
       };
     }
 
-    if (treeCache.has(algorithm)) {
-      currentTree = treeCache.get(algorithm);
+    const cacheKey = getCacheKey(algorithm, datasetPath);
+
+    if (treeCache.has(cacheKey)) {
+      currentTree = treeCache.get(cacheKey);
       currentDepth = 1;
       return {
         supported: true,
@@ -42,7 +48,7 @@ export function createPartitionService({ datasetConfigs, builders, defaultConfig
     const config = datasetConfigs[datasetPath] || defaultConfig;
     const tree = builder(positions, config);
 
-    treeCache.set(algorithm, tree);
+    treeCache.set(cacheKey, tree);
     currentTree = tree;
     currentDepth = 1;
 
