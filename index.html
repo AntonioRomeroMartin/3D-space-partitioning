@@ -4,21 +4,19 @@
   <meta charset="UTF-8" />
   <title>3D Space Partitioning Viewer</title>
   <style>
-    /* --- GLOBAL RESETS (Fixes scrollbars and white borders) --- */
     html, body {
       margin: 0;
       padding: 0;
       width: 100vw;
       height: 100vh;
-      overflow: hidden; /* Removes scrollbars completely */
+      overflow: hidden;
       background-color: #000000;
     }
 
     canvas {
-      display: block; /* Removes the tiny gap under inline canvases */
+      display: block;
     }
 
-    /* --- TOP LEFT CONTROLS CONTAINER --- */
     #top-controls {
       position: absolute;
       top: 20px;
@@ -32,7 +30,7 @@
       font-size: 14px;
       display: flex;
       flex-direction: column;
-      gap: 12px; /* Spaces out the checkboxes nicely */
+      gap: 12px;
     }
 
     #top-controls label {
@@ -50,7 +48,6 @@
       border-radius: 4px;
     }
 
-    /* --- OVERLAY PANELS --- */
     #controls-overlay,
     #project-credit {
       position: absolute;
@@ -61,7 +58,7 @@
       border-radius: 8px;
       font-family: monospace, sans-serif;
       z-index: 100;
-      pointer-events: none; /* Prevents blocking mouse drag */
+      pointer-events: none;
     }
 
     #controls-overlay {
@@ -71,7 +68,7 @@
     }
 
     #controls-overlay h2 {
-      color: #ffcc00; 
+      color: #ffcc00;
       margin: 0 0 10px 0;
       font-size: 18px;
     }
@@ -79,7 +76,7 @@
     #controls-overlay h3 {
       margin: 0 0 10px 0;
       font-size: 16px;
-      color: #4da6ff; 
+      color: #4da6ff;
       text-transform: uppercase;
       letter-spacing: 1px;
     }
@@ -96,14 +93,31 @@
 
     #controls-overlay b,
     #project-credit b {
-      color: #ffcc00; 
+      color: #ffcc00;
     }
 
-    /* --- BOTTOM RIGHT CREDIT --- */
     #project-credit {
       right: 20px;
       font-size: 12px;
       user-select: none;
+    }
+
+    #doc-link-btn {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      z-index: 1000;
+      padding: 6px 14px;
+      border-radius: 4px;
+      background: #222;
+      color: #ffcc00;
+      border: 1px solid #555;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    #doc-link-btn:hover {
+      background: #333;
     }
   </style>
 </head>
@@ -127,7 +141,7 @@
     <label for="show-cubes">
       <input id="show-cubes" type="checkbox" checked /> Show Solid Cubes
     </label>
-    
+
     <label for="show-wireframe">
       <input id="show-wireframe" type="checkbox" checked /> Show Wireframe
     </label>
@@ -140,11 +154,11 @@
         <option value="bsp">BSP Tree</option>
       </select>
     </label>
-
   </div>
 
-  <div id="controls-overlay">
+  <button id="doc-link-btn" onclick="window.open('/docs/index.html', '_blank')">Open Documentation</button>
 
+  <div id="controls-overlay">
     <h2>Current Depth: <span id="depth-display">1</span></h2>
     <h3>Camera Controls</h3>
     <ul>

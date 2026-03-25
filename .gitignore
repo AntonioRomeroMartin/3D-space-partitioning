@@ -16,8 +16,8 @@ space_partitioning_2026.pdf
 .DS_Store
 Thumbs.db
 
-# LaTeX report artifacts (track only sources and final PDF in doc/)
-doc/*
-!doc/*.tex
-!doc/*.pdf
+# Ignore all LaTeX build artifacts in report/ except .tex and .pdf
+report/*
+!report/*.tex
+!report/*.pdf
 

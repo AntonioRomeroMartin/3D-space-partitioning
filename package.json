@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "jsdoc": "jsdoc -c jsdoc.json -r src -d public/docs"
   },
   "keywords": [],
   "author": "",
@@ -15,6 +16,7 @@
     "three": "^0.183.2"
   },
   "devDependencies": {
+    "jsdoc": "^4.0.5",
     "vite": "^7.3.1"
   }
 }
