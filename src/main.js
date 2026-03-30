@@ -16,37 +16,63 @@ import { BspVisualizer } from "./viewer/visualizers/bspVisualizer.js";
 const scene = createScene();
 const camera = createCamera();
 const renderer = createRenderer();
-
 const controls = createControls(camera, renderer.domElement);
 
-// --- DOM ELEMENTS ---
-const datasetSelect = document.getElementById("dataset");
-const algorithmSelect = document.getElementById("algorithm");
-const showAxesCheckbox = document.getElementById("show-axes");
-const showCubesCheckbox = document.getElementById("show-cubes");
+// --- DOM ---
+const algorithmSelect        = document.getElementById("algorithm");
+const showAxesCheckbox       = document.getElementById("show-axes");
+const showCubesCheckbox      = document.getElementById("show-cubes");
 const showWireframesCheckbox = document.getElementById("show-wireframe");
-const depthDisplay = document.getElementById("depth-display");
+const depthDisplay           = document.getElementById("depth-display");
+const leafSizeDisplay        = document.getElementById("leaf-size-display");
+const datasetGroup           = document.getElementById("remote-dataset-group");
+const dropZone               = document.getElementById("drop-zone");
+const fileInput              = document.getElementById("file-input");
+const localFileTag           = document.getElementById("local-file-tag");
+const localFileName          = document.getElementById("local-file-name");
+const clearLocalFileBtn      = document.getElementById("clear-local-file");
+const loadingOverlay         = document.getElementById("loading-overlay");
+const loadingText            = document.getElementById("loading-text");
+const loadingProgress        = document.getElementById("loading-progress");
 
-// --- GLOBAL VARIABLES ---
-const octreeVisualizer = new OctreeVisualizer(scene);
-const kdTreeVisualizer = new KdTreeVisualizer(scene);
-const bspVisualizer = new BspVisualizer(scene);
+// --- DATASETS (single source of truth) ---
+const REMOTE_DATASETS = [
+  { path: "/data/ufo.pcd",             label: "UFO",      maxDepth: 8, maxPoints: 30  },
+  { path: "/data/corridor_telin.pcd",  label: "Corridor", maxDepth: 9, maxPoints: 20  },
+  { path: "/data/hasselt.pcd",         label: "Hasselt",  maxDepth: 8, maxPoints: 200 },
+];
+
+REMOTE_DATASETS.forEach(({ path, label }, i) => {
+  const btn = document.createElement("button");
+  btn.className = "dataset-btn" + (i === 0 ? " active" : "");
+  btn.dataset.path = path;
+  btn.textContent = label;
+  datasetGroup.appendChild(btn);
+});
+
+const remoteBtns = datasetGroup.querySelectorAll(".dataset-btn");
+
+// --- STATE ---
+const INITIAL_DATASET = REMOTE_DATASETS[0].path;
+let currentDatasetPath = INITIAL_DATASET;
+
+// --- VISUALIZERS ---
+const octreeVisualizer  = new OctreeVisualizer(scene);
+const kdTreeVisualizer  = new KdTreeVisualizer(scene);
+const bspVisualizer     = new BspVisualizer(scene);
 
 const visualizersByAlgorithm = {
   octree: octreeVisualizer,
   kdtree: kdTreeVisualizer,
-  bsp: bspVisualizer,
+  bsp:    bspVisualizer,
 };
-
 const allVisualizers = [octreeVisualizer, kdTreeVisualizer, bspVisualizer];
 
-// --- CONFIGURATION & CACHING ---
-const datasetConfigs = {
-  "/data/ufo.pcd": { maxDepth: 8, maxPoints: 30 },
-  "/data/corridor_telin.pcd": { maxDepth: 9, maxPoints: 20 },
-  "/data/hasselt.pcd": { maxDepth: 8, maxPoints: 200 }
-};
+const datasetConfigs = Object.fromEntries(
+  REMOTE_DATASETS.map(({ path, maxDepth, maxPoints }) => [path, { maxDepth, maxPoints }])
+);
 
+// --- SERVICES ---
 const datasetService = createDatasetService({ scene, camera, controls });
 const partitionService = createPartitionService({
   datasetConfigs,
@@ -69,12 +95,52 @@ const partitionService = createPartitionService({
   },
 });
 
+// --- LOADING OVERLAY ---
+function showLoading(text = "Loading…") {
+  loadingText.textContent = text;
+  loadingProgress.textContent = "";
+  loadingOverlay.classList.add("active");
+  if (leafSizeDisplay) leafSizeDisplay.textContent = "Leaf size: —";
+}
+
+function hideLoading() {
+  loadingOverlay.classList.remove("active");
+}
+
+function onLoadProgress(event) {
+  if (event.lengthComputable && event.total > 0) {
+    const pct = Math.round((event.loaded / event.total) * 100);
+    if (pct >= 100) {
+      loadingText.textContent = "Parsing…";
+      loadingProgress.textContent = "";
+    } else {
+      loadingProgress.textContent = `${pct}%`;
+    }
+  }
+}
+
+function nextFrame() {
+  return new Promise(r => requestAnimationFrame(() => setTimeout(r, 0)));
+}
+
+// --- HELPERS ---
+function computeLeafSize(nodes) {
+  if (!nodes || nodes.length === 0) return null;
+  let total = 0;
+  let count = 0;
+  for (const node of nodes) {
+    const { min, max } = node.bounds;
+    total += Math.cbrt((max.x - min.x) * (max.y - min.y) * (max.z - min.z));
+    count++;
+  }
+  return count > 0 ? total / count : null;
+}
+
 // --- VISUAL TOGGLES ---
 function syncTreeVisibility() {
   const showCubes = showCubesCheckbox ? showCubesCheckbox.checked : true;
   const showWireframes = showWireframesCheckbox ? showWireframesCheckbox.checked : true;
-  const activeAlgorithm = algorithmSelect ? algorithmSelect.value : "octree";
-  const visualizer = visualizersByAlgorithm[activeAlgorithm] || octreeVisualizer;
+  const visualizer = visualizersByAlgorithm[algorithmSelect?.value || "octree"] || octreeVisualizer;
   visualizer.setVisibility(showCubes, showWireframes);
 }
 
@@ -82,29 +148,31 @@ function syncAxesVisibility() {
   datasetService.setAxesVisible(!showAxesCheckbox || showAxesCheckbox.checked);
 }
 
-// --- CORE LOGIC: LAZY LOADING TREES ---
+function clearVisualizers() {
+  for (const visualizer of allVisualizers) visualizer.clear();
+}
+
+// --- TREE / VISUALIZATION ---
 function buildOrGetTree() {
   const pointCloud = datasetService.getPointCloud();
   if (!pointCloud) return;
 
-  const activeAlgorithm = algorithmSelect ? algorithmSelect.value : "octree";
+  const effectiveAlgorithm = algorithmSelect?.value || "octree";
 
   const result = partitionService.buildOrGetTree({
-    algorithm: activeAlgorithm,
-    datasetPath: datasetSelect?.value,
+    algorithm: effectiveAlgorithm,
+    datasetPath: currentDatasetPath,
     pointCloud,
   });
 
   if (!result.supported) {
     console.warn(result.message);
-    for (const visualizer of allVisualizers) {
-      visualizer.clear();
-    }
+    clearVisualizers();
     return;
   }
 
   if (!result.fromCache) {
-    console.log(`Building ${activeAlgorithm} with maxDepth: ${result.config.maxDepth}, maxPoints: ${result.config.maxPoints}...`);
+    console.log(`Building ${effectiveAlgorithm} with maxDepth: ${result.config.maxDepth}, maxPoints: ${result.config.maxPoints}...`);
   }
 
   updateVisualization();
@@ -113,44 +181,142 @@ function buildOrGetTree() {
 function updateVisualization() {
   if (!partitionService.getCurrentTree()) return;
 
-  for (const visualizer of allVisualizers) {
-    visualizer.clear();
-  }
+  clearVisualizers();
 
   const activeNodes = partitionService.getActiveNodes();
   const { zMin, zMax } = datasetService.getHeightRange();
-  const activeAlgorithm = algorithmSelect ? algorithmSelect.value : "octree";
-  const visualizer = visualizersByAlgorithm[activeAlgorithm] || octreeVisualizer;
+  const visualizer = visualizersByAlgorithm[algorithmSelect?.value || "octree"] || octreeVisualizer;
 
   visualizer.update(activeNodes, zMin, zMax);
 
   if (depthDisplay) depthDisplay.innerText = partitionService.getCurrentDepth();
+
+  if (leafSizeDisplay) {
+    const ls = computeLeafSize(activeNodes);
+    leafSizeDisplay.textContent = ls != null ? `Leaf size: ${ls.toFixed(3)}` : "Leaf size: —";
+  }
 }
 
-// --- DATA LOADING ---
-async function loadSelectedDataset() {
-  if (!datasetSelect) return;
-  datasetSelect.disabled = true;
+async function rebuildTree() {
+  const cached = partitionService.hasTree(algorithmSelect?.value || "octree", currentDatasetPath);
+  if (!cached) {
+    showLoading("Building tree…");
+    clearVisualizers();
+    await nextFrame();
+  }
+  buildOrGetTree();
+  if (!cached) hideLoading();
+}
 
-  for (const visualizer of allVisualizers) {
-    visualizer.clear();
+// --- DATASET SELECTION ---
+function setActiveRemoteBtn(path) {
+  remoteBtns.forEach(btn => btn.classList.toggle("active", btn.dataset.path === path));
+  localFileTag.style.display = "none";
+  currentDatasetPath = path;
+}
+
+async function loadRemoteDataset(path) {
+  const datasetCached = datasetService.hasDataset(path);
+  const treeCached = datasetCached && partitionService.hasTree(algorithmSelect?.value || "octree", path);
+  setActiveRemoteBtn(path);
+  if (!treeCached) {
+    showLoading(datasetCached ? "Building tree…" : `Loading ${path.split("/").pop()}…`);
+    clearVisualizers();
+  }
+  try {
+    await datasetService.load(path, onLoadProgress);
+    syncAxesVisibility();
+    if (!datasetCached) {
+      loadingText.textContent = "Building tree…";
+      await nextFrame();
+    }
+    buildOrGetTree();
+  } catch (err) {
+    console.error("Failed to load dataset:", err);
+    alert(`Could not load "${path.split("/").pop()}". See console for details.`);
+  } finally {
+    if (!treeCached) hideLoading();
+  }
+}
+
+async function loadLocalFile(file) {
+  if (!file.name.toLowerCase().endsWith(".pcd")) {
+    alert("Please select a valid .pcd file.");
+    return;
   }
 
+  // Show file tag, deselect remote buttons
+  remoteBtns.forEach(btn => btn.classList.remove("active"));
+  const displayName = file.name.length > 26 ? file.name.slice(0, 23) + "…" : file.name;
+  localFileName.textContent = displayName;
+  localFileTag.style.display = "flex";
+
+  currentDatasetPath = `__local__:${file.name}`;
+
+  showLoading(`Loading ${file.name}…`);
+  clearVisualizers();
+
   try {
-    await datasetService.load(datasetSelect.value);
+    await datasetService.load(file, onLoadProgress);
     syncAxesVisibility();
+    loadingText.textContent = "Building tree…";
+    await nextFrame();
     buildOrGetTree();
+  } catch (err) {
+    console.error("Failed to load local file:", err);
+    alert(`Could not load "${file.name}". Make sure it is a valid binary or ASCII PCD file.`);
+    localFileTag.style.display = "none";
+    // Revert to the default remote dataset
+    await loadRemoteDataset(INITIAL_DATASET);
   } finally {
-    datasetSelect.disabled = false;
+    hideLoading();
   }
 }
 
 // --- EVENT LISTENERS ---
+remoteBtns.forEach(btn => {
+  btn.addEventListener("click", () => {
+    const path = btn.dataset.path;
+    // Skip if already active and data is loaded
+    if (path === currentDatasetPath && datasetService.getPointCloud()) return;
+    loadRemoteDataset(path);
+  });
+});
+
+dropZone.addEventListener("click", () => fileInput.click());
+
+dropZone.addEventListener("dragover", (e) => {
+  e.preventDefault();
+  dropZone.classList.add("dragover");
+});
+
+dropZone.addEventListener("dragleave", (e) => {
+  if (!dropZone.contains(e.relatedTarget)) {
+    dropZone.classList.remove("dragover");
+  }
+});
+
+dropZone.addEventListener("drop", (e) => {
+  e.preventDefault();
+  dropZone.classList.remove("dragover");
+  const file = e.dataTransfer.files[0];
+  if (file) loadLocalFile(file);
+});
+
+fileInput.addEventListener("change", () => {
+  const file = fileInput.files[0];
+  if (file) loadLocalFile(file);
+  fileInput.value = ""; // reset so same file can be picked again
+});
+
+clearLocalFileBtn.addEventListener("click", () => {
+  loadRemoteDataset(INITIAL_DATASET);
+});
+
 showCubesCheckbox?.addEventListener("change", syncTreeVisibility);
 showWireframesCheckbox?.addEventListener("change", syncTreeVisibility);
 showAxesCheckbox?.addEventListener("change", syncAxesVisibility);
-datasetSelect?.addEventListener("change", loadSelectedDataset);
-algorithmSelect?.addEventListener("change", buildOrGetTree);
+algorithmSelect?.addEventListener("change", rebuildTree);
 
 window.addEventListener("keydown", (event) => {
   if (!partitionService.getCurrentTree()) return;
@@ -170,13 +336,12 @@ window.addEventListener("resize", function () {
   camera.updateProjectionMatrix();
 });
 
-// INIT
-loadSelectedDataset();
+// --- INIT ---
+loadRemoteDataset(INITIAL_DATASET);
 
 function animate() {
   requestAnimationFrame(animate);
   controls.update();
-  
   renderer.render(scene, camera);
 }
 

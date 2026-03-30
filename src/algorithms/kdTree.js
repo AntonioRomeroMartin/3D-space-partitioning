@@ -34,12 +34,9 @@ export class KdTree extends BaseTree {
     const min = node.bounds.min;
     const max = node.bounds.max;
 
-    // Midpoint split keeps build cost low and works well for interactive exploration.
-    const splitValue = axis === 0
-      ? (min.x + max.x) * 0.5
-      : axis === 1
-      ? (min.y + max.y) * 0.5
-      : (min.z + max.z) * 0.5;
+    const coords = node.points.map(p => axis === 0 ? p.x : axis === 1 ? p.y : p.z);
+    coords.sort((a, b) => a - b);
+    const splitValue = coords[Math.floor(coords.length / 2)];
 
     const leftPoints = [];
     const rightPoints = [];

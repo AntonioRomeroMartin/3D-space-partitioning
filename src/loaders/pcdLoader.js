@@ -1,33 +1,26 @@
 import { PCDLoader } from "three/addons/loaders/PCDLoader.js";
 
-export function loadPointCloud(scene, datasetPath, onLoaded, onError) {
+/**
+ * Loads a PCD point cloud from a remote URL path or a local File object.
+ * @param {THREE.Scene} scene
+ * @param {string|File} source - URL string or File from a file input / drag & drop
+ */
+export function loadPointCloud(scene, source, onLoaded, onError, onProgress) {
+  const isFile = source instanceof File;
+  const url = isFile ? URL.createObjectURL(source) : source;
 
-  const loader = new PCDLoader();
-
-  loader.load(
-    datasetPath,
-    function (points) {
-
-      console.log("Point cloud loaded");
-
-      //points.geometry.center();
+  new PCDLoader().load(
+    url,
+    (points) => {
+      if (isFile) URL.revokeObjectURL(url);
       scene.add(points);
-
-      if (onLoaded) {
-        onLoaded(points);
-      }
-
+      if (onLoaded) onLoaded(points);
     },
-    undefined,
-    function (error) {
-
+    onProgress,
+    (error) => {
+      if (isFile) URL.revokeObjectURL(url);
       console.error("Error loading PCD:", error);
-
-      if (onError) {
-        onError(error);
-      }
-
+      if (onError) onError(error);
     }
   );
-
 }

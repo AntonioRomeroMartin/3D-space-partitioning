@@ -17,7 +17,6 @@ export function createDatasetService({ scene, camera, controls }) {
       scene.remove(currentPointCloud);
       currentPointCloud = null;
     }
-
     if (axes) {
       scene.remove(axes);
       axes = null;
@@ -32,16 +31,13 @@ export function createDatasetService({ scene, camera, controls }) {
 
   function clear() {
     clearCurrentView();
-
     const uniquePointClouds = new Set();
     for (const cached of datasetCache.values()) {
       if (cached?.points) uniquePointClouds.add(cached.points);
     }
-
     for (const points of uniquePointClouds) {
       disposePointCloud(points);
     }
-
     datasetCache.clear();
     globalZMin = 0;
     globalZMax = 0;
@@ -70,7 +66,6 @@ export function createDatasetService({ scene, camera, controls }) {
 
   function updateAxes(center, size) {
     if (axes) scene.remove(axes);
-
     const axisScale = Math.max(size.x, size.y, size.z) / 2;
     axes = createLabeledAxes();
     axes.position.copy(center);
@@ -84,22 +79,27 @@ export function createDatasetService({ scene, camera, controls }) {
     camera.lookAt(center);
   }
 
-  function load(datasetPath) {
+  /**
+   * Loads a point cloud from a remote URL string or a local File object.
+   * Remote datasets are cached; local files are not.
+   * @param {string|File} source
+   */
+  function load(source, onProgress) {
+    const isFile = source instanceof File;
+    const cacheKey = isFile ? null : source;
+
     clearCurrentView();
 
-    const cached = datasetCache.get(datasetPath);
-    if (cached) {
+    if (cacheKey && datasetCache.has(cacheKey)) {
+      const cached = datasetCache.get(cacheKey);
       currentPointCloud = cached.points;
       globalZMin = cached.zMin;
       globalZMax = cached.zMax;
-
       scene.add(currentPointCloud);
       updateAxes(cached.center, cached.size);
       focusCameraOnBounds(cached.center, cached.size);
-
       controls.target.copy(cached.center);
       controls.update();
-
       return Promise.resolve({
         points: currentPointCloud,
         center: cached.center,
@@ -112,39 +112,30 @@ export function createDatasetService({ scene, camera, controls }) {
     return new Promise((resolve, reject) => {
       loadPointCloud(
         scene,
-        datasetPath,
+        source,
         (points) => {
           currentPointCloud = points;
-
           const { center, size } = fitCameraToObject(camera, points);
           const boundingBox = new THREE.Box3().setFromObject(points);
-
           globalZMin = boundingBox.min.z;
           globalZMax = boundingBox.max.z;
-
           colorizePointCloud(points);
           updateAxes(center, size);
-
           controls.target.copy(center);
           controls.update();
-
-          datasetCache.set(datasetPath, {
-            points,
-            center: center.clone(),
-            size: size.clone(),
-            zMin: globalZMin,
-            zMax: globalZMax,
-          });
-
-          resolve({
-            points,
-            center: center.clone(),
-            size: size.clone(),
-            zMin: globalZMin,
-            zMax: globalZMax,
-          });
+          if (cacheKey) {
+            datasetCache.set(cacheKey, {
+              points,
+              center: center.clone(),
+              size: size.clone(),
+              zMin: globalZMin,
+              zMax: globalZMax,
+            });
+          }
+          resolve({ points, center: center.clone(), size: size.clone(), zMin: globalZMin, zMax: globalZMax });
         },
         reject,
+        onProgress
       );
     });
   }
@@ -161,11 +152,16 @@ export function createDatasetService({ scene, camera, controls }) {
     return { zMin: globalZMin, zMax: globalZMax };
   }
 
+  function hasDataset(path) {
+    return datasetCache.has(path);
+  }
+
   return {
     clear,
     load,
     setAxesVisible,
     getPointCloud,
     getHeightRange,
+    hasDataset,
   };
 }

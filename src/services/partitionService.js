@@ -86,6 +86,10 @@ export function createPartitionService({ datasetConfigs, builders, defaultConfig
     return currentTree;
   }
 
+  function hasTree(algorithm, datasetPath) {
+    return treeCache.has(getCacheKey(algorithm, datasetPath));
+  }
+
   return {
     buildOrGetTree,
     changeDepth,
@@ -93,5 +97,6 @@ export function createPartitionService({ datasetConfigs, builders, defaultConfig
     getActiveNodes,
     getCurrentDepth,
     getCurrentTree,
+    hasTree,
   };
 }
