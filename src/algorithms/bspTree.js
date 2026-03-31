@@ -1,15 +1,27 @@
-import { Box3, Vector3 } from "three";
+import { Box3 } from "three";
 import { TreeNode } from "./treeNode.js";
 import { BaseTree } from "./baseTree.js";
 
+/**
+ * BSP (Binary Space Partitioning) tree spatial partitioning structure.
+ *
+ * Recursively splits the point cloud using planes aligned to the principal axis (PCA) of the points in each node.
+ * Each split divides the node into two children (front and back) until the maximum depth or minimum point threshold is reached.
+ *
+ * @extends BaseTree
+ */
 export class BspTree extends BaseTree {
+  /**
+   * @param {number} maxDepth - Maximum recursion depth.
+   * @param {number} maxPointsPerNode - Leaf threshold.
+   */
   constructor(maxDepth, maxPointsPerNode) {
     super(maxDepth, maxPointsPerNode);
-    this._tmpSize = new Vector3();
   }
 
   /**
-   * Builds a BSP tree from a flat positions array [x,y,z, x,y,z, ...].
+   * Builds the BSP tree from a flat interleaved position array.
+   * @param {Float32Array} positions - Flat [x,y,z, …] array from PCD geometry.
    */
   build(positions) {
     const { points, bounds } = this._positionsToPointsAndBounds(positions);
@@ -24,45 +36,104 @@ export class BspTree extends BaseTree {
     this._splitNode(this.root);
   }
 
+  /**
+   * Converts a flat positions array into an array of Vector3 points and a bounding box.
+   * Stores the original geometry index on each point for later use by the visualizer.
+   * @param {Float32Array} positions - Flat [x,y,z, …] array.
+   * @returns {{ points: THREE.Vector3[], bounds: THREE.Box3 }}
+   * @protected
+   */
+  _positionsToPointsAndBounds(positions) {
+    const result = super._positionsToPointsAndBounds(positions);
+    for (let i = 0; i < result.points.length; i++) {
+      result.points[i].originalIndex = i;
+    }
+    return result;
+  }
+
+  /**
+   * Marks a node as a leaf, records its point count, and stores only the geometry indices as a typed array.
+   * @param {TreeNode} node
+   * @protected
+   */
+  _finalizeLeaf(node) {
+    node.isLeaf = true;
+    const pts = node.points;
+    const n = pts ? pts.length : 0;
+    node.pointCount = n;
+    const indices = new Int32Array(n);
+    for (let i = 0; i < n; i++) indices[i] = pts[i].originalIndex;
+    node.indices = indices;
+    node.points = null;
+  }
+
+  /**
+   * Computes the principal axis (dominant eigenvector) of the covariance matrix of the points using power iteration.
+   * Returns the axis (nx, ny, nz) and the centroid (ox, oy, oz) as the split origin.
+   * @param {THREE.Vector3[]} points
+   * @returns {{ nx: number, ny: number, nz: number, ox: number, oy: number, oz: number }}
+   * @protected
+   */
+  _computePrincipalAxis(points) {
+    const n = points.length;
+
+    // Extract to flat arrays and compute centroid in one pass.
+    const xs = new Float32Array(n);
+    const ys = new Float32Array(n);
+    const zs = new Float32Array(n);
+    let mx = 0, my = 0, mz = 0;
+    for (let i = 0; i < n; i++) {
+      const p = points[i];
+      xs[i] = p.x; ys[i] = p.y; zs[i] = p.z;
+      mx += p.x; my += p.y; mz += p.z;
+    }
+    mx /= n; my /= n; mz /= n;
+
+    let cxx = 0, cyy = 0, czz = 0, cxy = 0, cxz = 0, cyz = 0;
+    for (let i = 0; i < n; i++) {
+      const dx = xs[i] - mx, dy = ys[i] - my, dz = zs[i] - mz;
+      cxx += dx * dx; cyy += dy * dy; czz += dz * dz;
+      cxy += dx * dy; cxz += dx * dz; cyz += dy * dz;
+    }
+
+    let vx = 1, vy = 0, vz = 0;
+    for (let i = 0; i < 20; i++) {
+      const nx = cxx * vx + cxy * vy + cxz * vz;
+      const ny = cxy * vx + cyy * vy + cyz * vz;
+      const nz = cxz * vx + cyz * vy + czz * vz;
+      const len = Math.sqrt(nx * nx + ny * ny + nz * nz);
+      if (len < 1e-10) break;
+      vx = nx / len; vy = ny / len; vz = nz / len;
+    }
+
+    return { nx: vx, ny: vy, nz: vz, ox: mx, oy: my, oz: mz };
+  }
+
+  /**
+   * Recursively splits a node using a plane aligned to the principal axis of its points.
+   * Each split produces two children (front and back) until the stopping criteria are met.
+   * @param {TreeNode} node
+   * @protected
+   */
   _splitNode(node) {
     if (node.depth >= this.maxDepth || node.points.length <= this.maxPointsPerNode) {
       this._finalizeLeaf(node);
       return;
     }
 
-    const min = node.bounds.min;
-    const max = node.bounds.max;
+    const { nx, ny, nz, ox, oy, oz } = this._computePrincipalAxis(node.points);
+    node.splitPlane = { nx, ny, nz, ox, oy, oz };
 
-    node.bounds.getSize(this._tmpSize);
-
-    // BSP split plane: choose the longest axis, then split at midpoint.
-    let axis = 0;
-    if (this._tmpSize.y > this._tmpSize.x && this._tmpSize.y >= this._tmpSize.z) {
-      axis = 1;
-    } else if (this._tmpSize.z > this._tmpSize.x && this._tmpSize.z >= this._tmpSize.y) {
-      axis = 2;
+    // Classify, split, and compute tight bounding boxes in one pass.
+    const frontPoints = [], backPoints = [];
+    const frontBounds = new Box3(), backBounds = new Box3();
+    for (const p of node.points) {
+      const dot = (p.x - ox) * nx + (p.y - oy) * ny + (p.z - oz) * nz;
+      if (dot >= 0) { frontPoints.push(p); frontBounds.expandByPoint(p); }
+      else           { backPoints.push(p);  backBounds.expandByPoint(p);  }
     }
 
-    const splitValue =
-      axis === 0
-        ? (min.x + max.x) * 0.5
-        : axis === 1
-          ? (min.y + max.y) * 0.5
-          : (min.z + max.z) * 0.5;
-
-    const frontPoints = [];
-    const backPoints = [];
-
-    for (const point of node.points) {
-      const coordinate = axis === 0 ? point.x : axis === 1 ? point.y : point.z;
-      if (coordinate < splitValue) {
-        backPoints.push(point);
-      } else {
-        frontPoints.push(point);
-      }
-    }
-
-    // Degenerate split protection: no partition, keep as leaf.
+    // Degenerate split: keep as leaf.
     if (frontPoints.length === 0 || backPoints.length === 0) {
       this._finalizeLeaf(node);
       return;
@@ -70,26 +141,10 @@ export class BspTree extends BaseTree {
 
     node.isLeaf = false;
 
-    const backMin = min.clone();
-    const backMax = max.clone();
-    const frontMin = min.clone();
-    const frontMax = max.clone();
-
-    if (axis === 0) {
-      backMax.x = splitValue;
-      frontMin.x = splitValue;
-    } else if (axis === 1) {
-      backMax.y = splitValue;
-      frontMin.y = splitValue;
-    } else {
-      backMax.z = splitValue;
-      frontMin.z = splitValue;
-    }
-
-    const backNode = new TreeNode(new Box3(backMin, backMax), node.depth + 1);
+    const backNode = new TreeNode(backBounds, node.depth + 1);
     backNode.points = backPoints;
 
-    const frontNode = new TreeNode(new Box3(frontMin, frontMax), node.depth + 1);
+    const frontNode = new TreeNode(frontBounds, node.depth + 1);
     frontNode.points = frontPoints;
 
     node.children.push(backNode, frontNode);

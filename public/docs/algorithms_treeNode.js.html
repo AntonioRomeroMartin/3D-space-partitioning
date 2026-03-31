@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Source: viewer/helpers/colorRamp.js</title>
+    <title>JSDoc: Source: algorithms/treeNode.js</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,7 +17,7 @@
 
 <div id="main">
 
-    <h1 class="page-title">Source: viewer/helpers/colorRamp.js</h1>
+    <h1 class="page-title">Source: algorithms/treeNode.js</h1>
 
     
 
@@ -26,18 +26,32 @@
     
     <section>
         <article>
-            <pre class="prettyprint source linenums"><code>import * as THREE from "three";
-
-/**
- * Maps a Z value to a color ranging from Purple/Blue (low) to Orange/Red (high)
+            <pre class="prettyprint source linenums"><code>/**
+ * A single node in a spatial partitioning tree (Octree, k-d Tree, or BSP Tree).
+ * Internal nodes store child references; leaf nodes store point counts and,
+ * for BSP trees, a typed index array into the original geometry buffer.
  */
-export function getHeightColor(z, zMin, zMax, outColor) {
-  const range = zMax - zMin || 1;
-  const normalizedZ = Math.max(0, Math.min(1, (z - zMin) / range));
-  // Hue 0.7 (purple/blue) → 0.0 (red) across the HSL wheel as Z goes low → high
-  const hue = 0.7 - (normalizedZ * 0.7);
-  outColor.setHSL(hue, 1.0, 0.5);
-}</code></pre>
+export class TreeNode {
+  /**
+   * @param {THREE.Box3} bounds - Axis-aligned bounding box for this node's region.
+   * @param {number} depth - Depth of this node in the tree (root = 0).
+   */
+  constructor(bounds, depth) {
+    /** @type {THREE.Box3} Axis-aligned bounding box of this node's spatial region. */
+    this.bounds = bounds;
+    /** @type {number} Depth of this node (root = 0). */
+    this.depth = depth;
+    /** @type {TreeNode[]} Child nodes. Empty for leaf nodes. */
+    this.children = [];
+    /** @type {THREE.Vector3[]|null} Points held during construction; nulled out after splitting. */
+    this.points = [];
+    /** @type {boolean} True if this node has no children (is a leaf). */
+    this.isLeaf = true;
+    /** @type {number} Number of points contained in this leaf. */
+    this.pointCount = 0;
+  }
+}
+</code></pre>
         </article>
     </section>
 

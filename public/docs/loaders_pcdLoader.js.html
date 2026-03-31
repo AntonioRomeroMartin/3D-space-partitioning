@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Home</title>
+    <title>JSDoc: Source: loaders/pcdLoader.js</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,32 +17,44 @@
 
 <div id="main">
 
-    <h1 class="page-title">Home</h1>
+    <h1 class="page-title">Source: loaders/pcdLoader.js</h1>
 
     
 
 
 
     
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import { PCDLoader } from "three/addons/loaders/PCDLoader.js";
 
+/**
+ * Loads a PCD point cloud from a remote URL path or a local File object.
+ * @param {THREE.Scene} scene
+ * @param {string|File} source - URL string or File from a file input / drag &amp; drop
+ */
+export function loadPointCloud(scene, source, onLoaded, onError, onProgress) {
+  const isFile = source instanceof File;
+  const url = isFile ? URL.createObjectURL(source) : source;
 
-    <h3> </h3>
-
-
-
-
-
-
-
-
-
-
-    
-
-
-
-
-
+  new PCDLoader().load(
+    url,
+    (points) => {
+      if (isFile) URL.revokeObjectURL(url);
+      scene.add(points);
+      if (onLoaded) onLoaded(points);
+    },
+    onProgress,
+    (error) => {
+      if (isFile) URL.revokeObjectURL(url);
+      console.error("Error loading PCD:", error);
+      if (onError) onError(error);
+    }
+  );
+}
+</code></pre>
+        </article>
+    </section>
 
 
 

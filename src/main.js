@@ -34,12 +34,21 @@ const clearLocalFileBtn      = document.getElementById("clear-local-file");
 const loadingOverlay         = document.getElementById("loading-overlay");
 const loadingText            = document.getElementById("loading-text");
 const loadingProgress        = document.getElementById("loading-progress");
+const showCubesLabel         = showCubesCheckbox?.closest("label");
+const showWireframeLabel     = showWireframesCheckbox?.closest("label");
+
+function currentAlgorithm() {
+  return algorithmSelect?.value || "octree";
+}
 
 // --- DATASETS (single source of truth) ---
+// Use VITE_DATASETS_URL env variable if defined (Vercel), otherwise use /data for local development
+const DATASETS_BASE_URL =
+  import.meta.env.VITE_DATASETS_URL ?? "/data";
 const REMOTE_DATASETS = [
-  { path: "/data/ufo.pcd",             label: "UFO",      maxDepth: 8, maxPoints: 30  },
-  { path: "/data/corridor_telin.pcd",  label: "Corridor", maxDepth: 9, maxPoints: 20  },
-  { path: "/data/hasselt.pcd",         label: "Hasselt",  maxDepth: 8, maxPoints: 200 },
+  { path: `${DATASETS_BASE_URL}/ufo.pcd`,            label: "UFO",      maxDepth: 8, maxPoints: 30  },
+  { path: `${DATASETS_BASE_URL}/corridor_telin.pcd`, label: "Corridor", maxDepth: 9, maxPoints: 20  },
+  { path: `${DATASETS_BASE_URL}/hasselt.pcd`,        label: "Hasselt",  maxDepth: 8, maxPoints: 200 },
 ];
 
 REMOTE_DATASETS.forEach(({ path, label }, i) => {
@@ -136,11 +145,17 @@ function computeLeafSize(nodes) {
   return count > 0 ? total / count : null;
 }
 
+function syncControlsForAlgorithm() {
+  const isBsp = currentAlgorithm() === "bsp";
+  if (showCubesLabel) showCubesLabel.style.display = isBsp ? "none" : "";
+  if (showWireframeLabel) showWireframeLabel.lastChild.nodeValue = isBsp ? " Planes" : " Wireframe";
+}
+
 // --- VISUAL TOGGLES ---
 function syncTreeVisibility() {
   const showCubes = showCubesCheckbox ? showCubesCheckbox.checked : true;
   const showWireframes = showWireframesCheckbox ? showWireframesCheckbox.checked : true;
-  const visualizer = visualizersByAlgorithm[algorithmSelect?.value || "octree"] || octreeVisualizer;
+  const visualizer = visualizersByAlgorithm[currentAlgorithm()] || octreeVisualizer;
   visualizer.setVisibility(showCubes, showWireframes);
 }
 
@@ -157,7 +172,7 @@ function buildOrGetTree() {
   const pointCloud = datasetService.getPointCloud();
   if (!pointCloud) return;
 
-  const effectiveAlgorithm = algorithmSelect?.value || "octree";
+  const effectiveAlgorithm = currentAlgorithm();
 
   const result = partitionService.buildOrGetTree({
     algorithm: effectiveAlgorithm,
@@ -185,9 +200,13 @@ function updateVisualization() {
 
   const activeNodes = partitionService.getActiveNodes();
   const { zMin, zMax } = datasetService.getHeightRange();
-  const visualizer = visualizersByAlgorithm[algorithmSelect?.value || "octree"] || octreeVisualizer;
+  const visualizer = visualizersByAlgorithm[currentAlgorithm()] || octreeVisualizer;
 
-  visualizer.update(activeNodes, zMin, zMax);
+  visualizer.update(
+    activeNodes, zMin, zMax, datasetService.getPointCloud(),
+    partitionService.getCurrentTree()?.root,
+    partitionService.getCurrentDepth()
+  );
 
   if (depthDisplay) depthDisplay.innerText = partitionService.getCurrentDepth();
 
@@ -198,7 +217,8 @@ function updateVisualization() {
 }
 
 async function rebuildTree() {
-  const cached = partitionService.hasTree(algorithmSelect?.value || "octree", currentDatasetPath);
+  syncControlsForAlgorithm();
+  const cached = partitionService.hasTree(currentAlgorithm(), currentDatasetPath);
   if (!cached) {
     showLoading("Building tree…");
     clearVisualizers();
@@ -217,7 +237,7 @@ function setActiveRemoteBtn(path) {
 
 async function loadRemoteDataset(path) {
   const datasetCached = datasetService.hasDataset(path);
-  const treeCached = datasetCached && partitionService.hasTree(algorithmSelect?.value || "octree", path);
+  const treeCached = datasetCached && partitionService.hasTree(currentAlgorithm(), path);
   setActiveRemoteBtn(path);
   if (!treeCached) {
     showLoading(datasetCached ? "Building tree…" : `Loading ${path.split("/").pop()}…`);
@@ -337,7 +357,7 @@ window.addEventListener("resize", function () {
 });
 
 // --- INIT ---
-loadRemoteDataset(INITIAL_DATASET);
+syncControlsForAlgorithm();
 
 function animate() {
   requestAnimationFrame(animate);
@@ -346,3 +366,4 @@ function animate() {
 }
 
 animate();
+loadRemoteDataset(INITIAL_DATASET);

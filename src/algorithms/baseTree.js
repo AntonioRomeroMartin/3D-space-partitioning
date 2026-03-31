@@ -1,22 +1,46 @@
 import { Box3, Vector3 } from "three";
 
+/**
+ * Abstract base class for all spatial partitioning trees.
+ * Provides shared construction helpers and the depth-based node query used by visualizers.
+ * Subclasses must implement {@link BaseTree#build} and {@link BaseTree#_splitNode}.
+ */
 export class BaseTree {
+  /**
+   * @param {number} maxDepth - Maximum depth the tree may grow to.
+   * @param {number} maxPointsPerNode - A node with this many points or fewer becomes a leaf.
+   */
   constructor(maxDepth, maxPointsPerNode) {
+    /** @type {number} Maximum allowed depth. */
     this.maxDepth = maxDepth;
+    /** @type {number} Point threshold below which a node is finalized as a leaf. */
     this.maxPointsPerNode = maxPointsPerNode;
+    /** @type {TreeNode|null} Root node, set after {@link BaseTree#build} is called. */
     this.root = null;
   }
 
+  /**
+   * Builds the tree from a flat interleaved position array.
+   * @param {Float32Array} positions - Flat [x,y,z, x,y,z, …] array from a BufferGeometry.
+   */
   build(positions) {
     throw new Error("BaseTree.build() must be implemented by subclasses.");
   }
 
+  /**
+   * Recursively splits a node into children according to the algorithm's strategy.
+   * @param {TreeNode} node
+   */
   _splitNode(node) {
     throw new Error("BaseTree._splitNode() must be implemented by subclasses.");
   }
 
   /**
-   * Returns occupied nodes at a target depth, or earlier leaves where branches end.
+   * Returns all nodes that should be rendered at a given display depth.
+   * Nodes exactly at `targetDepth` are included; nodes shallower than `targetDepth`
+   * that are already leaves are also included so the tree always appears complete.
+   * @param {number} targetDepth
+   * @returns {TreeNode[]}
    */
   getNodesAtDepth(targetDepth) {
     const safeDepth = Math.max(0, targetDepth | 0);
@@ -42,12 +66,21 @@ export class BaseTree {
     return result;
   }
 
+  /**
+   * Marks a node as a leaf, records its point count, and frees the point array.
+   * @param {TreeNode} node
+   */
   _finalizeLeaf(node) {
     node.isLeaf = true;
     node.pointCount = node.points ? node.points.length : 0;
     node.points = null;
   }
 
+  /**
+   * Converts a flat positions array into an array of Vector3 points and a bounding box.
+   * @param {Float32Array} positions - Flat [x,y,z, …] array.
+   * @returns {{ points: THREE.Vector3[], bounds: THREE.Box3 }}
+   */
   _positionsToPointsAndBounds(positions) {
     const bounds = new Box3();
     const points = [];

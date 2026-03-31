@@ -2,18 +2,29 @@ import { Box3, Vector3 } from "three";
 import { TreeNode } from "./treeNode.js";
 import { BaseTree } from "./baseTree.js";
 
+/**
+ * Octree spatial partitioning structure.
+ *
+ * Recursively divides a cubic region into 8 equal octants along all three axes
+ * simultaneously. Each split produces up to 8 children, one per octant that
+ * contains at least one point. The root bounds are forced into a perfect cube
+ * so all child cells remain axis-aligned cubes at every depth level.
+ *
+ * @extends BaseTree
+ */
 export class Octree extends BaseTree {
+  /**
+   * @param {number} maxDepth - Maximum recursion depth.
+   * @param {number} maxPointsPerNode - Leaf threshold.
+   */
   constructor(maxDepth, maxPointsPerNode) {
     super(maxDepth, maxPointsPerNode);
-
-    // Reused temporaries to reduce per-build allocations.
-    this._tmpSize = new Vector3();
-    this._tmpCenter = new Vector3();
   }
 
   /**
-   * Kicks off the tree building process.
-   * @param {Float32Array} positions - The raw position array from PCD geometry
+   * Builds the Octree from a flat interleaved position array.
+   * The global bounding box is expanded to a perfect cube before splitting begins.
+   * @param {Float32Array} positions - Flat [x,y,z, …] array from PCD geometry.
    */
   build(positions) {
     const { points, bounds } = this._positionsToPointsAndBounds(positions);
@@ -22,14 +33,12 @@ export class Octree extends BaseTree {
       return;
     }
 
-    // 1. Convert to points and compute global bounds (shared in BaseTree)
-
-    // --- NEW: FORCE ROOT BOUNDS INTO A PERFECT CUBE ---
-    const size = this._tmpSize;
+    // --- FORCE ROOT BOUNDS INTO A PERFECT CUBE ---
+    const size = new Vector3();
     bounds.getSize(size);
-    const maxDim = Math.max(size.x, size.y, size.z); // Find the longest side
+    const maxDim = Math.max(size.x, size.y, size.z);
 
-    const center = this._tmpCenter;
+    const center = new Vector3();
     bounds.getCenter(center);
 
     // Expand the box equally in all directions based on the longest side
@@ -46,7 +55,10 @@ export class Octree extends BaseTree {
   }
 
   /**
-   * The core recursive function that divides a node into 8 octants.
+   * Recursively divides a node into up to 8 octants.
+   * Points are assigned to octants using bitwise flags on the X, Y, Z axes.
+   * Only octants that contain at least one point produce a child node.
+   * @param {TreeNode} node - The node to split.
    */
   _splitNode(node) {
     // Stopping conditions: Reached max depth, or not enough points to justify a split

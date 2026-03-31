@@ -2,14 +2,30 @@ import { Box3 } from "three";
 import { TreeNode } from "./treeNode.js";
 import { BaseTree } from "./baseTree.js";
 
+/**
+ * k-d Tree spatial partitioning structure.
+ *
+ * At each level the splitting axis cycles through X → Y → Z (depth % 3).
+ * The split plane is placed at the midpoint of the current node's bounding box
+ * along the active axis, giving O(n log n) total build time. Points are
+ * partitioned into a left child (coord < splitValue) and a right child
+ * (coord ≥ splitValue); degenerate splits that produce an empty side
+ * finalize the node as a leaf instead.
+ *
+ * @extends BaseTree
+ */
 export class KdTree extends BaseTree {
+  /**
+   * @param {number} maxDepth - Maximum recursion depth.
+   * @param {number} maxPointsPerNode - Leaf threshold.
+   */
   constructor(maxDepth, maxPointsPerNode) {
     super(maxDepth, maxPointsPerNode);
   }
 
   /**
-   * Builds a k-d tree from a flat positions array [x,y,z, x,y,z, ...].
-   * @param {Float32Array} positions
+   * Builds the k-d tree from a flat interleaved position array.
+   * @param {Float32Array} positions - Flat [x,y,z, …] array from PCD geometry.
    */
   build(positions) {
     const { points, bounds } = this._positionsToPointsAndBounds(positions);
@@ -34,23 +50,22 @@ export class KdTree extends BaseTree {
     const min = node.bounds.min;
     const max = node.bounds.max;
 
-    const coords = node.points.map(p => axis === 0 ? p.x : axis === 1 ? p.y : p.z);
-    coords.sort((a, b) => a - b);
-    const splitValue = coords[Math.floor(coords.length / 2)];
+    // Midpoint split: O(1) to compute, O(n) to partition — keeps total build at O(n log n).
+    const splitValue = axis === 0
+      ? (min.x + max.x) * 0.5
+      : axis === 1
+      ? (min.y + max.y) * 0.5
+      : (min.z + max.z) * 0.5;
 
     const leftPoints = [];
     const rightPoints = [];
 
     for (const point of node.points) {
-      const coordinate = axis === 0 ? point.x : axis === 1 ? point.y : point.z;
-      if (coordinate < splitValue) {
-        leftPoints.push(point);
-      } else {
-        rightPoints.push(point);
-      }
+      const coord = axis === 0 ? point.x : axis === 1 ? point.y : point.z;
+      if (coord < splitValue) leftPoints.push(point);
+      else rightPoints.push(point);
     }
 
-    // Degenerate split protection: stop if partition didn't separate points.
     if (leftPoints.length === 0 || rightPoints.length === 0) {
       this._finalizeLeaf(node);
       return;
