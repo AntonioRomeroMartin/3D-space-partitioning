@@ -43,3 +43,19 @@ npm run dev
 
 - Antonio Romero Martín
 - Siebe Ternest
+
+## Datasets (Point Clouds)
+
+To use the application with example point clouds, you need to place the `.pcd` files in the following folder:
+
+```
+public/data/
+```
+
+You can download the example datasets from the following GitHub Release:
+
+[https://github.com/AntonioRomeroMartin/3D-space-partitioning/releases/tag/datasets](https://github.com/AntonioRomeroMartin/3D-space-partitioning/releases/tag/datasets)
+
+After downloading, copy the `.pcd` files (e.g., `ufo.pcd`, `hasselt.pcd`, `corridor_telin.pcd`) into the `public/data/` directory of the project.
+
+When you run the app locally, it will automatically load the datasets from this folder.
