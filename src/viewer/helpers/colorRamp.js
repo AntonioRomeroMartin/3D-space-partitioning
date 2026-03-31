@@ -1,7 +1,15 @@
+/** @module viewer/helpers/colorRamp */
+
 import * as THREE from "three";
 
 /**
- * Maps a Z value to a color ranging from Purple/Blue (low) to Orange/Red (high)
+ * Maps a Z coordinate to a color on the blue → red HSL gradient.
+ * Low Z values map to hue 0.7 (purple/blue); high Z values map to hue 0.0 (red).
+ * The result is written into `outColor` to avoid allocating a new Color object per point.
+ * @param {number} z - The Z coordinate of the point.
+ * @param {number} zMin - Minimum Z in the dataset (maps to blue).
+ * @param {number} zMax - Maximum Z in the dataset (maps to red).
+ * @param {THREE.Color} outColor - Color instance to write the result into.
  */
 export function getHeightColor(z, zMin, zMax, outColor) {
   const range = zMax - zMin || 1;

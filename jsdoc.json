@@ -5,6 +5,16 @@
   },
   "opts": {
     "destination": "public/docs",
-    "recurse": true
+    "recurse": true,
+    "readme": "README.md",
+    "template": "node_modules/docdash"
+  },
+  "plugins": ["plugins/markdown"],
+  "docdash": {
+    "sort": true,
+    "collapse": true,
+    "removeQuotes": "none",
+    "scripts": [],
+    "menu": {}
   }
 }

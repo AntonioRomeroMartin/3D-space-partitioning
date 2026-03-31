@@ -1,23 +1,42 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    
     <meta charset="utf-8">
-    <title>JSDoc: Source: algorithms/kdTree.js</title>
-
-    <script src="scripts/prettify/prettify.js"> </script>
-    <script src="scripts/prettify/lang-css.js"> </script>
+    <title>algorithms/kdTree.js - Documentation</title>
+    
+    
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
     <!--[if lt IE 9]>
       <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
-    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
-    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+    <link type="text/css" rel="stylesheet" href="styles/prettify.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc.css">
+    <script src="scripts/nav.js" defer></script>
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
-
 <body>
 
-<div id="main">
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
 
-    <h1 class="page-title">Source: algorithms/kdTree.js</h1>
+<label for="nav-trigger" class="overlay"></label>
+
+<nav >
+    
+    
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="BaseTree.html">BaseTree</a><ul class='methods'><li data-type='method' style='display: none;'><a href="BaseTree.html#_finalizeLeaf">_finalizeLeaf</a></li><li data-type='method' style='display: none;'><a href="BaseTree.html#_finalizeLeaf">_finalizeLeaf</a></li><li data-type='method' style='display: none;'><a href="BaseTree.html#_positionsToPointsAndBounds">_positionsToPointsAndBounds</a></li><li data-type='method' style='display: none;'><a href="BaseTree.html#_positionsToPointsAndBounds">_positionsToPointsAndBounds</a></li><li data-type='method' style='display: none;'><a href="BaseTree.html#_splitNode">_splitNode</a></li><li data-type='method' style='display: none;'><a href="BaseTree.html#_splitNode">_splitNode</a></li><li data-type='method' style='display: none;'><a href="BaseTree.html#build">build</a></li><li data-type='method' style='display: none;'><a href="BaseTree.html#build">build</a></li><li data-type='method' style='display: none;'><a href="BaseTree.html#getNodesAtDepth">getNodesAtDepth</a></li><li data-type='method' style='display: none;'><a href="BaseTree.html#getNodesAtDepth">getNodesAtDepth</a></li></ul></li><li></li><li><a href="BspTree.html">BspTree</a><ul class='methods'><li data-type='method' style='display: none;'><a href="BspTree.html#_computePrincipalAxis">_computePrincipalAxis</a></li><li data-type='method' style='display: none;'><a href="BspTree.html#_computePrincipalAxis">_computePrincipalAxis</a></li><li data-type='method' style='display: none;'><a href="BspTree.html#_finalizeLeaf">_finalizeLeaf</a></li><li data-type='method' style='display: none;'><a href="BspTree.html#_finalizeLeaf">_finalizeLeaf</a></li><li data-type='method' style='display: none;'><a href="BspTree.html#_positionsToPointsAndBounds">_positionsToPointsAndBounds</a></li><li data-type='method' style='display: none;'><a href="BspTree.html#_positionsToPointsAndBounds">_positionsToPointsAndBounds</a></li><li data-type='method' style='display: none;'><a href="BspTree.html#_splitNode">_splitNode</a></li><li data-type='method' style='display: none;'><a href="BspTree.html#_splitNode">_splitNode</a></li><li data-type='method' style='display: none;'><a href="BspTree.html#build">build</a></li><li data-type='method' style='display: none;'><a href="BspTree.html#build">build</a></li><li data-type='method' style='display: none;'><a href="BspTree.html#getNodesAtDepth">getNodesAtDepth</a></li></ul></li><li></li><li><a href="BspVisualizer.html">BspVisualizer</a><ul class='methods'><li data-type='method' style='display: none;'><a href="BspVisualizer.html#clear">clear</a></li><li data-type='method' style='display: none;'><a href="BspVisualizer.html#clear">clear</a></li><li data-type='method' style='display: none;'><a href="BspVisualizer.html#setVisibility">setVisibility</a></li><li data-type='method' style='display: none;'><a href="BspVisualizer.html#setVisibility">setVisibility</a></li><li data-type='method' style='display: none;'><a href="BspVisualizer.html#update">update</a></li><li data-type='method' style='display: none;'><a href="BspVisualizer.html#update">update</a></li></ul></li><li></li><li><a href="KdTree.html">KdTree</a><ul class='methods'><li data-type='method' style='display: none;'><a href="KdTree.html#_finalizeLeaf">_finalizeLeaf</a></li><li data-type='method' style='display: none;'><a href="KdTree.html#_positionsToPointsAndBounds">_positionsToPointsAndBounds</a></li><li data-type='method' style='display: none;'><a href="KdTree.html#_splitNode">_splitNode</a></li><li data-type='method' style='display: none;'><a href="KdTree.html#_splitNode">_splitNode</a></li><li data-type='method' style='display: none;'><a href="KdTree.html#build">build</a></li><li data-type='method' style='display: none;'><a href="KdTree.html#build">build</a></li><li data-type='method' style='display: none;'><a href="KdTree.html#getNodesAtDepth">getNodesAtDepth</a></li></ul></li><li></li><li><a href="KdTreeVisualizer.html">KdTreeVisualizer</a><ul class='methods'><li data-type='method' style='display: none;'><a href="KdTreeVisualizer.html#clear">clear</a></li><li data-type='method' style='display: none;'><a href="KdTreeVisualizer.html#getNodeColor">getNodeColor</a></li><li data-type='method' style='display: none;'><a href="KdTreeVisualizer.html#getNodeColor">getNodeColor</a></li><li data-type='method' style='display: none;'><a href="KdTreeVisualizer.html#setVisibility">setVisibility</a></li><li data-type='method' style='display: none;'><a href="KdTreeVisualizer.html#update">update</a></li></ul></li><li></li><li><a href="Octree.html">Octree</a><ul class='methods'><li data-type='method' style='display: none;'><a href="Octree.html#_finalizeLeaf">_finalizeLeaf</a></li><li data-type='method' style='display: none;'><a href="Octree.html#_positionsToPointsAndBounds">_positionsToPointsAndBounds</a></li><li data-type='method' style='display: none;'><a href="Octree.html#_splitNode">_splitNode</a></li><li data-type='method' style='display: none;'><a href="Octree.html#_splitNode">_splitNode</a></li><li data-type='method' style='display: none;'><a href="Octree.html#build">build</a></li><li data-type='method' style='display: none;'><a href="Octree.html#build">build</a></li><li data-type='method' style='display: none;'><a href="Octree.html#getNodesAtDepth">getNodesAtDepth</a></li></ul></li><li></li><li><a href="OctreeVisualizer.html">OctreeVisualizer</a><ul class='methods'><li data-type='method' style='display: none;'><a href="OctreeVisualizer.html#clear">clear</a></li><li data-type='method' style='display: none;'><a href="OctreeVisualizer.html#getNodeColor">getNodeColor</a></li><li data-type='method' style='display: none;'><a href="OctreeVisualizer.html#getNodeColor">getNodeColor</a></li><li data-type='method' style='display: none;'><a href="OctreeVisualizer.html#setVisibility">setVisibility</a></li><li data-type='method' style='display: none;'><a href="OctreeVisualizer.html#update">update</a></li></ul></li><li></li><li><a href="TreeNode.html">TreeNode</a></li><li></li><li><a href="TreeVisualizer.html">TreeVisualizer</a><ul class='methods'><li data-type='method' style='display: none;'><a href="TreeVisualizer.html#clear">clear</a></li><li data-type='method' style='display: none;'><a href="TreeVisualizer.html#clear">clear</a></li><li data-type='method' style='display: none;'><a href="TreeVisualizer.html#getNodeColor">getNodeColor</a></li><li data-type='method' style='display: none;'><a href="TreeVisualizer.html#getNodeColor">getNodeColor</a></li><li data-type='method' style='display: none;'><a href="TreeVisualizer.html#setVisibility">setVisibility</a></li><li data-type='method' style='display: none;'><a href="TreeVisualizer.html#setVisibility">setVisibility</a></li><li data-type='method' style='display: none;'><a href="TreeVisualizer.html#update">update</a></li><li data-type='method' style='display: none;'><a href="TreeVisualizer.html#update">update</a></li></ul></li><li></li></ul><h3>Modules</h3><ul><li><a href="module-loaders_pcdLoader.html">loaders/pcdLoader</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-loaders_pcdLoader.html#.loadPointCloud">loadPointCloud</a></li><li data-type='method' style='display: none;'><a href="module-loaders_pcdLoader.html#.loadPointCloud">loadPointCloud</a></li></ul></li><li></li><li><a href="module-services_datasetService.html">services/datasetService</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-services_datasetService.html#.createDatasetService">createDatasetService</a></li><li data-type='method' style='display: none;'><a href="module-services_datasetService.html#.createDatasetService">createDatasetService</a></li></ul></li><li></li><li><a href="module-services_partitionService.html">services/partitionService</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-services_partitionService.html#.createPartitionService">createPartitionService</a></li><li data-type='method' style='display: none;'><a href="module-services_partitionService.html#.createPartitionService">createPartitionService</a></li></ul></li><li></li><li><a href="module-viewer_camera.html">viewer/camera</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-viewer_camera.html#.createCamera">createCamera</a></li><li data-type='method' style='display: none;'><a href="module-viewer_camera.html#.createCamera">createCamera</a></li><li data-type='method' style='display: none;'><a href="module-viewer_camera.html#.fitCameraToObject">fitCameraToObject</a></li><li data-type='method' style='display: none;'><a href="module-viewer_camera.html#.fitCameraToObject">fitCameraToObject</a></li></ul></li><li></li><li><a href="module-viewer_controls.html">viewer/controls</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-viewer_controls.html#.createControls">createControls</a></li><li data-type='method' style='display: none;'><a href="module-viewer_controls.html#.createControls">createControls</a></li></ul></li><li></li><li><a href="module-viewer_helpers_axes.html">viewer/helpers/axes</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-viewer_helpers_axes.html#.createLabeledAxes">createLabeledAxes</a></li><li data-type='method' style='display: none;'><a href="module-viewer_helpers_axes.html#.createLabeledAxes">createLabeledAxes</a></li></ul></li><li></li><li><a href="module-viewer_helpers_colorRamp.html">viewer/helpers/colorRamp</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-viewer_helpers_colorRamp.html#.getHeightColor">getHeightColor</a></li><li data-type='method' style='display: none;'><a href="module-viewer_helpers_colorRamp.html#.getHeightColor">getHeightColor</a></li></ul></li><li></li><li><a href="module-viewer_renderer.html">viewer/renderer</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-viewer_renderer.html#.createRenderer">createRenderer</a></li><li data-type='method' style='display: none;'><a href="module-viewer_renderer.html#.createRenderer">createRenderer</a></li></ul></li><li></li><li><a href="module-viewer_scene.html">viewer/scene</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-viewer_scene.html#.createScene">createScene</a></li><li data-type='method' style='display: none;'><a href="module-viewer_scene.html#.createScene">createScene</a></li></ul></li><li></li></ul><h3>Global</h3><ul><li><a href="global.html#collectSplitPlanes">collectSplitPlanes</a></li><li><a href="global.html#gatherIndices">gatherIndices</a></li></ul>
+    
+</nav>
+
+<div id="main">
+    
+    <h1 class="page-title">algorithms/kdTree.js</h1>
+    
 
     
 
@@ -68,6 +87,11 @@ export class KdTree extends BaseTree {
     this._splitNode(this.root);
   }
 
+  /**
+   * Recursively splits a node by the bounding-box midpoint along the current axis.
+   * Degenerate splits (all points fall on one side) finalize the node as a leaf.
+   * @param {TreeNode} node - The node to split.
+   */
   _splitNode(node) {
     if (node.depth >= this.maxDepth || node.points.length &lt;= this.maxPointsPerNode) {
       this._finalizeLeaf(node);
@@ -137,19 +161,23 @@ export class KdTree extends BaseTree {
 
 
 
+    
+    
 </div>
-
-<nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="BaseTree.html">BaseTree</a></li><li><a href="BspTree.html">BspTree</a></li><li><a href="KdTree.html">KdTree</a></li><li><a href="Octree.html">Octree</a></li><li><a href="TreeNode.html">TreeNode</a></li></ul><h3>Global</h3><ul><li><a href="global.html#getHeightColor">getHeightColor</a></li><li><a href="global.html#loadPointCloud">loadPointCloud</a></li></ul>
-</nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.5</a> on Tue Mar 31 2026 14:21:29 GMT+0200 (hora de verano de Europa central)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 4.0.5</a> on Tue Mar 31 2026 22:43:12 GMT+0200 (Central European Summer Time) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
 </footer>
 
-<script> prettyPrint(); </script>
-<script src="scripts/linenumber.js"> </script>
+<script>prettyPrint();</script>
+<script src="scripts/polyfill.js"></script>
+<script src="scripts/linenumber.js"></script>
+
+
+<script src="scripts/collapse.js" defer></script>
+
+
 </body>
 </html>

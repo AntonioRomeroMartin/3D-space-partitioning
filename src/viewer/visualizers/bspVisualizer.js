@@ -1,5 +1,13 @@
 import * as THREE from "three";
 
+/**
+ * Recursively collects all geometry indices from the leaves of a BSP subtree.
+ * Uses an imperative accumulator to avoid intermediate array allocations.
+ * @param {TreeNode} node
+ * @param {number[]} out - Accumulator array to push indices into.
+ * @returns {number[]}
+ * @inner
+ */
 function gatherIndices(node, out = []) {
   if (node.isLeaf) {
     const idx = node.indices;
@@ -10,13 +18,34 @@ function gatherIndices(node, out = []) {
   return out;
 }
 
+/**
+ * Recursively collects all internal BSP nodes up to (but not including) `maxDepth`.
+ * Each collected node carries a `splitPlane` property used to render the cutting plane.
+ * @param {TreeNode} node
+ * @param {number} maxDepth - Display depth; only nodes with depth < maxDepth are included.
+ * @param {TreeNode[]} result - Accumulator array.
+ * @inner
+ */
 function collectSplitPlanes(node, maxDepth, result) {
   if (!node || node.isLeaf || node.depth >= maxDepth) return;
   if (node.splitPlane) result.push(node);
   for (const child of node.children) collectSplitPlanes(child, maxDepth, result);
 }
 
+/**
+ * Visualizer for the BSP Tree algorithm.
+ *
+ * Unlike the Octree/KdTree visualizers, BSP does not render bounding boxes.
+ * Instead it directly recolors the existing point cloud geometry buffer,
+ * assigning each leaf cell a distinct HSL color. Split planes are rendered
+ * as semi-transparent {@link THREE.InstancedMesh} quads oriented to the PCA normal.
+ *
+ * On {@link BspVisualizer#clear}, the original height-ramp colors are restored.
+ */
 export class BspVisualizer {
+  /**
+   * @param {THREE.Scene} scene
+   */
   constructor(scene) {
     this.scene = scene;
     this.planeMesh = null;
@@ -40,6 +69,11 @@ export class BspVisualizer {
     });
   }
 
+  /**
+   * Controls point cloud and split-plane visibility independently.
+   * @param {boolean} showSolid - Whether the recolored point cloud is visible.
+   * @param {boolean} showWireframe - Whether the split-plane quads are visible.
+   */
   setVisibility(showSolid, showWireframe) {
     this.showSolid = showSolid;
     this.showWireframe = showWireframe;
@@ -47,6 +81,15 @@ export class BspVisualizer {
     if (this.planeMesh) this.planeMesh.visible = showWireframe;
   }
 
+  /**
+   * Recolors the point cloud per BSP leaf cell and renders the split planes.
+   * @param {TreeNode[]} nodes - Active leaf nodes at the current display depth.
+   * @param {number} _zMin - Unused (required for interface compatibility).
+   * @param {number} _zMax - Unused (required for interface compatibility).
+   * @param {THREE.Points} pointCloud - The loaded point cloud whose color buffer is rewritten.
+   * @param {TreeNode|null} treeRoot - Root of the BSP tree, used to traverse for split planes.
+   * @param {number} depth - Current display depth; planes at depth < this value are shown.
+   */
   update(nodes, _zMin, _zMax, pointCloud, treeRoot, depth) {
     this.clear();
     if (!nodes || nodes.length === 0) return;
@@ -101,6 +144,9 @@ export class BspVisualizer {
     }
   }
 
+  /**
+   * Restores the original height-ramp colors on the point cloud and removes split-plane meshes.
+   */
   clear() {
     if (this._coloredPointCloud && this._originalColors) {
       const colorAttr = this._coloredPointCloud.geometry.attributes.color;

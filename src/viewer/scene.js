@@ -1,5 +1,12 @@
+/** @module viewer/scene */
+
 import * as THREE from "three";
 
+/**
+ * Creates the Three.js scene with a dark background and a three-point lighting rig:
+ * an ambient light, a key directional light, and a fill directional light.
+ * @returns {THREE.Scene}
+ */
 export function createScene() {
 
   const scene = new THREE.Scene();

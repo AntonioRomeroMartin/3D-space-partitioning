@@ -1,2766 +1,3028 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    
     <meta charset="utf-8">
-    <title>JSDoc: Class: KdTree</title>
-
-    <script src="scripts/prettify/prettify.js"> </script>
-    <script src="scripts/prettify/lang-css.js"> </script>
+    <title>KdTree - Documentation</title>
+    
+    
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
     <!--[if lt IE 9]>
       <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
-    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
-    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+    <link type="text/css" rel="stylesheet" href="styles/prettify.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc.css">
+    <script src="scripts/nav.js" defer></script>
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
-
 <body>
 
-<div id="main">
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
 
-    <h1 class="page-title">Class: KdTree</h1>
+<label for="nav-trigger" class="overlay"></label>
 
+<nav >
     
-
-
-
-
-<section>
-
-<header>
-    
-        <h2><span class="attribs"><span class="type-signature"></span></span>
-            <span class="ancestors"><a href="KdTree.html">KdTree</a></span>KdTree<span class="signature">(maxDepth, maxPointsPerNode)</span><span class="type-signature"></span></h2>
-        
-            <div class="class-description">k-d Tree spatial partitioning structure.
-
-At each level the splitting axis cycles through X → Y → Z (depth % 3).
-The split plane is placed at the midpoint of the current node's bounding box
-along the active axis, giving O(n log n) total build time. Points are
-partitioned into a left child (coord < splitValue) and a right child
-(coord ≥ splitValue); degenerate splits that produce an empty side
-finalize the node as a leaf instead.</div>
-        
-    
-</header>
-
-<article>
-    <div class="container-overview">
-    
-        
-
-    
-    <h2>Constructor</h2>
-    
-
-    
-    <h4 class="name" id="KdTree"><span class="type-signature"></span>new KdTree<span class="signature">(maxDepth, maxPointsPerNode)</span><span class="type-signature"></span></h4>
-    
-
-    
-
-
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>maxDepth</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">number</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">Maximum recursion depth.</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>maxPointsPerNode</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">number</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">Leaf threshold.</td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="algorithms_kdTree.js.html">algorithms/kdTree.js</a>, <a href="algorithms_kdTree.js.html#line17">line 17</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    
-    </div>
-
-    
-        <h3 class="subsection-title">Extends</h3>
-
-        
-
-
-    <ul>
-        <li><a href="BaseTree.html">BaseTree</a></li>
-    </ul>
-
-
-    
-
-    
-
-    
-        <h3 class="subsection-title">Classes</h3>
-
-        <dl>
-            <dt><a href="KdTree.html">KdTree</a></dt>
-            <dd></dd>
-        
-            <dt><a href="KdTree.html">KdTree</a></dt>
-            <dd></dd>
-        </dl>
-    
-
-    
-
-    
-
-    
-
-    
-        <h3 class="subsection-title">Members</h3>
-
-        
-            
-<h4 class="name" id="maxDepth"><span class="type-signature"></span>maxDepth<span class="type-signature"> :number</span></h4>
-
-
-
-
-<div class="description">
-    Maximum allowed depth.
-</div>
-
-
-
-    <h5>Type:</h5>
-    <ul>
-        <li>
-            
-<span class="param-type">number</span>
-
-
-        </li>
-    </ul>
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-overrides">Overrides:</dt>
-    <dd class="tag-overrides"><ul class="dummy"><li>
-        <a href="BaseTree.html#maxDepth">BaseTree#maxDepth</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="algorithms_baseTree.js.html">algorithms/baseTree.js</a>, <a href="algorithms_baseTree.js.html#line15">line 15</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-        
-            
-<h4 class="name" id="maxPointsPerNode"><span class="type-signature"></span>maxPointsPerNode<span class="type-signature"> :number</span></h4>
-
-
-
-
-<div class="description">
-    Point threshold below which a node is finalized as a leaf.
-</div>
-
-
-
-    <h5>Type:</h5>
-    <ul>
-        <li>
-            
-<span class="param-type">number</span>
-
-
-        </li>
-    </ul>
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-overrides">Overrides:</dt>
-    <dd class="tag-overrides"><ul class="dummy"><li>
-        <a href="BaseTree.html#maxPointsPerNode">BaseTree#maxPointsPerNode</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="algorithms_baseTree.js.html">algorithms/baseTree.js</a>, <a href="algorithms_baseTree.js.html#line17">line 17</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-        
-            
-<h4 class="name" id="root"><span class="type-signature"></span>root<span class="type-signature"> :<a href="TreeNode.html">TreeNode</a>|null</span></h4>
-
-
-
-
-<div class="description">
-    Root node, set after <a href="BaseTree.html#build">BaseTree#build</a> is called.
-</div>
-
-
-
-    <h5>Type:</h5>
-    <ul>
-        <li>
-            
-<span class="param-type"><a href="TreeNode.html">TreeNode</a></span>
-|
-
-<span class="param-type">null</span>
-
-
-        </li>
-    </ul>
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-overrides">Overrides:</dt>
-    <dd class="tag-overrides"><ul class="dummy"><li>
-        <a href="BaseTree.html#root">BaseTree#root</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="algorithms_baseTree.js.html">algorithms/baseTree.js</a>, <a href="algorithms_baseTree.js.html#line19">line 19</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-        
-    
-
-    
-        <h3 class="subsection-title">Methods</h3>
-
-        
-            
-
-    
-
-    
-    <h4 class="name" id="_finalizeLeaf"><span class="type-signature"></span>_finalizeLeaf<span class="signature">(node)</span><span class="type-signature"></span></h4>
-    
-
-    
-
-
-
-<div class="description">
-    Marks a node as a leaf, records its point count, and frees the point array.
-</div>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>node</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type"><a href="TreeNode.html">TreeNode</a></span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-overrides">Overrides:</dt>
-    <dd class="tag-overrides"><ul class="dummy"><li>
-        <a href="BaseTree.html#_finalizeLeaf">BaseTree#_finalizeLeaf</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="algorithms_baseTree.js.html">algorithms/baseTree.js</a>, <a href="algorithms_baseTree.js.html#line73">line 73</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-            
-
-    
-
-    
-    <h4 class="name" id="_positionsToPointsAndBounds"><span class="type-signature"></span>_positionsToPointsAndBounds<span class="signature">(positions)</span><span class="type-signature"> &rarr; {Object}</span></h4>
-    
-
-    
-
-
-
-<div class="description">
-    Converts a flat positions array into an array of Vector3 points and a bounding box.
-</div>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>positions</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Float32Array</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">Flat [x,y,z, …] array.</td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-overrides">Overrides:</dt>
-    <dd class="tag-overrides"><ul class="dummy"><li>
-        <a href="BaseTree.html#_positionsToPointsAndBounds">BaseTree#_positionsToPointsAndBounds</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="algorithms_baseTree.js.html">algorithms/baseTree.js</a>, <a href="algorithms_baseTree.js.html#line84">line 84</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<h5>Returns:</h5>
-
-        
-
-
-<dl>
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type">Object</span>
-
-
-    </dd>
-</dl>
-
-    
-
-
-
-
-
-        
-            
-
-    
-
-    
-    <h4 class="name" id="_splitNode"><span class="type-signature"></span>_splitNode<span class="signature">(node)</span><span class="type-signature"></span></h4>
-    
-
-    
-
-
-
-<div class="description">
-    Recursively splits a node into children according to the algorithm's strategy.
-</div>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>node</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type"><a href="TreeNode.html">TreeNode</a></span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-overrides">Overrides:</dt>
-    <dd class="tag-overrides"><ul class="dummy"><li>
-        <a href="BaseTree.html#_splitNode">BaseTree#_splitNode</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="algorithms_baseTree.js.html">algorithms/baseTree.js</a>, <a href="algorithms_baseTree.js.html#line34">line 34</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-            
-
-    
-
-    
-    <h4 class="name" id="build"><span class="type-signature"></span>build<span class="signature">(positions)</span><span class="type-signature"></span></h4>
-    
-
-    
-
-
-
-<div class="description">
-    Builds the k-d tree from a flat interleaved position array.
-</div>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>positions</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Float32Array</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">Flat [x,y,z, …] array from PCD geometry.</td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-overrides">Overrides:</dt>
-    <dd class="tag-overrides"><ul class="dummy"><li>
-        <a href="BaseTree.html#build">BaseTree#build</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="algorithms_kdTree.js.html">algorithms/kdTree.js</a>, <a href="algorithms_kdTree.js.html#line30">line 30</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-            
-
-    
-
-    
-    <h4 class="name" id="build"><span class="type-signature"></span>build<span class="signature">(positions)</span><span class="type-signature"></span></h4>
-    
-
-    
-
-
-
-<div class="description">
-    Builds the k-d tree from a flat interleaved position array.
-</div>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>positions</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Float32Array</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">Flat [x,y,z, …] array from PCD geometry.</td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-overrides">Overrides:</dt>
-    <dd class="tag-overrides"><ul class="dummy"><li>
-        <a href="BaseTree.html#build">BaseTree#build</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="algorithms_kdTree.js.html">algorithms/kdTree.js</a>, <a href="algorithms_kdTree.js.html#line30">line 30</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-            
-
-    
-
-    
-    <h4 class="name" id="getNodesAtDepth"><span class="type-signature"></span>getNodesAtDepth<span class="signature">(targetDepth)</span><span class="type-signature"> &rarr; {Array.&lt;<a href="TreeNode.html">TreeNode</a>>}</span></h4>
-    
-
-    
-
-
-
-<div class="description">
-    Returns all nodes that should be rendered at a given display depth.
-Nodes exactly at `targetDepth` are included; nodes shallower than `targetDepth`
-that are already leaves are also included so the tree always appears complete.
-</div>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>targetDepth</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">number</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-overrides">Overrides:</dt>
-    <dd class="tag-overrides"><ul class="dummy"><li>
-        <a href="BaseTree.html#getNodesAtDepth">BaseTree#getNodesAtDepth</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="algorithms_baseTree.js.html">algorithms/baseTree.js</a>, <a href="algorithms_baseTree.js.html#line45">line 45</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<h5>Returns:</h5>
-
-        
-
-
-<dl>
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type">Array.&lt;<a href="TreeNode.html">TreeNode</a>></span>
-
-
-    </dd>
-</dl>
-
-    
-
-
-
-
-
-        
-    
-
-    
-
-    
-</article>
-
-</section>
-
-
-
-
-
-
-
-<section>
-
-<header>
-    
-        <h2><span class="attribs"><span class="type-signature"></span></span>KdTree<span class="signature">(maxDepth, maxPointsPerNode)</span><span class="type-signature"></span></h2>
-        
-            <div class="class-description">k-d Tree spatial partitioning structure.
-
-At each level the splitting axis cycles through X → Y → Z (depth % 3).
-The split plane is placed at the midpoint of the current node's bounding box
-along the active axis, giving O(n log n) total build time. Points are
-partitioned into a left child (coord < splitValue) and a right child
-(coord ≥ splitValue); degenerate splits that produce an empty side
-finalize the node as a leaf instead.</div>
-        
-    
-</header>
-
-<article>
-    <div class="container-overview">
-    
-        
-
-    
-    <h2>Constructor</h2>
-    
-
-    
-    <h4 class="name" id="KdTree"><span class="type-signature"></span>new KdTree<span class="signature">(maxDepth, maxPointsPerNode)</span><span class="type-signature"></span></h4>
-    
-
-    
-
-
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>maxDepth</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">number</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">Maximum recursion depth.</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>maxPointsPerNode</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">number</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">Leaf threshold.</td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="algorithms_kdTree.js.html">algorithms/kdTree.js</a>, <a href="algorithms_kdTree.js.html#line17">line 17</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    
-    </div>
-
-    
-        <h3 class="subsection-title">Extends</h3>
-
-        
-
-
-    <ul>
-        <li><a href="BaseTree.html">BaseTree</a></li>
-    </ul>
-
-
-    
-
-    
-
-    
-        <h3 class="subsection-title">Classes</h3>
-
-        <dl>
-            <dt><a href="KdTree.html">KdTree</a></dt>
-            <dd></dd>
-        
-            <dt><a href="KdTree.html">KdTree</a></dt>
-            <dd></dd>
-        </dl>
-    
-
-    
-
-    
-
-    
-
-    
-        <h3 class="subsection-title">Members</h3>
-
-        
-            
-<h4 class="name" id="maxDepth"><span class="type-signature"></span>maxDepth<span class="type-signature"> :number</span></h4>
-
-
-
-
-<div class="description">
-    Maximum allowed depth.
-</div>
-
-
-
-    <h5>Type:</h5>
-    <ul>
-        <li>
-            
-<span class="param-type">number</span>
-
-
-        </li>
-    </ul>
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-overrides">Overrides:</dt>
-    <dd class="tag-overrides"><ul class="dummy"><li>
-        <a href="BaseTree.html#maxDepth">BaseTree#maxDepth</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="algorithms_baseTree.js.html">algorithms/baseTree.js</a>, <a href="algorithms_baseTree.js.html#line15">line 15</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-        
-            
-<h4 class="name" id="maxPointsPerNode"><span class="type-signature"></span>maxPointsPerNode<span class="type-signature"> :number</span></h4>
-
-
-
-
-<div class="description">
-    Point threshold below which a node is finalized as a leaf.
-</div>
-
-
-
-    <h5>Type:</h5>
-    <ul>
-        <li>
-            
-<span class="param-type">number</span>
-
-
-        </li>
-    </ul>
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-overrides">Overrides:</dt>
-    <dd class="tag-overrides"><ul class="dummy"><li>
-        <a href="BaseTree.html#maxPointsPerNode">BaseTree#maxPointsPerNode</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="algorithms_baseTree.js.html">algorithms/baseTree.js</a>, <a href="algorithms_baseTree.js.html#line17">line 17</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-        
-            
-<h4 class="name" id="root"><span class="type-signature"></span>root<span class="type-signature"> :<a href="TreeNode.html">TreeNode</a>|null</span></h4>
-
-
-
-
-<div class="description">
-    Root node, set after <a href="BaseTree.html#build">BaseTree#build</a> is called.
-</div>
-
-
-
-    <h5>Type:</h5>
-    <ul>
-        <li>
-            
-<span class="param-type"><a href="TreeNode.html">TreeNode</a></span>
-|
-
-<span class="param-type">null</span>
-
-
-        </li>
-    </ul>
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-overrides">Overrides:</dt>
-    <dd class="tag-overrides"><ul class="dummy"><li>
-        <a href="BaseTree.html#root">BaseTree#root</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="algorithms_baseTree.js.html">algorithms/baseTree.js</a>, <a href="algorithms_baseTree.js.html#line19">line 19</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-        
-    
-
-    
-        <h3 class="subsection-title">Methods</h3>
-
-        
-            
-
-    
-
-    
-    <h4 class="name" id="_finalizeLeaf"><span class="type-signature"></span>_finalizeLeaf<span class="signature">(node)</span><span class="type-signature"></span></h4>
-    
-
-    
-
-
-
-<div class="description">
-    Marks a node as a leaf, records its point count, and frees the point array.
-</div>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>node</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type"><a href="TreeNode.html">TreeNode</a></span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-overrides">Overrides:</dt>
-    <dd class="tag-overrides"><ul class="dummy"><li>
-        <a href="BaseTree.html#_finalizeLeaf">BaseTree#_finalizeLeaf</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="algorithms_baseTree.js.html">algorithms/baseTree.js</a>, <a href="algorithms_baseTree.js.html#line73">line 73</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-            
-
-    
-
-    
-    <h4 class="name" id="_positionsToPointsAndBounds"><span class="type-signature"></span>_positionsToPointsAndBounds<span class="signature">(positions)</span><span class="type-signature"> &rarr; {Object}</span></h4>
-    
-
-    
-
-
-
-<div class="description">
-    Converts a flat positions array into an array of Vector3 points and a bounding box.
-</div>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>positions</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Float32Array</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">Flat [x,y,z, …] array.</td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-overrides">Overrides:</dt>
-    <dd class="tag-overrides"><ul class="dummy"><li>
-        <a href="BaseTree.html#_positionsToPointsAndBounds">BaseTree#_positionsToPointsAndBounds</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="algorithms_baseTree.js.html">algorithms/baseTree.js</a>, <a href="algorithms_baseTree.js.html#line84">line 84</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<h5>Returns:</h5>
-
-        
-
-
-<dl>
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type">Object</span>
-
-
-    </dd>
-</dl>
-
-    
-
-
-
-
-
-        
-            
-
-    
-
-    
-    <h4 class="name" id="_splitNode"><span class="type-signature"></span>_splitNode<span class="signature">(node)</span><span class="type-signature"></span></h4>
-    
-
-    
-
-
-
-<div class="description">
-    Recursively splits a node into children according to the algorithm's strategy.
-</div>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>node</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type"><a href="TreeNode.html">TreeNode</a></span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-overrides">Overrides:</dt>
-    <dd class="tag-overrides"><ul class="dummy"><li>
-        <a href="BaseTree.html#_splitNode">BaseTree#_splitNode</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="algorithms_baseTree.js.html">algorithms/baseTree.js</a>, <a href="algorithms_baseTree.js.html#line34">line 34</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-            
-
-    
-
-    
-    <h4 class="name" id="build"><span class="type-signature"></span>build<span class="signature">(positions)</span><span class="type-signature"></span></h4>
-    
-
-    
-
-
-
-<div class="description">
-    Builds the k-d tree from a flat interleaved position array.
-</div>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>positions</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Float32Array</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">Flat [x,y,z, …] array from PCD geometry.</td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
     
-
-    
-    <dt class="tag-overrides">Overrides:</dt>
-    <dd class="tag-overrides"><ul class="dummy"><li>
-        <a href="BaseTree.html#build">BaseTree#build</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="algorithms_kdTree.js.html">algorithms/kdTree.js</a>, <a href="algorithms_kdTree.js.html#line30">line 30</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-            
-
-    
-
-    
-    <h4 class="name" id="build"><span class="type-signature"></span>build<span class="signature">(positions)</span><span class="type-signature"></span></h4>
-    
-
-    
-
-
-
-<div class="description">
-    Builds the k-d tree from a flat interleaved position array.
-</div>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>positions</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Float32Array</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">Flat [x,y,z, …] array from PCD geometry.</td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-overrides">Overrides:</dt>
-    <dd class="tag-overrides"><ul class="dummy"><li>
-        <a href="BaseTree.html#build">BaseTree#build</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="algorithms_kdTree.js.html">algorithms/kdTree.js</a>, <a href="algorithms_kdTree.js.html#line30">line 30</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-            
-
-    
-
-    
-    <h4 class="name" id="getNodesAtDepth"><span class="type-signature"></span>getNodesAtDepth<span class="signature">(targetDepth)</span><span class="type-signature"> &rarr; {Array.&lt;<a href="TreeNode.html">TreeNode</a>>}</span></h4>
-    
-
-    
-
-
-
-<div class="description">
-    Returns all nodes that should be rendered at a given display depth.
-Nodes exactly at `targetDepth` are included; nodes shallower than `targetDepth`
-that are already leaves are also included so the tree always appears complete.
-</div>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>targetDepth</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">number</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-overrides">Overrides:</dt>
-    <dd class="tag-overrides"><ul class="dummy"><li>
-        <a href="BaseTree.html#getNodesAtDepth">BaseTree#getNodesAtDepth</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="algorithms_baseTree.js.html">algorithms/baseTree.js</a>, <a href="algorithms_baseTree.js.html#line45">line 45</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<h5>Returns:</h5>
-
-        
-
-
-<dl>
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type">Array.&lt;<a href="TreeNode.html">TreeNode</a>></span>
-
-
-    </dd>
-</dl>
-
-    
-
-
-
-
-
-        
-    
-
-    
-
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="BaseTree.html">BaseTree</a><ul class='methods'><li data-type='method' style='display: none;'><a href="BaseTree.html#_finalizeLeaf">_finalizeLeaf</a></li><li data-type='method' style='display: none;'><a href="BaseTree.html#_finalizeLeaf">_finalizeLeaf</a></li><li data-type='method' style='display: none;'><a href="BaseTree.html#_positionsToPointsAndBounds">_positionsToPointsAndBounds</a></li><li data-type='method' style='display: none;'><a href="BaseTree.html#_positionsToPointsAndBounds">_positionsToPointsAndBounds</a></li><li data-type='method' style='display: none;'><a href="BaseTree.html#_splitNode">_splitNode</a></li><li data-type='method' style='display: none;'><a href="BaseTree.html#_splitNode">_splitNode</a></li><li data-type='method' style='display: none;'><a href="BaseTree.html#build">build</a></li><li data-type='method' style='display: none;'><a href="BaseTree.html#build">build</a></li><li data-type='method' style='display: none;'><a href="BaseTree.html#getNodesAtDepth">getNodesAtDepth</a></li><li data-type='method' style='display: none;'><a href="BaseTree.html#getNodesAtDepth">getNodesAtDepth</a></li></ul></li><li></li><li><a href="BspTree.html">BspTree</a><ul class='methods'><li data-type='method' style='display: none;'><a href="BspTree.html#_computePrincipalAxis">_computePrincipalAxis</a></li><li data-type='method' style='display: none;'><a href="BspTree.html#_computePrincipalAxis">_computePrincipalAxis</a></li><li data-type='method' style='display: none;'><a href="BspTree.html#_finalizeLeaf">_finalizeLeaf</a></li><li data-type='method' style='display: none;'><a href="BspTree.html#_finalizeLeaf">_finalizeLeaf</a></li><li data-type='method' style='display: none;'><a href="BspTree.html#_positionsToPointsAndBounds">_positionsToPointsAndBounds</a></li><li data-type='method' style='display: none;'><a href="BspTree.html#_positionsToPointsAndBounds">_positionsToPointsAndBounds</a></li><li data-type='method' style='display: none;'><a href="BspTree.html#_splitNode">_splitNode</a></li><li data-type='method' style='display: none;'><a href="BspTree.html#_splitNode">_splitNode</a></li><li data-type='method' style='display: none;'><a href="BspTree.html#build">build</a></li><li data-type='method' style='display: none;'><a href="BspTree.html#build">build</a></li><li data-type='method' style='display: none;'><a href="BspTree.html#getNodesAtDepth">getNodesAtDepth</a></li></ul></li><li></li><li><a href="BspVisualizer.html">BspVisualizer</a><ul class='methods'><li data-type='method' style='display: none;'><a href="BspVisualizer.html#clear">clear</a></li><li data-type='method' style='display: none;'><a href="BspVisualizer.html#clear">clear</a></li><li data-type='method' style='display: none;'><a href="BspVisualizer.html#setVisibility">setVisibility</a></li><li data-type='method' style='display: none;'><a href="BspVisualizer.html#setVisibility">setVisibility</a></li><li data-type='method' style='display: none;'><a href="BspVisualizer.html#update">update</a></li><li data-type='method' style='display: none;'><a href="BspVisualizer.html#update">update</a></li></ul></li><li></li><li><a href="KdTree.html">KdTree</a><ul class='methods'><li data-type='method' style='display: none;'><a href="KdTree.html#_finalizeLeaf">_finalizeLeaf</a></li><li data-type='method' style='display: none;'><a href="KdTree.html#_positionsToPointsAndBounds">_positionsToPointsAndBounds</a></li><li data-type='method' style='display: none;'><a href="KdTree.html#_splitNode">_splitNode</a></li><li data-type='method' style='display: none;'><a href="KdTree.html#_splitNode">_splitNode</a></li><li data-type='method' style='display: none;'><a href="KdTree.html#build">build</a></li><li data-type='method' style='display: none;'><a href="KdTree.html#build">build</a></li><li data-type='method' style='display: none;'><a href="KdTree.html#getNodesAtDepth">getNodesAtDepth</a></li></ul></li><li></li><li><a href="KdTreeVisualizer.html">KdTreeVisualizer</a><ul class='methods'><li data-type='method' style='display: none;'><a href="KdTreeVisualizer.html#clear">clear</a></li><li data-type='method' style='display: none;'><a href="KdTreeVisualizer.html#getNodeColor">getNodeColor</a></li><li data-type='method' style='display: none;'><a href="KdTreeVisualizer.html#getNodeColor">getNodeColor</a></li><li data-type='method' style='display: none;'><a href="KdTreeVisualizer.html#setVisibility">setVisibility</a></li><li data-type='method' style='display: none;'><a href="KdTreeVisualizer.html#update">update</a></li></ul></li><li></li><li><a href="Octree.html">Octree</a><ul class='methods'><li data-type='method' style='display: none;'><a href="Octree.html#_finalizeLeaf">_finalizeLeaf</a></li><li data-type='method' style='display: none;'><a href="Octree.html#_positionsToPointsAndBounds">_positionsToPointsAndBounds</a></li><li data-type='method' style='display: none;'><a href="Octree.html#_splitNode">_splitNode</a></li><li data-type='method' style='display: none;'><a href="Octree.html#_splitNode">_splitNode</a></li><li data-type='method' style='display: none;'><a href="Octree.html#build">build</a></li><li data-type='method' style='display: none;'><a href="Octree.html#build">build</a></li><li data-type='method' style='display: none;'><a href="Octree.html#getNodesAtDepth">getNodesAtDepth</a></li></ul></li><li></li><li><a href="OctreeVisualizer.html">OctreeVisualizer</a><ul class='methods'><li data-type='method' style='display: none;'><a href="OctreeVisualizer.html#clear">clear</a></li><li data-type='method' style='display: none;'><a href="OctreeVisualizer.html#getNodeColor">getNodeColor</a></li><li data-type='method' style='display: none;'><a href="OctreeVisualizer.html#getNodeColor">getNodeColor</a></li><li data-type='method' style='display: none;'><a href="OctreeVisualizer.html#setVisibility">setVisibility</a></li><li data-type='method' style='display: none;'><a href="OctreeVisualizer.html#update">update</a></li></ul></li><li></li><li><a href="TreeNode.html">TreeNode</a></li><li></li><li><a href="TreeVisualizer.html">TreeVisualizer</a><ul class='methods'><li data-type='method' style='display: none;'><a href="TreeVisualizer.html#clear">clear</a></li><li data-type='method' style='display: none;'><a href="TreeVisualizer.html#clear">clear</a></li><li data-type='method' style='display: none;'><a href="TreeVisualizer.html#getNodeColor">getNodeColor</a></li><li data-type='method' style='display: none;'><a href="TreeVisualizer.html#getNodeColor">getNodeColor</a></li><li data-type='method' style='display: none;'><a href="TreeVisualizer.html#setVisibility">setVisibility</a></li><li data-type='method' style='display: none;'><a href="TreeVisualizer.html#setVisibility">setVisibility</a></li><li data-type='method' style='display: none;'><a href="TreeVisualizer.html#update">update</a></li><li data-type='method' style='display: none;'><a href="TreeVisualizer.html#update">update</a></li></ul></li><li></li></ul><h3>Modules</h3><ul><li><a href="module-loaders_pcdLoader.html">loaders/pcdLoader</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-loaders_pcdLoader.html#.loadPointCloud">loadPointCloud</a></li><li data-type='method' style='display: none;'><a href="module-loaders_pcdLoader.html#.loadPointCloud">loadPointCloud</a></li></ul></li><li></li><li><a href="module-services_datasetService.html">services/datasetService</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-services_datasetService.html#.createDatasetService">createDatasetService</a></li><li data-type='method' style='display: none;'><a href="module-services_datasetService.html#.createDatasetService">createDatasetService</a></li></ul></li><li></li><li><a href="module-services_partitionService.html">services/partitionService</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-services_partitionService.html#.createPartitionService">createPartitionService</a></li><li data-type='method' style='display: none;'><a href="module-services_partitionService.html#.createPartitionService">createPartitionService</a></li></ul></li><li></li><li><a href="module-viewer_camera.html">viewer/camera</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-viewer_camera.html#.createCamera">createCamera</a></li><li data-type='method' style='display: none;'><a href="module-viewer_camera.html#.createCamera">createCamera</a></li><li data-type='method' style='display: none;'><a href="module-viewer_camera.html#.fitCameraToObject">fitCameraToObject</a></li><li data-type='method' style='display: none;'><a href="module-viewer_camera.html#.fitCameraToObject">fitCameraToObject</a></li></ul></li><li></li><li><a href="module-viewer_controls.html">viewer/controls</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-viewer_controls.html#.createControls">createControls</a></li><li data-type='method' style='display: none;'><a href="module-viewer_controls.html#.createControls">createControls</a></li></ul></li><li></li><li><a href="module-viewer_helpers_axes.html">viewer/helpers/axes</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-viewer_helpers_axes.html#.createLabeledAxes">createLabeledAxes</a></li><li data-type='method' style='display: none;'><a href="module-viewer_helpers_axes.html#.createLabeledAxes">createLabeledAxes</a></li></ul></li><li></li><li><a href="module-viewer_helpers_colorRamp.html">viewer/helpers/colorRamp</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-viewer_helpers_colorRamp.html#.getHeightColor">getHeightColor</a></li><li data-type='method' style='display: none;'><a href="module-viewer_helpers_colorRamp.html#.getHeightColor">getHeightColor</a></li></ul></li><li></li><li><a href="module-viewer_renderer.html">viewer/renderer</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-viewer_renderer.html#.createRenderer">createRenderer</a></li><li data-type='method' style='display: none;'><a href="module-viewer_renderer.html#.createRenderer">createRenderer</a></li></ul></li><li></li><li><a href="module-viewer_scene.html">viewer/scene</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-viewer_scene.html#.createScene">createScene</a></li><li data-type='method' style='display: none;'><a href="module-viewer_scene.html#.createScene">createScene</a></li></ul></li><li></li></ul><h3>Global</h3><ul><li><a href="global.html#collectSplitPlanes">collectSplitPlanes</a></li><li><a href="global.html#gatherIndices">gatherIndices</a></li></ul>
     
-</article>
-
-</section>
-
-
-
-
-</div>
-
-<nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="BaseTree.html">BaseTree</a></li><li><a href="BspTree.html">BspTree</a></li><li><a href="KdTree.html">KdTree</a></li><li><a href="Octree.html">Octree</a></li><li><a href="TreeNode.html">TreeNode</a></li></ul><h3>Global</h3><ul><li><a href="global.html#getHeightColor">getHeightColor</a></li><li><a href="global.html#loadPointCloud">loadPointCloud</a></li></ul>
 </nav>
+
+<div id="main">
+    
+    <h1 class="page-title">KdTree</h1>
+    
+
+    
+
+
+
+
+<section>
+
+<header>
+    
+        <h2>
+            <span class="ancestors"><a href="KdTree.html">KdTree</a></span>
+        
+        
+            KdTree
+        
+        </h2>
+        
+            <div class="class-description usertext"><p>k-d Tree spatial partitioning structure.</p>
+<p>At each level the splitting axis cycles through X → Y → Z (depth % 3).
+The split plane is placed at the midpoint of the current node's bounding box
+along the active axis, giving O(n log n) total build time. Points are
+partitioned into a left child (coord &lt; splitValue) and a right child
+(coord ≥ splitValue); degenerate splits that produce an empty side
+finalize the node as a leaf instead.</p></div>
+        
+    
+</header>
+
+<article>
+    
+        <div class="container-overview">
+        
+            
+
+    
+    <h2>Constructor</h2>
+    
+
+    <h4 class="name" id="KdTree"><span class="type-signature"></span>new KdTree<span class="signature">(maxDepth, maxPointsPerNode)</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+
+<dl class="details">
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="algorithms_kdTree.js.html">algorithms/kdTree.js</a>, <a href="algorithms_kdTree.js.html#line17">line 17</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <h5 class="h5-parameters">Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>maxDepth</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Maximum recursion depth.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>maxPointsPerNode</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Leaf threshold.</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+        </div>
+    
+
+    
+        <h3 class="subsection-title">Extends</h3>
+
+        
+
+
+    <ul>
+        <li><a href="BaseTree.html">BaseTree</a></li>
+    </ul>
+
+
+    
+
+    
+
+    
+        <h3 class="subsection-title">Classes</h3>
+
+        <dl>
+            <dt><a href="KdTree.html">KdTree</a></dt>
+            <dd></dd>
+        
+            <dt><a href="KdTree.html">KdTree</a></dt>
+            <dd></dd>
+        </dl>
+    
+    
+    
+
+     
+
+    
+
+    
+        <h3 class="subsection-title">Members</h3>
+
+        
+            
+<h4 class="name" id="maxDepth"><span class="type-signature"></span>maxDepth<span class="type-signature"></span></h4>
+
+
+
+
+
+<dl class="details">
+    
+    <dt class="tag-description">Description:</dt>
+    <dd class="tag-description"><ul class="dummy"><li><p>Maximum allowed depth. @type {number}</p></li></ul></dd>
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="algorithms_baseTree.js.html">algorithms/baseTree.js</a>, <a href="algorithms_baseTree.js.html#line15">line 15</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-overrides">Overrides:</dt>
+    <dd class="tag-overrides"><ul class="dummy"><li>
+        <a href="BaseTree.html#maxDepth">BaseTree#maxDepth</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description usertext">
+    <p>Maximum allowed depth. @type {number}</p>
+</div>
+
+
+
+
+
+
+
+
+        
+            
+<h4 class="name" id="maxPointsPerNode"><span class="type-signature"></span>maxPointsPerNode<span class="type-signature"></span></h4>
+
+
+
+
+
+<dl class="details">
+    
+    <dt class="tag-description">Description:</dt>
+    <dd class="tag-description"><ul class="dummy"><li><p>Point threshold below which a node is finalized as a leaf. @type {number}</p></li></ul></dd>
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="algorithms_baseTree.js.html">algorithms/baseTree.js</a>, <a href="algorithms_baseTree.js.html#line17">line 17</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-overrides">Overrides:</dt>
+    <dd class="tag-overrides"><ul class="dummy"><li>
+        <a href="BaseTree.html#maxPointsPerNode">BaseTree#maxPointsPerNode</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description usertext">
+    <p>Point threshold below which a node is finalized as a leaf. @type {number}</p>
+</div>
+
+
+
+
+
+
+
+
+        
+            
+<h4 class="name" id="root"><span class="type-signature"></span>root<span class="type-signature"></span></h4>
+
+
+
+
+
+<dl class="details">
+    
+    <dt class="tag-description">Description:</dt>
+    <dd class="tag-description"><ul class="dummy"><li><p>Root node, set after <a href="BaseTree.html#build">BaseTree#build</a> is called. @type {TreeNode|null}</p></li></ul></dd>
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="algorithms_baseTree.js.html">algorithms/baseTree.js</a>, <a href="algorithms_baseTree.js.html#line19">line 19</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-overrides">Overrides:</dt>
+    <dd class="tag-overrides"><ul class="dummy"><li>
+        <a href="BaseTree.html#root">BaseTree#root</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description usertext">
+    <p>Root node, set after <a href="BaseTree.html#build">BaseTree#build</a> is called. @type {TreeNode|null}</p>
+</div>
+
+
+
+
+
+
+
+
+        
+    
+
+    
+        <h3 class="subsection-title">Methods</h3>
+
+        
+            
+
+    
+
+    <h4 class="name" id="_finalizeLeaf"><span class="type-signature"></span>_finalizeLeaf<span class="signature">(node)</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+
+<dl class="details">
+    
+    <dt class="tag-description">Description:</dt>
+    <dd class="tag-description"><ul class="dummy"><li><p>Marks a node as a leaf, records its point count, and frees the point array.</p></li></ul></dd>
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="algorithms_baseTree.js.html">algorithms/baseTree.js</a>, <a href="algorithms_baseTree.js.html#line73">line 73</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-overrides">Overrides:</dt>
+    <dd class="tag-overrides"><ul class="dummy"><li>
+        <a href="BaseTree.html#_finalizeLeaf">BaseTree#_finalizeLeaf</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <h5 class="h5-parameters">Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>node</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="TreeNode.html">TreeNode</a></span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="_positionsToPointsAndBounds"><span class="type-signature"></span>_positionsToPointsAndBounds<span class="signature">(positions)</span><span class="type-signature"> &rarr; {Object}</span></h4>
+
+    
+
+
+
+
+<dl class="details">
+    
+    <dt class="tag-description">Description:</dt>
+    <dd class="tag-description"><ul class="dummy"><li><p>Converts a flat positions array into an array of Vector3 points and a bounding box.</p></li></ul></dd>
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="algorithms_baseTree.js.html">algorithms/baseTree.js</a>, <a href="algorithms_baseTree.js.html#line84">line 84</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-overrides">Overrides:</dt>
+    <dd class="tag-overrides"><ul class="dummy"><li>
+        <a href="BaseTree.html#_positionsToPointsAndBounds">BaseTree#_positionsToPointsAndBounds</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <h5 class="h5-parameters">Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>positions</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Float32Array</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Flat [x,y,z, …] array.</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5 class="h5-returns">Returns:</h5>
+
+        
+
+
+<dl class="param-type">
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Object</span>
+
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="_splitNode"><span class="type-signature"></span>_splitNode<span class="signature">(node)</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+
+<dl class="details">
+    
+    <dt class="tag-description">Description:</dt>
+    <dd class="tag-description"><ul class="dummy"><li><p>Recursively splits a node by the bounding-box midpoint along the current axis.
+Degenerate splits (all points fall on one side) finalize the node as a leaf.</p></li></ul></dd>
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="algorithms_kdTree.js.html">algorithms/kdTree.js</a>, <a href="algorithms_kdTree.js.html#line48">line 48</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-overrides">Overrides:</dt>
+    <dd class="tag-overrides"><ul class="dummy"><li>
+        <a href="BaseTree.html#_splitNode">BaseTree#_splitNode</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <h5 class="h5-parameters">Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>node</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="TreeNode.html">TreeNode</a></span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>The node to split.</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="_splitNode"><span class="type-signature"></span>_splitNode<span class="signature">(node)</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+
+<dl class="details">
+    
+    <dt class="tag-description">Description:</dt>
+    <dd class="tag-description"><ul class="dummy"><li><p>Recursively splits a node by the bounding-box midpoint along the current axis.
+Degenerate splits (all points fall on one side) finalize the node as a leaf.</p></li></ul></dd>
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="algorithms_kdTree.js.html">algorithms/kdTree.js</a>, <a href="algorithms_kdTree.js.html#line48">line 48</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-overrides">Overrides:</dt>
+    <dd class="tag-overrides"><ul class="dummy"><li>
+        <a href="BaseTree.html#_splitNode">BaseTree#_splitNode</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <h5 class="h5-parameters">Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>node</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="TreeNode.html">TreeNode</a></span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>The node to split.</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="build"><span class="type-signature"></span>build<span class="signature">(positions)</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+
+<dl class="details">
+    
+    <dt class="tag-description">Description:</dt>
+    <dd class="tag-description"><ul class="dummy"><li><p>Builds the k-d tree from a flat interleaved position array.</p></li></ul></dd>
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="algorithms_kdTree.js.html">algorithms/kdTree.js</a>, <a href="algorithms_kdTree.js.html#line30">line 30</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-overrides">Overrides:</dt>
+    <dd class="tag-overrides"><ul class="dummy"><li>
+        <a href="BaseTree.html#build">BaseTree#build</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <h5 class="h5-parameters">Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>positions</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Float32Array</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Flat [x,y,z, …] array from PCD geometry.</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="build"><span class="type-signature"></span>build<span class="signature">(positions)</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+
+<dl class="details">
+    
+    <dt class="tag-description">Description:</dt>
+    <dd class="tag-description"><ul class="dummy"><li><p>Builds the k-d tree from a flat interleaved position array.</p></li></ul></dd>
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="algorithms_kdTree.js.html">algorithms/kdTree.js</a>, <a href="algorithms_kdTree.js.html#line30">line 30</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-overrides">Overrides:</dt>
+    <dd class="tag-overrides"><ul class="dummy"><li>
+        <a href="BaseTree.html#build">BaseTree#build</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <h5 class="h5-parameters">Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>positions</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Float32Array</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Flat [x,y,z, …] array from PCD geometry.</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="getNodesAtDepth"><span class="type-signature"></span>getNodesAtDepth<span class="signature">(targetDepth)</span><span class="type-signature"> &rarr; {Array.&lt;<a href="TreeNode.html">TreeNode</a>>}</span></h4>
+
+    
+
+
+
+
+<dl class="details">
+    
+    <dt class="tag-description">Description:</dt>
+    <dd class="tag-description"><ul class="dummy"><li><p>Returns all nodes that should be rendered at a given display depth.
+Nodes exactly at <code>targetDepth</code> are included; nodes shallower than <code>targetDepth</code>
+that are already leaves are also included so the tree always appears complete.</p></li></ul></dd>
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="algorithms_baseTree.js.html">algorithms/baseTree.js</a>, <a href="algorithms_baseTree.js.html#line45">line 45</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-overrides">Overrides:</dt>
+    <dd class="tag-overrides"><ul class="dummy"><li>
+        <a href="BaseTree.html#getNodesAtDepth">BaseTree#getNodesAtDepth</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <h5 class="h5-parameters">Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>targetDepth</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5 class="h5-returns">Returns:</h5>
+
+        
+
+
+<dl class="param-type">
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Array.&lt;<a href="TreeNode.html">TreeNode</a>></span>
+
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+        
+    
+
+    
+
+    
+</article>
+
+</section>
+
+
+
+
+
+
+
+<section>
+
+<header>
+    
+        <h2>
+        
+            KdTree
+        
+        </h2>
+        
+            <div class="class-description usertext"><p>k-d Tree spatial partitioning structure.</p>
+<p>At each level the splitting axis cycles through X → Y → Z (depth % 3).
+The split plane is placed at the midpoint of the current node's bounding box
+along the active axis, giving O(n log n) total build time. Points are
+partitioned into a left child (coord &lt; splitValue) and a right child
+(coord ≥ splitValue); degenerate splits that produce an empty side
+finalize the node as a leaf instead.</p></div>
+        
+    
+</header>
+
+<article>
+    
+        <div class="container-overview">
+        
+            
+
+    
+    <h2>Constructor</h2>
+    
+
+    <h4 class="name" id="KdTree"><span class="type-signature"></span>new KdTree<span class="signature">(maxDepth, maxPointsPerNode)</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+
+<dl class="details">
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="algorithms_kdTree.js.html">algorithms/kdTree.js</a>, <a href="algorithms_kdTree.js.html#line17">line 17</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <h5 class="h5-parameters">Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>maxDepth</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Maximum recursion depth.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>maxPointsPerNode</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Leaf threshold.</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+        </div>
+    
+
+    
+        <h3 class="subsection-title">Extends</h3>
+
+        
+
+
+    <ul>
+        <li><a href="BaseTree.html">BaseTree</a></li>
+    </ul>
+
+
+    
+
+    
+
+    
+        <h3 class="subsection-title">Classes</h3>
+
+        <dl>
+            <dt><a href="KdTree.html">KdTree</a></dt>
+            <dd></dd>
+        
+            <dt><a href="KdTree.html">KdTree</a></dt>
+            <dd></dd>
+        </dl>
+    
+    
+    
+
+     
+
+    
+
+    
+        <h3 class="subsection-title">Members</h3>
+
+        
+            
+<h4 class="name" id="maxDepth"><span class="type-signature"></span>maxDepth<span class="type-signature"></span></h4>
+
+
+
+
+
+<dl class="details">
+    
+    <dt class="tag-description">Description:</dt>
+    <dd class="tag-description"><ul class="dummy"><li><p>Maximum allowed depth. @type {number}</p></li></ul></dd>
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="algorithms_baseTree.js.html">algorithms/baseTree.js</a>, <a href="algorithms_baseTree.js.html#line15">line 15</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-overrides">Overrides:</dt>
+    <dd class="tag-overrides"><ul class="dummy"><li>
+        <a href="BaseTree.html#maxDepth">BaseTree#maxDepth</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description usertext">
+    <p>Maximum allowed depth. @type {number}</p>
+</div>
+
+
+
+
+
+
+
+
+        
+            
+<h4 class="name" id="maxPointsPerNode"><span class="type-signature"></span>maxPointsPerNode<span class="type-signature"></span></h4>
+
+
+
+
+
+<dl class="details">
+    
+    <dt class="tag-description">Description:</dt>
+    <dd class="tag-description"><ul class="dummy"><li><p>Point threshold below which a node is finalized as a leaf. @type {number}</p></li></ul></dd>
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="algorithms_baseTree.js.html">algorithms/baseTree.js</a>, <a href="algorithms_baseTree.js.html#line17">line 17</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-overrides">Overrides:</dt>
+    <dd class="tag-overrides"><ul class="dummy"><li>
+        <a href="BaseTree.html#maxPointsPerNode">BaseTree#maxPointsPerNode</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description usertext">
+    <p>Point threshold below which a node is finalized as a leaf. @type {number}</p>
+</div>
+
+
+
+
+
+
+
+
+        
+            
+<h4 class="name" id="root"><span class="type-signature"></span>root<span class="type-signature"></span></h4>
+
+
+
+
+
+<dl class="details">
+    
+    <dt class="tag-description">Description:</dt>
+    <dd class="tag-description"><ul class="dummy"><li><p>Root node, set after <a href="BaseTree.html#build">BaseTree#build</a> is called. @type {TreeNode|null}</p></li></ul></dd>
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="algorithms_baseTree.js.html">algorithms/baseTree.js</a>, <a href="algorithms_baseTree.js.html#line19">line 19</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-overrides">Overrides:</dt>
+    <dd class="tag-overrides"><ul class="dummy"><li>
+        <a href="BaseTree.html#root">BaseTree#root</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description usertext">
+    <p>Root node, set after <a href="BaseTree.html#build">BaseTree#build</a> is called. @type {TreeNode|null}</p>
+</div>
+
+
+
+
+
+
+
+
+        
+    
+
+    
+        <h3 class="subsection-title">Methods</h3>
+
+        
+            
+
+    
+
+    <h4 class="name" id="_finalizeLeaf"><span class="type-signature"></span>_finalizeLeaf<span class="signature">(node)</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+
+<dl class="details">
+    
+    <dt class="tag-description">Description:</dt>
+    <dd class="tag-description"><ul class="dummy"><li><p>Marks a node as a leaf, records its point count, and frees the point array.</p></li></ul></dd>
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="algorithms_baseTree.js.html">algorithms/baseTree.js</a>, <a href="algorithms_baseTree.js.html#line73">line 73</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-overrides">Overrides:</dt>
+    <dd class="tag-overrides"><ul class="dummy"><li>
+        <a href="BaseTree.html#_finalizeLeaf">BaseTree#_finalizeLeaf</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <h5 class="h5-parameters">Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>node</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="TreeNode.html">TreeNode</a></span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="_positionsToPointsAndBounds"><span class="type-signature"></span>_positionsToPointsAndBounds<span class="signature">(positions)</span><span class="type-signature"> &rarr; {Object}</span></h4>
+
+    
+
+
+
+
+<dl class="details">
+    
+    <dt class="tag-description">Description:</dt>
+    <dd class="tag-description"><ul class="dummy"><li><p>Converts a flat positions array into an array of Vector3 points and a bounding box.</p></li></ul></dd>
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="algorithms_baseTree.js.html">algorithms/baseTree.js</a>, <a href="algorithms_baseTree.js.html#line84">line 84</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-overrides">Overrides:</dt>
+    <dd class="tag-overrides"><ul class="dummy"><li>
+        <a href="BaseTree.html#_positionsToPointsAndBounds">BaseTree#_positionsToPointsAndBounds</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <h5 class="h5-parameters">Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>positions</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Float32Array</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Flat [x,y,z, …] array.</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5 class="h5-returns">Returns:</h5>
+
+        
+
+
+<dl class="param-type">
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Object</span>
+
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="_splitNode"><span class="type-signature"></span>_splitNode<span class="signature">(node)</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+
+<dl class="details">
+    
+    <dt class="tag-description">Description:</dt>
+    <dd class="tag-description"><ul class="dummy"><li><p>Recursively splits a node by the bounding-box midpoint along the current axis.
+Degenerate splits (all points fall on one side) finalize the node as a leaf.</p></li></ul></dd>
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="algorithms_kdTree.js.html">algorithms/kdTree.js</a>, <a href="algorithms_kdTree.js.html#line48">line 48</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-overrides">Overrides:</dt>
+    <dd class="tag-overrides"><ul class="dummy"><li>
+        <a href="BaseTree.html#_splitNode">BaseTree#_splitNode</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <h5 class="h5-parameters">Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>node</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="TreeNode.html">TreeNode</a></span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>The node to split.</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="_splitNode"><span class="type-signature"></span>_splitNode<span class="signature">(node)</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+
+<dl class="details">
+    
+    <dt class="tag-description">Description:</dt>
+    <dd class="tag-description"><ul class="dummy"><li><p>Recursively splits a node by the bounding-box midpoint along the current axis.
+Degenerate splits (all points fall on one side) finalize the node as a leaf.</p></li></ul></dd>
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="algorithms_kdTree.js.html">algorithms/kdTree.js</a>, <a href="algorithms_kdTree.js.html#line48">line 48</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-overrides">Overrides:</dt>
+    <dd class="tag-overrides"><ul class="dummy"><li>
+        <a href="BaseTree.html#_splitNode">BaseTree#_splitNode</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <h5 class="h5-parameters">Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>node</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="TreeNode.html">TreeNode</a></span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>The node to split.</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="build"><span class="type-signature"></span>build<span class="signature">(positions)</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+
+<dl class="details">
+    
+    <dt class="tag-description">Description:</dt>
+    <dd class="tag-description"><ul class="dummy"><li><p>Builds the k-d tree from a flat interleaved position array.</p></li></ul></dd>
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="algorithms_kdTree.js.html">algorithms/kdTree.js</a>, <a href="algorithms_kdTree.js.html#line30">line 30</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-overrides">Overrides:</dt>
+    <dd class="tag-overrides"><ul class="dummy"><li>
+        <a href="BaseTree.html#build">BaseTree#build</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <h5 class="h5-parameters">Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>positions</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Float32Array</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Flat [x,y,z, …] array from PCD geometry.</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="build"><span class="type-signature"></span>build<span class="signature">(positions)</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+
+<dl class="details">
+    
+    <dt class="tag-description">Description:</dt>
+    <dd class="tag-description"><ul class="dummy"><li><p>Builds the k-d tree from a flat interleaved position array.</p></li></ul></dd>
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="algorithms_kdTree.js.html">algorithms/kdTree.js</a>, <a href="algorithms_kdTree.js.html#line30">line 30</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-overrides">Overrides:</dt>
+    <dd class="tag-overrides"><ul class="dummy"><li>
+        <a href="BaseTree.html#build">BaseTree#build</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <h5 class="h5-parameters">Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>positions</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Float32Array</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Flat [x,y,z, …] array from PCD geometry.</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="getNodesAtDepth"><span class="type-signature"></span>getNodesAtDepth<span class="signature">(targetDepth)</span><span class="type-signature"> &rarr; {Array.&lt;<a href="TreeNode.html">TreeNode</a>>}</span></h4>
+
+    
+
+
+
+
+<dl class="details">
+    
+    <dt class="tag-description">Description:</dt>
+    <dd class="tag-description"><ul class="dummy"><li><p>Returns all nodes that should be rendered at a given display depth.
+Nodes exactly at <code>targetDepth</code> are included; nodes shallower than <code>targetDepth</code>
+that are already leaves are also included so the tree always appears complete.</p></li></ul></dd>
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="algorithms_baseTree.js.html">algorithms/baseTree.js</a>, <a href="algorithms_baseTree.js.html#line45">line 45</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-overrides">Overrides:</dt>
+    <dd class="tag-overrides"><ul class="dummy"><li>
+        <a href="BaseTree.html#getNodesAtDepth">BaseTree#getNodesAtDepth</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <h5 class="h5-parameters">Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>targetDepth</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5 class="h5-returns">Returns:</h5>
+
+        
+
+
+<dl class="param-type">
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Array.&lt;<a href="TreeNode.html">TreeNode</a>></span>
+
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+        
+    
+
+    
+
+    
+</article>
+
+</section>
+
+
+
+
+    
+    
+</div>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.5</a> on Tue Mar 31 2026 14:21:29 GMT+0200 (hora de verano de Europa central)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 4.0.5</a> on Tue Mar 31 2026 22:43:12 GMT+0200 (Central European Summer Time) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
 </footer>
 
-<script> prettyPrint(); </script>
-<script src="scripts/linenumber.js"> </script>
+<script>prettyPrint();</script>
+<script src="scripts/polyfill.js"></script>
+<script src="scripts/linenumber.js"></script>
+
+
+<script src="scripts/collapse.js" defer></script>
+
+
 </body>
 </html>

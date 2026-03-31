@@ -1,3 +1,5 @@
+/** @module services/datasetService */
+
 import * as THREE from "three";
 
 import { loadPointCloud } from "../loaders/pcdLoader.js";
@@ -5,6 +7,26 @@ import { fitCameraToObject } from "../viewer/camera.js";
 import { getHeightColor } from "../viewer/helpers/colorRamp.js";
 import { createLabeledAxes } from "../viewer/helpers/axes.js";
 
+/**
+ * Factory that creates the dataset service responsible for loading, caching,
+ * colorizing, and displaying PCD point clouds in the scene.
+ *
+ * Remote datasets (URL strings) are cached by URL so subsequent loads are instant.
+ * Local files (File objects) are never cached.
+ *
+ * @param {object} deps
+ * @param {THREE.Scene} deps.scene
+ * @param {THREE.PerspectiveCamera} deps.camera
+ * @param {OrbitControls} deps.controls
+ * @returns {{
+ *   load: function(string|File, function): Promise,
+ *   clear: function(): void,
+ *   setAxesVisible: function(boolean): void,
+ *   getPointCloud: function(): THREE.Points|null,
+ *   getHeightRange: function(): {zMin: number, zMax: number},
+ *   hasDataset: function(string): boolean
+ * }}
+ */
 export function createDatasetService({ scene, camera, controls }) {
   let currentPointCloud = null;
   let axes = null;
@@ -73,12 +95,6 @@ export function createDatasetService({ scene, camera, controls }) {
     scene.add(axes);
   }
 
-  function focusCameraOnBounds(center, size) {
-    const distance = (size.length() || 1) * 1.25;
-    camera.position.set(center.x, center.y, center.z + distance);
-    camera.lookAt(center);
-  }
-
   /**
    * Loads a point cloud from a remote URL string or a local File object.
    * Remote datasets are cached; local files are not.
@@ -97,7 +113,7 @@ export function createDatasetService({ scene, camera, controls }) {
       globalZMax = cached.zMax;
       scene.add(currentPointCloud);
       updateAxes(cached.center, cached.size);
-      focusCameraOnBounds(cached.center, cached.size);
+      fitCameraToObject(camera, currentPointCloud);
       controls.target.copy(cached.center);
       controls.update();
       return Promise.resolve({

@@ -1,6 +1,15 @@
 import * as THREE from "three";
 
+/**
+ * Base visualizer for axis-aligned tree structures (Octree, k-d Tree).
+ * Renders the active nodes as two overlapping InstancedMeshes: a semi-transparent
+ * solid mesh and a wireframe mesh, both sharing the same BoxGeometry.
+ * Subclasses override {@link TreeVisualizer#getNodeColor} to supply per-node colors.
+ */
 export class TreeVisualizer {
+  /**
+   * @param {THREE.Scene} scene - The scene to add meshes to.
+   */
   constructor(scene) {
     this.scene = scene;
     this.solidMesh = null;
@@ -33,6 +42,11 @@ export class TreeVisualizer {
     this._tmpColor = new THREE.Color();
   }
 
+  /**
+   * Toggles the visibility of the solid and wireframe meshes independently.
+   * @param {boolean} showSolid
+   * @param {boolean} showWireframe
+   */
   setVisibility(showSolid, showWireframe) {
     this.showSolid = showSolid;
     this.showWireframe = showWireframe;
@@ -41,6 +55,12 @@ export class TreeVisualizer {
     if (this.wireframeMesh) this.wireframeMesh.visible = this.showWireframe;
   }
 
+  /**
+   * Rebuilds both instanced meshes from a list of active tree nodes.
+   * @param {TreeNode[]} nodes - Nodes returned by {@link BaseTree#getNodesAtDepth}.
+   * @param {number} zMin - Dataset minimum Z (used for height coloring).
+   * @param {number} zMax - Dataset maximum Z (used for height coloring).
+   */
   update(nodes, zMin, zMax) {
     this.clear();
 
@@ -81,10 +101,21 @@ export class TreeVisualizer {
     this.scene.add(this.wireframeMesh);
   }
 
+  /**
+   * Computes the color for a single node. Override in subclasses.
+   * @param {TreeNode} node
+   * @param {THREE.Vector3} center - Center of the node's bounding box.
+   * @param {number} zMin
+   * @param {number} zMax
+   * @param {THREE.Color} outColor - Write the result here.
+   */
   getNodeColor(node, center, zMin, zMax, outColor) {
     outColor.setRGB(1, 1, 1);
   }
 
+  /**
+   * Removes and disposes both instanced meshes from the scene.
+   */
   clear() {
     if (this.solidMesh) {
       this.scene.remove(this.solidMesh);

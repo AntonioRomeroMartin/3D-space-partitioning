@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    
+    <meta charset="utf-8">
+    <title>services/partitionService.js - Documentation</title>
+    
+    
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc.css">
+    <script src="scripts/nav.js" defer></script>
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
+
+<label for="nav-trigger" class="overlay"></label>
+
+<nav >
+    
+    
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="BaseTree.html">BaseTree</a><ul class='methods'><li data-type='method' style='display: none;'><a href="BaseTree.html#_finalizeLeaf">_finalizeLeaf</a></li><li data-type='method' style='display: none;'><a href="BaseTree.html#_finalizeLeaf">_finalizeLeaf</a></li><li data-type='method' style='display: none;'><a href="BaseTree.html#_positionsToPointsAndBounds">_positionsToPointsAndBounds</a></li><li data-type='method' style='display: none;'><a href="BaseTree.html#_positionsToPointsAndBounds">_positionsToPointsAndBounds</a></li><li data-type='method' style='display: none;'><a href="BaseTree.html#_splitNode">_splitNode</a></li><li data-type='method' style='display: none;'><a href="BaseTree.html#_splitNode">_splitNode</a></li><li data-type='method' style='display: none;'><a href="BaseTree.html#build">build</a></li><li data-type='method' style='display: none;'><a href="BaseTree.html#build">build</a></li><li data-type='method' style='display: none;'><a href="BaseTree.html#getNodesAtDepth">getNodesAtDepth</a></li><li data-type='method' style='display: none;'><a href="BaseTree.html#getNodesAtDepth">getNodesAtDepth</a></li></ul></li><li></li><li><a href="BspTree.html">BspTree</a><ul class='methods'><li data-type='method' style='display: none;'><a href="BspTree.html#_computePrincipalAxis">_computePrincipalAxis</a></li><li data-type='method' style='display: none;'><a href="BspTree.html#_computePrincipalAxis">_computePrincipalAxis</a></li><li data-type='method' style='display: none;'><a href="BspTree.html#_finalizeLeaf">_finalizeLeaf</a></li><li data-type='method' style='display: none;'><a href="BspTree.html#_finalizeLeaf">_finalizeLeaf</a></li><li data-type='method' style='display: none;'><a href="BspTree.html#_positionsToPointsAndBounds">_positionsToPointsAndBounds</a></li><li data-type='method' style='display: none;'><a href="BspTree.html#_positionsToPointsAndBounds">_positionsToPointsAndBounds</a></li><li data-type='method' style='display: none;'><a href="BspTree.html#_splitNode">_splitNode</a></li><li data-type='method' style='display: none;'><a href="BspTree.html#_splitNode">_splitNode</a></li><li data-type='method' style='display: none;'><a href="BspTree.html#build">build</a></li><li data-type='method' style='display: none;'><a href="BspTree.html#build">build</a></li><li data-type='method' style='display: none;'><a href="BspTree.html#getNodesAtDepth">getNodesAtDepth</a></li></ul></li><li></li><li><a href="BspVisualizer.html">BspVisualizer</a><ul class='methods'><li data-type='method' style='display: none;'><a href="BspVisualizer.html#clear">clear</a></li><li data-type='method' style='display: none;'><a href="BspVisualizer.html#clear">clear</a></li><li data-type='method' style='display: none;'><a href="BspVisualizer.html#setVisibility">setVisibility</a></li><li data-type='method' style='display: none;'><a href="BspVisualizer.html#setVisibility">setVisibility</a></li><li data-type='method' style='display: none;'><a href="BspVisualizer.html#update">update</a></li><li data-type='method' style='display: none;'><a href="BspVisualizer.html#update">update</a></li></ul></li><li></li><li><a href="KdTree.html">KdTree</a><ul class='methods'><li data-type='method' style='display: none;'><a href="KdTree.html#_finalizeLeaf">_finalizeLeaf</a></li><li data-type='method' style='display: none;'><a href="KdTree.html#_positionsToPointsAndBounds">_positionsToPointsAndBounds</a></li><li data-type='method' style='display: none;'><a href="KdTree.html#_splitNode">_splitNode</a></li><li data-type='method' style='display: none;'><a href="KdTree.html#_splitNode">_splitNode</a></li><li data-type='method' style='display: none;'><a href="KdTree.html#build">build</a></li><li data-type='method' style='display: none;'><a href="KdTree.html#build">build</a></li><li data-type='method' style='display: none;'><a href="KdTree.html#getNodesAtDepth">getNodesAtDepth</a></li></ul></li><li></li><li><a href="KdTreeVisualizer.html">KdTreeVisualizer</a><ul class='methods'><li data-type='method' style='display: none;'><a href="KdTreeVisualizer.html#clear">clear</a></li><li data-type='method' style='display: none;'><a href="KdTreeVisualizer.html#getNodeColor">getNodeColor</a></li><li data-type='method' style='display: none;'><a href="KdTreeVisualizer.html#getNodeColor">getNodeColor</a></li><li data-type='method' style='display: none;'><a href="KdTreeVisualizer.html#setVisibility">setVisibility</a></li><li data-type='method' style='display: none;'><a href="KdTreeVisualizer.html#update">update</a></li></ul></li><li></li><li><a href="Octree.html">Octree</a><ul class='methods'><li data-type='method' style='display: none;'><a href="Octree.html#_finalizeLeaf">_finalizeLeaf</a></li><li data-type='method' style='display: none;'><a href="Octree.html#_positionsToPointsAndBounds">_positionsToPointsAndBounds</a></li><li data-type='method' style='display: none;'><a href="Octree.html#_splitNode">_splitNode</a></li><li data-type='method' style='display: none;'><a href="Octree.html#_splitNode">_splitNode</a></li><li data-type='method' style='display: none;'><a href="Octree.html#build">build</a></li><li data-type='method' style='display: none;'><a href="Octree.html#build">build</a></li><li data-type='method' style='display: none;'><a href="Octree.html#getNodesAtDepth">getNodesAtDepth</a></li></ul></li><li></li><li><a href="OctreeVisualizer.html">OctreeVisualizer</a><ul class='methods'><li data-type='method' style='display: none;'><a href="OctreeVisualizer.html#clear">clear</a></li><li data-type='method' style='display: none;'><a href="OctreeVisualizer.html#getNodeColor">getNodeColor</a></li><li data-type='method' style='display: none;'><a href="OctreeVisualizer.html#getNodeColor">getNodeColor</a></li><li data-type='method' style='display: none;'><a href="OctreeVisualizer.html#setVisibility">setVisibility</a></li><li data-type='method' style='display: none;'><a href="OctreeVisualizer.html#update">update</a></li></ul></li><li></li><li><a href="TreeNode.html">TreeNode</a></li><li></li><li><a href="TreeVisualizer.html">TreeVisualizer</a><ul class='methods'><li data-type='method' style='display: none;'><a href="TreeVisualizer.html#clear">clear</a></li><li data-type='method' style='display: none;'><a href="TreeVisualizer.html#clear">clear</a></li><li data-type='method' style='display: none;'><a href="TreeVisualizer.html#getNodeColor">getNodeColor</a></li><li data-type='method' style='display: none;'><a href="TreeVisualizer.html#getNodeColor">getNodeColor</a></li><li data-type='method' style='display: none;'><a href="TreeVisualizer.html#setVisibility">setVisibility</a></li><li data-type='method' style='display: none;'><a href="TreeVisualizer.html#setVisibility">setVisibility</a></li><li data-type='method' style='display: none;'><a href="TreeVisualizer.html#update">update</a></li><li data-type='method' style='display: none;'><a href="TreeVisualizer.html#update">update</a></li></ul></li><li></li></ul><h3>Modules</h3><ul><li><a href="module-loaders_pcdLoader.html">loaders/pcdLoader</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-loaders_pcdLoader.html#.loadPointCloud">loadPointCloud</a></li><li data-type='method' style='display: none;'><a href="module-loaders_pcdLoader.html#.loadPointCloud">loadPointCloud</a></li></ul></li><li></li><li><a href="module-services_datasetService.html">services/datasetService</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-services_datasetService.html#.createDatasetService">createDatasetService</a></li><li data-type='method' style='display: none;'><a href="module-services_datasetService.html#.createDatasetService">createDatasetService</a></li></ul></li><li></li><li><a href="module-services_partitionService.html">services/partitionService</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-services_partitionService.html#.createPartitionService">createPartitionService</a></li><li data-type='method' style='display: none;'><a href="module-services_partitionService.html#.createPartitionService">createPartitionService</a></li></ul></li><li></li><li><a href="module-viewer_camera.html">viewer/camera</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-viewer_camera.html#.createCamera">createCamera</a></li><li data-type='method' style='display: none;'><a href="module-viewer_camera.html#.createCamera">createCamera</a></li><li data-type='method' style='display: none;'><a href="module-viewer_camera.html#.fitCameraToObject">fitCameraToObject</a></li><li data-type='method' style='display: none;'><a href="module-viewer_camera.html#.fitCameraToObject">fitCameraToObject</a></li></ul></li><li></li><li><a href="module-viewer_controls.html">viewer/controls</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-viewer_controls.html#.createControls">createControls</a></li><li data-type='method' style='display: none;'><a href="module-viewer_controls.html#.createControls">createControls</a></li></ul></li><li></li><li><a href="module-viewer_helpers_axes.html">viewer/helpers/axes</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-viewer_helpers_axes.html#.createLabeledAxes">createLabeledAxes</a></li><li data-type='method' style='display: none;'><a href="module-viewer_helpers_axes.html#.createLabeledAxes">createLabeledAxes</a></li></ul></li><li></li><li><a href="module-viewer_helpers_colorRamp.html">viewer/helpers/colorRamp</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-viewer_helpers_colorRamp.html#.getHeightColor">getHeightColor</a></li><li data-type='method' style='display: none;'><a href="module-viewer_helpers_colorRamp.html#.getHeightColor">getHeightColor</a></li></ul></li><li></li><li><a href="module-viewer_renderer.html">viewer/renderer</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-viewer_renderer.html#.createRenderer">createRenderer</a></li><li data-type='method' style='display: none;'><a href="module-viewer_renderer.html#.createRenderer">createRenderer</a></li></ul></li><li></li><li><a href="module-viewer_scene.html">viewer/scene</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-viewer_scene.html#.createScene">createScene</a></li><li data-type='method' style='display: none;'><a href="module-viewer_scene.html#.createScene">createScene</a></li></ul></li><li></li></ul><h3>Global</h3><ul><li><a href="global.html#collectSplitPlanes">collectSplitPlanes</a></li><li><a href="global.html#gatherIndices">gatherIndices</a></li></ul>
+    
+</nav>
+
+<div id="main">
+    
+    <h1 class="page-title">services/partitionService.js</h1>
+    
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/** @module services/partitionService */
+
+/**
+ * Factory that creates the partition service responsible for building, caching,
+ * and querying spatial partitioning trees (Octree, k-d Tree, BSP Tree).
+ *
+ * Trees are cached by `algorithm + datasetPath` key so rebuilding is only done once
+ * per session. The service also tracks the current display depth and exposes
+ * `changeDepth` for keyboard-driven depth navigation.
+ *
+ * @param {object} deps
+ * @param {Object.&lt;string, {maxDepth: number, maxPoints: number}>} deps.datasetConfigs
+ *   Per-dataset tree configuration keyed by dataset path.
+ * @param {Object.&lt;string, function(Float32Array, object): BaseTree>} deps.builders
+ *   Map of algorithm name → builder function that constructs and returns a built tree.
+ * @param {{maxDepth: number, maxPoints: number}} [deps.defaultConfig]
+ *   Fallback config used for local files or unknown dataset paths.
+ * @returns {{
+ *   buildOrGetTree: function(object): object,
+ *   changeDepth: function(number): {changed: boolean, depth: number},
+ *   clearCache: function(): void,
+ *   getActiveNodes: function(): TreeNode[],
+ *   getCurrentDepth: function(): number,
+ *   getCurrentTree: function(): BaseTree|null,
+ *   hasTree: function(string, string): boolean
+ * }}
+ */
+export function createPartitionService({ datasetConfigs, builders, defaultConfig = { maxDepth: 6, maxPoints: 50 } }) {
+  const treeCache = new Map();
+
+  let currentTree = null;
+  let currentDepth = 1;
+
+  function reset() {
+    currentTree = null;
+    currentDepth = 1;
+  }
+
+  function clearCache() {
+    treeCache.clear();
+    reset();
+  }
+
+  function getCacheKey(algorithm, datasetPath) {
+    return `${algorithm}::${datasetPath || "__no_dataset__"}`;
+  }
+
+  function buildOrGetTree({ algorithm, datasetPath, pointCloud }) {
+    if (!pointCloud) {
+      return { supported: false, message: "No point cloud loaded." };
+    }
+
+    const builder = builders[algorithm];
+    if (!builder) {
+      reset();
+      return {
+        supported: false,
+        message: `${algorithm} is not implemented yet!`,
+      };
+    }
+
+    const cacheKey = getCacheKey(algorithm, datasetPath);
+
+    if (treeCache.has(cacheKey)) {
+      currentTree = treeCache.get(cacheKey);
+      currentDepth = 1;
+      return {
+        supported: true,
+        fromCache: true,
+        config: datasetConfigs[datasetPath] || defaultConfig,
+      };
+    }
+
+    const positions = pointCloud.geometry.attributes.position.array;
+    const config = datasetConfigs[datasetPath] || defaultConfig;
+    const tree = builder(positions, config);
+
+    treeCache.set(cacheKey, tree);
+    currentTree = tree;
+    currentDepth = 1;
+
+    return {
+      supported: true,
+      fromCache: false,
+      config,
+    };
+  }
+
+  function getActiveNodes() {
+    if (!currentTree) return [];
+    return currentTree.getNodesAtDepth(currentDepth);
+  }
+
+  function changeDepth(delta) {
+    if (!currentTree || typeof currentTree.maxDepth !== "number") {
+      return { changed: false, depth: currentDepth };
+    }
+
+    const nextDepth = Math.max(0, Math.min(currentDepth + delta, currentTree.maxDepth));
+    if (nextDepth === currentDepth) {
+      return { changed: false, depth: currentDepth };
+    }
+
+    currentDepth = nextDepth;
+    return { changed: true, depth: currentDepth };
+  }
+
+  function getCurrentDepth() {
+    return currentDepth;
+  }
+
+  function getCurrentTree() {
+    return currentTree;
+  }
+
+  function hasTree(algorithm, datasetPath) {
+    return treeCache.has(getCacheKey(algorithm, datasetPath));
+  }
+
+  return {
+    buildOrGetTree,
+    changeDepth,
+    clearCache,
+    getActiveNodes,
+    getCurrentDepth,
+    getCurrentTree,
+    hasTree,
+  };
+}</code></pre>
+        </article>
+    </section>
+
+
+
+
+    
+    
+</div>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 4.0.5</a> on Tue Mar 31 2026 22:43:12 GMT+0200 (Central European Summer Time) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+</footer>
+
+<script>prettyPrint();</script>
+<script src="scripts/polyfill.js"></script>
+<script src="scripts/linenumber.js"></script>
+
+
+<script src="scripts/collapse.js" defer></script>
+
+
+</body>
+</html>

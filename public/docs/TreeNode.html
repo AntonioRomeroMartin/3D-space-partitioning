@@ -1,2218 +1,2122 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    
     <meta charset="utf-8">
-    <title>JSDoc: Class: TreeNode</title>
-
-    <script src="scripts/prettify/prettify.js"> </script>
-    <script src="scripts/prettify/lang-css.js"> </script>
+    <title>TreeNode - Documentation</title>
+    
+    
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
     <!--[if lt IE 9]>
       <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
-    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
-    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+    <link type="text/css" rel="stylesheet" href="styles/prettify.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc.css">
+    <script src="scripts/nav.js" defer></script>
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
-
 <body>
 
-<div id="main">
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
 
-    <h1 class="page-title">Class: TreeNode</h1>
+<label for="nav-trigger" class="overlay"></label>
 
+<nav >
     
-
-
-
-
-<section>
-
-<header>
-    
-        <h2><span class="attribs"><span class="type-signature"></span></span>
-            <span class="ancestors"><a href="TreeNode.html">TreeNode</a></span>TreeNode<span class="signature">(bounds, depth)</span><span class="type-signature"></span></h2>
-        
-            <div class="class-description">A single node in a spatial partitioning tree (Octree, k-d Tree, or BSP Tree).
-Internal nodes store child references; leaf nodes store point counts and,
-for BSP trees, a typed index array into the original geometry buffer.</div>
-        
-    
-</header>
-
-<article>
-    <div class="container-overview">
-    
-        
-
-    
-    <h2>Constructor</h2>
-    
-
-    
-    <h4 class="name" id="TreeNode"><span class="type-signature"></span>new TreeNode<span class="signature">(bounds, depth)</span><span class="type-signature"></span></h4>
-    
-
-    
-
-
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>bounds</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">THREE.Box3</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">Axis-aligned bounding box for this node's region.</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>depth</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">number</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">Depth of this node in the tree (root = 0).</td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="algorithms_treeNode.js.html">algorithms/treeNode.js</a>, <a href="algorithms_treeNode.js.html#line6">line 6</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    
-    </div>
-
-    
-
-    
-
-    
-        <h3 class="subsection-title">Classes</h3>
-
-        <dl>
-            <dt><a href="TreeNode.html">TreeNode</a></dt>
-            <dd></dd>
-        
-            <dt><a href="TreeNode.html">TreeNode</a></dt>
-            <dd></dd>
-        </dl>
-    
-
-    
-
-    
-
-    
-
-    
-        <h3 class="subsection-title">Members</h3>
-
-        
-            
-<h4 class="name" id="bounds"><span class="type-signature"></span>bounds<span class="type-signature"> :THREE.Box3</span></h4>
-
-
-
-
-<div class="description">
-    Axis-aligned bounding box of this node's spatial region.
-</div>
-
-
-
-    <h5>Type:</h5>
-    <ul>
-        <li>
-            
-<span class="param-type">THREE.Box3</span>
-
-
-        </li>
-    </ul>
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="algorithms_treeNode.js.html">algorithms/treeNode.js</a>, <a href="algorithms_treeNode.js.html#line13">line 13</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-        
-            
-<h4 class="name" id="bounds"><span class="type-signature"></span>bounds<span class="type-signature"> :THREE.Box3</span></h4>
-
-
-
-
-<div class="description">
-    Axis-aligned bounding box of this node's spatial region.
-</div>
-
-
-
-    <h5>Type:</h5>
-    <ul>
-        <li>
-            
-<span class="param-type">THREE.Box3</span>
-
-
-        </li>
-    </ul>
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="algorithms_treeNode.js.html">algorithms/treeNode.js</a>, <a href="algorithms_treeNode.js.html#line13">line 13</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-        
-            
-<h4 class="name" id="children"><span class="type-signature"></span>children<span class="type-signature"> :Array.&lt;<a href="TreeNode.html">TreeNode</a>></span></h4>
-
-
-
-
-<div class="description">
-    Child nodes. Empty for leaf nodes.
-</div>
-
-
-
-    <h5>Type:</h5>
-    <ul>
-        <li>
-            
-<span class="param-type">Array.&lt;<a href="TreeNode.html">TreeNode</a>></span>
-
-
-        </li>
-    </ul>
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="algorithms_treeNode.js.html">algorithms/treeNode.js</a>, <a href="algorithms_treeNode.js.html#line17">line 17</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-        
-            
-<h4 class="name" id="children"><span class="type-signature"></span>children<span class="type-signature"> :Array.&lt;<a href="TreeNode.html">TreeNode</a>></span></h4>
-
-
-
-
-<div class="description">
-    Child nodes. Empty for leaf nodes.
-</div>
-
-
-
-    <h5>Type:</h5>
-    <ul>
-        <li>
-            
-<span class="param-type">Array.&lt;<a href="TreeNode.html">TreeNode</a>></span>
-
-
-        </li>
-    </ul>
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="algorithms_treeNode.js.html">algorithms/treeNode.js</a>, <a href="algorithms_treeNode.js.html#line17">line 17</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-        
-            
-<h4 class="name" id="depth"><span class="type-signature"></span>depth<span class="type-signature"> :number</span></h4>
-
-
-
-
-<div class="description">
-    Depth of this node (root = 0).
-</div>
-
-
-
-    <h5>Type:</h5>
-    <ul>
-        <li>
-            
-<span class="param-type">number</span>
-
-
-        </li>
-    </ul>
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="algorithms_treeNode.js.html">algorithms/treeNode.js</a>, <a href="algorithms_treeNode.js.html#line15">line 15</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-        
-            
-<h4 class="name" id="depth"><span class="type-signature"></span>depth<span class="type-signature"> :number</span></h4>
-
-
-
-
-<div class="description">
-    Depth of this node (root = 0).
-</div>
-
-
-
-    <h5>Type:</h5>
-    <ul>
-        <li>
-            
-<span class="param-type">number</span>
-
-
-        </li>
-    </ul>
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="algorithms_treeNode.js.html">algorithms/treeNode.js</a>, <a href="algorithms_treeNode.js.html#line15">line 15</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-        
-            
-<h4 class="name" id="isLeaf"><span class="type-signature"></span>isLeaf<span class="type-signature"> :boolean</span></h4>
-
-
-
-
-<div class="description">
-    True if this node has no children (is a leaf).
-</div>
-
-
-
-    <h5>Type:</h5>
-    <ul>
-        <li>
-            
-<span class="param-type">boolean</span>
-
-
-        </li>
-    </ul>
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="algorithms_treeNode.js.html">algorithms/treeNode.js</a>, <a href="algorithms_treeNode.js.html#line21">line 21</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-        
-            
-<h4 class="name" id="isLeaf"><span class="type-signature"></span>isLeaf<span class="type-signature"> :boolean</span></h4>
-
-
-
-
-<div class="description">
-    True if this node has no children (is a leaf).
-</div>
-
-
-
-    <h5>Type:</h5>
-    <ul>
-        <li>
-            
-<span class="param-type">boolean</span>
-
-
-        </li>
-    </ul>
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="algorithms_treeNode.js.html">algorithms/treeNode.js</a>, <a href="algorithms_treeNode.js.html#line21">line 21</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-        
-            
-<h4 class="name" id="pointCount"><span class="type-signature"></span>pointCount<span class="type-signature"> :number</span></h4>
-
-
-
-
-<div class="description">
-    Number of points contained in this leaf.
-</div>
-
-
-
-    <h5>Type:</h5>
-    <ul>
-        <li>
-            
-<span class="param-type">number</span>
-
-
-        </li>
-    </ul>
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="algorithms_treeNode.js.html">algorithms/treeNode.js</a>, <a href="algorithms_treeNode.js.html#line23">line 23</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-        
-            
-<h4 class="name" id="pointCount"><span class="type-signature"></span>pointCount<span class="type-signature"> :number</span></h4>
-
-
-
-
-<div class="description">
-    Number of points contained in this leaf.
-</div>
-
-
-
-    <h5>Type:</h5>
-    <ul>
-        <li>
-            
-<span class="param-type">number</span>
-
-
-        </li>
-    </ul>
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="algorithms_treeNode.js.html">algorithms/treeNode.js</a>, <a href="algorithms_treeNode.js.html#line23">line 23</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-        
-            
-<h4 class="name" id="points"><span class="type-signature"></span>points<span class="type-signature"> :Array.&lt;THREE.Vector3>|null</span></h4>
-
-
-
-
-<div class="description">
-    Points held during construction; nulled out after splitting.
-</div>
-
-
-
-    <h5>Type:</h5>
-    <ul>
-        <li>
-            
-<span class="param-type">Array.&lt;THREE.Vector3></span>
-|
-
-<span class="param-type">null</span>
-
-
-        </li>
-    </ul>
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="algorithms_treeNode.js.html">algorithms/treeNode.js</a>, <a href="algorithms_treeNode.js.html#line19">line 19</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-        
-            
-<h4 class="name" id="points"><span class="type-signature"></span>points<span class="type-signature"> :Array.&lt;THREE.Vector3>|null</span></h4>
-
-
-
-
-<div class="description">
-    Points held during construction; nulled out after splitting.
-</div>
-
-
-
-    <h5>Type:</h5>
-    <ul>
-        <li>
-            
-<span class="param-type">Array.&lt;THREE.Vector3></span>
-|
-
-<span class="param-type">null</span>
-
-
-        </li>
-    </ul>
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="algorithms_treeNode.js.html">algorithms/treeNode.js</a>, <a href="algorithms_treeNode.js.html#line19">line 19</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-        
-    
-
-    
-
-    
-
-    
-</article>
-
-</section>
-
-
-
-
-
-
-
-<section>
-
-<header>
-    
-        <h2><span class="attribs"><span class="type-signature"></span></span>TreeNode<span class="signature">(bounds, depth)</span><span class="type-signature"></span></h2>
-        
-            <div class="class-description">A single node in a spatial partitioning tree (Octree, k-d Tree, or BSP Tree).
-Internal nodes store child references; leaf nodes store point counts and,
-for BSP trees, a typed index array into the original geometry buffer.</div>
-        
-    
-</header>
-
-<article>
-    <div class="container-overview">
-    
-        
-
-    
-    <h2>Constructor</h2>
-    
-
-    
-    <h4 class="name" id="TreeNode"><span class="type-signature"></span>new TreeNode<span class="signature">(bounds, depth)</span><span class="type-signature"></span></h4>
-    
-
-    
-
-
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>bounds</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">THREE.Box3</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">Axis-aligned bounding box for this node's region.</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>depth</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">number</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">Depth of this node in the tree (root = 0).</td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="algorithms_treeNode.js.html">algorithms/treeNode.js</a>, <a href="algorithms_treeNode.js.html#line6">line 6</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    
-    </div>
-
-    
-
-    
-
-    
-        <h3 class="subsection-title">Classes</h3>
-
-        <dl>
-            <dt><a href="TreeNode.html">TreeNode</a></dt>
-            <dd></dd>
-        
-            <dt><a href="TreeNode.html">TreeNode</a></dt>
-            <dd></dd>
-        </dl>
-    
-
-    
-
-    
-
-    
-
-    
-        <h3 class="subsection-title">Members</h3>
-
-        
-            
-<h4 class="name" id="bounds"><span class="type-signature"></span>bounds<span class="type-signature"> :THREE.Box3</span></h4>
-
-
-
-
-<div class="description">
-    Axis-aligned bounding box of this node's spatial region.
-</div>
-
-
-
-    <h5>Type:</h5>
-    <ul>
-        <li>
-            
-<span class="param-type">THREE.Box3</span>
-
-
-        </li>
-    </ul>
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="algorithms_treeNode.js.html">algorithms/treeNode.js</a>, <a href="algorithms_treeNode.js.html#line13">line 13</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-        
-            
-<h4 class="name" id="bounds"><span class="type-signature"></span>bounds<span class="type-signature"> :THREE.Box3</span></h4>
-
-
-
-
-<div class="description">
-    Axis-aligned bounding box of this node's spatial region.
-</div>
-
-
-
-    <h5>Type:</h5>
-    <ul>
-        <li>
-            
-<span class="param-type">THREE.Box3</span>
-
-
-        </li>
-    </ul>
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="algorithms_treeNode.js.html">algorithms/treeNode.js</a>, <a href="algorithms_treeNode.js.html#line13">line 13</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-        
-            
-<h4 class="name" id="children"><span class="type-signature"></span>children<span class="type-signature"> :Array.&lt;<a href="TreeNode.html">TreeNode</a>></span></h4>
-
-
-
-
-<div class="description">
-    Child nodes. Empty for leaf nodes.
-</div>
-
-
-
-    <h5>Type:</h5>
-    <ul>
-        <li>
-            
-<span class="param-type">Array.&lt;<a href="TreeNode.html">TreeNode</a>></span>
-
-
-        </li>
-    </ul>
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="algorithms_treeNode.js.html">algorithms/treeNode.js</a>, <a href="algorithms_treeNode.js.html#line17">line 17</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-        
-            
-<h4 class="name" id="children"><span class="type-signature"></span>children<span class="type-signature"> :Array.&lt;<a href="TreeNode.html">TreeNode</a>></span></h4>
-
-
-
-
-<div class="description">
-    Child nodes. Empty for leaf nodes.
-</div>
-
-
-
-    <h5>Type:</h5>
-    <ul>
-        <li>
-            
-<span class="param-type">Array.&lt;<a href="TreeNode.html">TreeNode</a>></span>
-
-
-        </li>
-    </ul>
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="algorithms_treeNode.js.html">algorithms/treeNode.js</a>, <a href="algorithms_treeNode.js.html#line17">line 17</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-        
-            
-<h4 class="name" id="depth"><span class="type-signature"></span>depth<span class="type-signature"> :number</span></h4>
-
-
-
-
-<div class="description">
-    Depth of this node (root = 0).
-</div>
-
-
-
-    <h5>Type:</h5>
-    <ul>
-        <li>
-            
-<span class="param-type">number</span>
-
-
-        </li>
-    </ul>
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="algorithms_treeNode.js.html">algorithms/treeNode.js</a>, <a href="algorithms_treeNode.js.html#line15">line 15</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-        
-            
-<h4 class="name" id="depth"><span class="type-signature"></span>depth<span class="type-signature"> :number</span></h4>
-
-
-
-
-<div class="description">
-    Depth of this node (root = 0).
-</div>
-
-
-
-    <h5>Type:</h5>
-    <ul>
-        <li>
-            
-<span class="param-type">number</span>
-
-
-        </li>
-    </ul>
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="algorithms_treeNode.js.html">algorithms/treeNode.js</a>, <a href="algorithms_treeNode.js.html#line15">line 15</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-        
-            
-<h4 class="name" id="isLeaf"><span class="type-signature"></span>isLeaf<span class="type-signature"> :boolean</span></h4>
-
-
-
-
-<div class="description">
-    True if this node has no children (is a leaf).
-</div>
-
-
-
-    <h5>Type:</h5>
-    <ul>
-        <li>
-            
-<span class="param-type">boolean</span>
-
-
-        </li>
-    </ul>
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="algorithms_treeNode.js.html">algorithms/treeNode.js</a>, <a href="algorithms_treeNode.js.html#line21">line 21</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-        
-            
-<h4 class="name" id="isLeaf"><span class="type-signature"></span>isLeaf<span class="type-signature"> :boolean</span></h4>
-
-
-
-
-<div class="description">
-    True if this node has no children (is a leaf).
-</div>
-
-
-
-    <h5>Type:</h5>
-    <ul>
-        <li>
-            
-<span class="param-type">boolean</span>
-
-
-        </li>
-    </ul>
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
     
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="algorithms_treeNode.js.html">algorithms/treeNode.js</a>, <a href="algorithms_treeNode.js.html#line21">line 21</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-        
-            
-<h4 class="name" id="pointCount"><span class="type-signature"></span>pointCount<span class="type-signature"> :number</span></h4>
-
-
-
-
-<div class="description">
-    Number of points contained in this leaf.
-</div>
-
-
-
-    <h5>Type:</h5>
-    <ul>
-        <li>
-            
-<span class="param-type">number</span>
-
-
-        </li>
-    </ul>
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="algorithms_treeNode.js.html">algorithms/treeNode.js</a>, <a href="algorithms_treeNode.js.html#line23">line 23</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-        
-            
-<h4 class="name" id="pointCount"><span class="type-signature"></span>pointCount<span class="type-signature"> :number</span></h4>
-
-
-
-
-<div class="description">
-    Number of points contained in this leaf.
-</div>
-
-
-
-    <h5>Type:</h5>
-    <ul>
-        <li>
-            
-<span class="param-type">number</span>
-
-
-        </li>
-    </ul>
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="algorithms_treeNode.js.html">algorithms/treeNode.js</a>, <a href="algorithms_treeNode.js.html#line23">line 23</a>
-    </li></ul></dd>
-    
-
-    
-
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="BaseTree.html">BaseTree</a><ul class='methods'><li data-type='method' style='display: none;'><a href="BaseTree.html#_finalizeLeaf">_finalizeLeaf</a></li><li data-type='method' style='display: none;'><a href="BaseTree.html#_finalizeLeaf">_finalizeLeaf</a></li><li data-type='method' style='display: none;'><a href="BaseTree.html#_positionsToPointsAndBounds">_positionsToPointsAndBounds</a></li><li data-type='method' style='display: none;'><a href="BaseTree.html#_positionsToPointsAndBounds">_positionsToPointsAndBounds</a></li><li data-type='method' style='display: none;'><a href="BaseTree.html#_splitNode">_splitNode</a></li><li data-type='method' style='display: none;'><a href="BaseTree.html#_splitNode">_splitNode</a></li><li data-type='method' style='display: none;'><a href="BaseTree.html#build">build</a></li><li data-type='method' style='display: none;'><a href="BaseTree.html#build">build</a></li><li data-type='method' style='display: none;'><a href="BaseTree.html#getNodesAtDepth">getNodesAtDepth</a></li><li data-type='method' style='display: none;'><a href="BaseTree.html#getNodesAtDepth">getNodesAtDepth</a></li></ul></li><li></li><li><a href="BspTree.html">BspTree</a><ul class='methods'><li data-type='method' style='display: none;'><a href="BspTree.html#_computePrincipalAxis">_computePrincipalAxis</a></li><li data-type='method' style='display: none;'><a href="BspTree.html#_computePrincipalAxis">_computePrincipalAxis</a></li><li data-type='method' style='display: none;'><a href="BspTree.html#_finalizeLeaf">_finalizeLeaf</a></li><li data-type='method' style='display: none;'><a href="BspTree.html#_finalizeLeaf">_finalizeLeaf</a></li><li data-type='method' style='display: none;'><a href="BspTree.html#_positionsToPointsAndBounds">_positionsToPointsAndBounds</a></li><li data-type='method' style='display: none;'><a href="BspTree.html#_positionsToPointsAndBounds">_positionsToPointsAndBounds</a></li><li data-type='method' style='display: none;'><a href="BspTree.html#_splitNode">_splitNode</a></li><li data-type='method' style='display: none;'><a href="BspTree.html#_splitNode">_splitNode</a></li><li data-type='method' style='display: none;'><a href="BspTree.html#build">build</a></li><li data-type='method' style='display: none;'><a href="BspTree.html#build">build</a></li><li data-type='method' style='display: none;'><a href="BspTree.html#getNodesAtDepth">getNodesAtDepth</a></li></ul></li><li></li><li><a href="BspVisualizer.html">BspVisualizer</a><ul class='methods'><li data-type='method' style='display: none;'><a href="BspVisualizer.html#clear">clear</a></li><li data-type='method' style='display: none;'><a href="BspVisualizer.html#clear">clear</a></li><li data-type='method' style='display: none;'><a href="BspVisualizer.html#setVisibility">setVisibility</a></li><li data-type='method' style='display: none;'><a href="BspVisualizer.html#setVisibility">setVisibility</a></li><li data-type='method' style='display: none;'><a href="BspVisualizer.html#update">update</a></li><li data-type='method' style='display: none;'><a href="BspVisualizer.html#update">update</a></li></ul></li><li></li><li><a href="KdTree.html">KdTree</a><ul class='methods'><li data-type='method' style='display: none;'><a href="KdTree.html#_finalizeLeaf">_finalizeLeaf</a></li><li data-type='method' style='display: none;'><a href="KdTree.html#_positionsToPointsAndBounds">_positionsToPointsAndBounds</a></li><li data-type='method' style='display: none;'><a href="KdTree.html#_splitNode">_splitNode</a></li><li data-type='method' style='display: none;'><a href="KdTree.html#_splitNode">_splitNode</a></li><li data-type='method' style='display: none;'><a href="KdTree.html#build">build</a></li><li data-type='method' style='display: none;'><a href="KdTree.html#build">build</a></li><li data-type='method' style='display: none;'><a href="KdTree.html#getNodesAtDepth">getNodesAtDepth</a></li></ul></li><li></li><li><a href="KdTreeVisualizer.html">KdTreeVisualizer</a><ul class='methods'><li data-type='method' style='display: none;'><a href="KdTreeVisualizer.html#clear">clear</a></li><li data-type='method' style='display: none;'><a href="KdTreeVisualizer.html#getNodeColor">getNodeColor</a></li><li data-type='method' style='display: none;'><a href="KdTreeVisualizer.html#getNodeColor">getNodeColor</a></li><li data-type='method' style='display: none;'><a href="KdTreeVisualizer.html#setVisibility">setVisibility</a></li><li data-type='method' style='display: none;'><a href="KdTreeVisualizer.html#update">update</a></li></ul></li><li></li><li><a href="Octree.html">Octree</a><ul class='methods'><li data-type='method' style='display: none;'><a href="Octree.html#_finalizeLeaf">_finalizeLeaf</a></li><li data-type='method' style='display: none;'><a href="Octree.html#_positionsToPointsAndBounds">_positionsToPointsAndBounds</a></li><li data-type='method' style='display: none;'><a href="Octree.html#_splitNode">_splitNode</a></li><li data-type='method' style='display: none;'><a href="Octree.html#_splitNode">_splitNode</a></li><li data-type='method' style='display: none;'><a href="Octree.html#build">build</a></li><li data-type='method' style='display: none;'><a href="Octree.html#build">build</a></li><li data-type='method' style='display: none;'><a href="Octree.html#getNodesAtDepth">getNodesAtDepth</a></li></ul></li><li></li><li><a href="OctreeVisualizer.html">OctreeVisualizer</a><ul class='methods'><li data-type='method' style='display: none;'><a href="OctreeVisualizer.html#clear">clear</a></li><li data-type='method' style='display: none;'><a href="OctreeVisualizer.html#getNodeColor">getNodeColor</a></li><li data-type='method' style='display: none;'><a href="OctreeVisualizer.html#getNodeColor">getNodeColor</a></li><li data-type='method' style='display: none;'><a href="OctreeVisualizer.html#setVisibility">setVisibility</a></li><li data-type='method' style='display: none;'><a href="OctreeVisualizer.html#update">update</a></li></ul></li><li></li><li><a href="TreeNode.html">TreeNode</a></li><li></li><li><a href="TreeVisualizer.html">TreeVisualizer</a><ul class='methods'><li data-type='method' style='display: none;'><a href="TreeVisualizer.html#clear">clear</a></li><li data-type='method' style='display: none;'><a href="TreeVisualizer.html#clear">clear</a></li><li data-type='method' style='display: none;'><a href="TreeVisualizer.html#getNodeColor">getNodeColor</a></li><li data-type='method' style='display: none;'><a href="TreeVisualizer.html#getNodeColor">getNodeColor</a></li><li data-type='method' style='display: none;'><a href="TreeVisualizer.html#setVisibility">setVisibility</a></li><li data-type='method' style='display: none;'><a href="TreeVisualizer.html#setVisibility">setVisibility</a></li><li data-type='method' style='display: none;'><a href="TreeVisualizer.html#update">update</a></li><li data-type='method' style='display: none;'><a href="TreeVisualizer.html#update">update</a></li></ul></li><li></li></ul><h3>Modules</h3><ul><li><a href="module-loaders_pcdLoader.html">loaders/pcdLoader</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-loaders_pcdLoader.html#.loadPointCloud">loadPointCloud</a></li><li data-type='method' style='display: none;'><a href="module-loaders_pcdLoader.html#.loadPointCloud">loadPointCloud</a></li></ul></li><li></li><li><a href="module-services_datasetService.html">services/datasetService</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-services_datasetService.html#.createDatasetService">createDatasetService</a></li><li data-type='method' style='display: none;'><a href="module-services_datasetService.html#.createDatasetService">createDatasetService</a></li></ul></li><li></li><li><a href="module-services_partitionService.html">services/partitionService</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-services_partitionService.html#.createPartitionService">createPartitionService</a></li><li data-type='method' style='display: none;'><a href="module-services_partitionService.html#.createPartitionService">createPartitionService</a></li></ul></li><li></li><li><a href="module-viewer_camera.html">viewer/camera</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-viewer_camera.html#.createCamera">createCamera</a></li><li data-type='method' style='display: none;'><a href="module-viewer_camera.html#.createCamera">createCamera</a></li><li data-type='method' style='display: none;'><a href="module-viewer_camera.html#.fitCameraToObject">fitCameraToObject</a></li><li data-type='method' style='display: none;'><a href="module-viewer_camera.html#.fitCameraToObject">fitCameraToObject</a></li></ul></li><li></li><li><a href="module-viewer_controls.html">viewer/controls</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-viewer_controls.html#.createControls">createControls</a></li><li data-type='method' style='display: none;'><a href="module-viewer_controls.html#.createControls">createControls</a></li></ul></li><li></li><li><a href="module-viewer_helpers_axes.html">viewer/helpers/axes</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-viewer_helpers_axes.html#.createLabeledAxes">createLabeledAxes</a></li><li data-type='method' style='display: none;'><a href="module-viewer_helpers_axes.html#.createLabeledAxes">createLabeledAxes</a></li></ul></li><li></li><li><a href="module-viewer_helpers_colorRamp.html">viewer/helpers/colorRamp</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-viewer_helpers_colorRamp.html#.getHeightColor">getHeightColor</a></li><li data-type='method' style='display: none;'><a href="module-viewer_helpers_colorRamp.html#.getHeightColor">getHeightColor</a></li></ul></li><li></li><li><a href="module-viewer_renderer.html">viewer/renderer</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-viewer_renderer.html#.createRenderer">createRenderer</a></li><li data-type='method' style='display: none;'><a href="module-viewer_renderer.html#.createRenderer">createRenderer</a></li></ul></li><li></li><li><a href="module-viewer_scene.html">viewer/scene</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-viewer_scene.html#.createScene">createScene</a></li><li data-type='method' style='display: none;'><a href="module-viewer_scene.html#.createScene">createScene</a></li></ul></li><li></li></ul><h3>Global</h3><ul><li><a href="global.html#collectSplitPlanes">collectSplitPlanes</a></li><li><a href="global.html#gatherIndices">gatherIndices</a></li></ul>
     
-
-    
-</dl>
-
-
-
-
-
-
-        
-            
-<h4 class="name" id="points"><span class="type-signature"></span>points<span class="type-signature"> :Array.&lt;THREE.Vector3>|null</span></h4>
-
-
-
-
-<div class="description">
-    Points held during construction; nulled out after splitting.
-</div>
-
-
-
-    <h5>Type:</h5>
-    <ul>
-        <li>
-            
-<span class="param-type">Array.&lt;THREE.Vector3></span>
-|
-
-<span class="param-type">null</span>
-
-
-        </li>
-    </ul>
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="algorithms_treeNode.js.html">algorithms/treeNode.js</a>, <a href="algorithms_treeNode.js.html#line19">line 19</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-        
-            
-<h4 class="name" id="points"><span class="type-signature"></span>points<span class="type-signature"> :Array.&lt;THREE.Vector3>|null</span></h4>
-
-
-
-
-<div class="description">
-    Points held during construction; nulled out after splitting.
-</div>
-
-
-
-    <h5>Type:</h5>
-    <ul>
-        <li>
-            
-<span class="param-type">Array.&lt;THREE.Vector3></span>
-|
-
-<span class="param-type">null</span>
-
-
-        </li>
-    </ul>
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="algorithms_treeNode.js.html">algorithms/treeNode.js</a>, <a href="algorithms_treeNode.js.html#line19">line 19</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-        
-    
-
-    
-
-    
-
-    
-</article>
-
-</section>
-
-
-
-
-</div>
-
-<nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="BaseTree.html">BaseTree</a></li><li><a href="BspTree.html">BspTree</a></li><li><a href="KdTree.html">KdTree</a></li><li><a href="Octree.html">Octree</a></li><li><a href="TreeNode.html">TreeNode</a></li></ul><h3>Global</h3><ul><li><a href="global.html#getHeightColor">getHeightColor</a></li><li><a href="global.html#loadPointCloud">loadPointCloud</a></li></ul>
 </nav>
+
+<div id="main">
+    
+    <h1 class="page-title">TreeNode</h1>
+    
+
+    
+
+
+
+
+<section>
+
+<header>
+    
+        <h2>
+            <span class="ancestors"><a href="TreeNode.html">TreeNode</a></span>
+        
+        
+            TreeNode
+        
+        </h2>
+        
+            <div class="class-description usertext"><p>A single node in a spatial partitioning tree (Octree, k-d Tree, or BSP Tree).
+Internal nodes store child references; leaf nodes store point counts and,
+for BSP trees, a typed index array into the original geometry buffer.</p></div>
+        
+    
+</header>
+
+<article>
+    
+        <div class="container-overview">
+        
+            
+
+    
+    <h2>Constructor</h2>
+    
+
+    <h4 class="name" id="TreeNode"><span class="type-signature"></span>new TreeNode<span class="signature">(bounds, depth)</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+
+<dl class="details">
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="algorithms_treeNode.js.html">algorithms/treeNode.js</a>, <a href="algorithms_treeNode.js.html#line6">line 6</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <h5 class="h5-parameters">Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>bounds</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">THREE.Box3</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Axis-aligned bounding box for this node's region.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>depth</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Depth of this node in the tree (root = 0).</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+        </div>
+    
+
+    
+
+    
+
+    
+        <h3 class="subsection-title">Classes</h3>
+
+        <dl>
+            <dt><a href="TreeNode.html">TreeNode</a></dt>
+            <dd></dd>
+        
+            <dt><a href="TreeNode.html">TreeNode</a></dt>
+            <dd></dd>
+        </dl>
+    
+    
+    
+
+     
+
+    
+
+    
+        <h3 class="subsection-title">Members</h3>
+
+        
+            
+<h4 class="name" id="bounds"><span class="type-signature"></span>bounds<span class="type-signature"></span></h4>
+
+
+
+
+
+<dl class="details">
+    
+    <dt class="tag-description">Description:</dt>
+    <dd class="tag-description"><ul class="dummy"><li><p>Axis-aligned bounding box of this node's spatial region. @type {THREE.Box3}</p></li></ul></dd>
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="algorithms_treeNode.js.html">algorithms/treeNode.js</a>, <a href="algorithms_treeNode.js.html#line13">line 13</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description usertext">
+    <p>Axis-aligned bounding box of this node's spatial region. @type {THREE.Box3}</p>
+</div>
+
+
+
+
+
+
+
+
+        
+            
+<h4 class="name" id="bounds"><span class="type-signature"></span>bounds<span class="type-signature"></span></h4>
+
+
+
+
+
+<dl class="details">
+    
+    <dt class="tag-description">Description:</dt>
+    <dd class="tag-description"><ul class="dummy"><li><p>Axis-aligned bounding box of this node's spatial region. @type {THREE.Box3}</p></li></ul></dd>
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="algorithms_treeNode.js.html">algorithms/treeNode.js</a>, <a href="algorithms_treeNode.js.html#line13">line 13</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description usertext">
+    <p>Axis-aligned bounding box of this node's spatial region. @type {THREE.Box3}</p>
+</div>
+
+
+
+
+
+
+
+
+        
+            
+<h4 class="name" id="children"><span class="type-signature"></span>children<span class="type-signature"></span></h4>
+
+
+
+
+
+<dl class="details">
+    
+    <dt class="tag-description">Description:</dt>
+    <dd class="tag-description"><ul class="dummy"><li><p>Child nodes. Empty for leaf nodes. @type {TreeNode[]}</p></li></ul></dd>
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="algorithms_treeNode.js.html">algorithms/treeNode.js</a>, <a href="algorithms_treeNode.js.html#line17">line 17</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description usertext">
+    <p>Child nodes. Empty for leaf nodes. @type {TreeNode[]}</p>
+</div>
+
+
+
+
+
+
+
+
+        
+            
+<h4 class="name" id="children"><span class="type-signature"></span>children<span class="type-signature"></span></h4>
+
+
+
+
+
+<dl class="details">
+    
+    <dt class="tag-description">Description:</dt>
+    <dd class="tag-description"><ul class="dummy"><li><p>Child nodes. Empty for leaf nodes. @type {TreeNode[]}</p></li></ul></dd>
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="algorithms_treeNode.js.html">algorithms/treeNode.js</a>, <a href="algorithms_treeNode.js.html#line17">line 17</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description usertext">
+    <p>Child nodes. Empty for leaf nodes. @type {TreeNode[]}</p>
+</div>
+
+
+
+
+
+
+
+
+        
+            
+<h4 class="name" id="depth"><span class="type-signature"></span>depth<span class="type-signature"></span></h4>
+
+
+
+
+
+<dl class="details">
+    
+    <dt class="tag-description">Description:</dt>
+    <dd class="tag-description"><ul class="dummy"><li><p>Depth of this node (root = 0). @type {number}</p></li></ul></dd>
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="algorithms_treeNode.js.html">algorithms/treeNode.js</a>, <a href="algorithms_treeNode.js.html#line15">line 15</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description usertext">
+    <p>Depth of this node (root = 0). @type {number}</p>
+</div>
+
+
+
+
+
+
+
+
+        
+            
+<h4 class="name" id="depth"><span class="type-signature"></span>depth<span class="type-signature"></span></h4>
+
+
+
+
+
+<dl class="details">
+    
+    <dt class="tag-description">Description:</dt>
+    <dd class="tag-description"><ul class="dummy"><li><p>Depth of this node (root = 0). @type {number}</p></li></ul></dd>
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="algorithms_treeNode.js.html">algorithms/treeNode.js</a>, <a href="algorithms_treeNode.js.html#line15">line 15</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description usertext">
+    <p>Depth of this node (root = 0). @type {number}</p>
+</div>
+
+
+
+
+
+
+
+
+        
+            
+<h4 class="name" id="isLeaf"><span class="type-signature"></span>isLeaf<span class="type-signature"></span></h4>
+
+
+
+
+
+<dl class="details">
+    
+    <dt class="tag-description">Description:</dt>
+    <dd class="tag-description"><ul class="dummy"><li><p>True if this node has no children (is a leaf). @type {boolean}</p></li></ul></dd>
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="algorithms_treeNode.js.html">algorithms/treeNode.js</a>, <a href="algorithms_treeNode.js.html#line21">line 21</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description usertext">
+    <p>True if this node has no children (is a leaf). @type {boolean}</p>
+</div>
+
+
+
+
+
+
+
+
+        
+            
+<h4 class="name" id="isLeaf"><span class="type-signature"></span>isLeaf<span class="type-signature"></span></h4>
+
+
+
+
+
+<dl class="details">
+    
+    <dt class="tag-description">Description:</dt>
+    <dd class="tag-description"><ul class="dummy"><li><p>True if this node has no children (is a leaf). @type {boolean}</p></li></ul></dd>
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="algorithms_treeNode.js.html">algorithms/treeNode.js</a>, <a href="algorithms_treeNode.js.html#line21">line 21</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description usertext">
+    <p>True if this node has no children (is a leaf). @type {boolean}</p>
+</div>
+
+
+
+
+
+
+
+
+        
+            
+<h4 class="name" id="pointCount"><span class="type-signature"></span>pointCount<span class="type-signature"></span></h4>
+
+
+
+
+
+<dl class="details">
+    
+    <dt class="tag-description">Description:</dt>
+    <dd class="tag-description"><ul class="dummy"><li><p>Number of points contained in this leaf. @type {number}</p></li></ul></dd>
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="algorithms_treeNode.js.html">algorithms/treeNode.js</a>, <a href="algorithms_treeNode.js.html#line23">line 23</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description usertext">
+    <p>Number of points contained in this leaf. @type {number}</p>
+</div>
+
+
+
+
+
+
+
+
+        
+            
+<h4 class="name" id="pointCount"><span class="type-signature"></span>pointCount<span class="type-signature"></span></h4>
+
+
+
+
+
+<dl class="details">
+    
+    <dt class="tag-description">Description:</dt>
+    <dd class="tag-description"><ul class="dummy"><li><p>Number of points contained in this leaf. @type {number}</p></li></ul></dd>
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="algorithms_treeNode.js.html">algorithms/treeNode.js</a>, <a href="algorithms_treeNode.js.html#line23">line 23</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description usertext">
+    <p>Number of points contained in this leaf. @type {number}</p>
+</div>
+
+
+
+
+
+
+
+
+        
+            
+<h4 class="name" id="points"><span class="type-signature"></span>points<span class="type-signature"></span></h4>
+
+
+
+
+
+<dl class="details">
+    
+    <dt class="tag-description">Description:</dt>
+    <dd class="tag-description"><ul class="dummy"><li><p>Points held during construction; nulled out after splitting. @type {THREE.Vector3[]|null}</p></li></ul></dd>
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="algorithms_treeNode.js.html">algorithms/treeNode.js</a>, <a href="algorithms_treeNode.js.html#line19">line 19</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description usertext">
+    <p>Points held during construction; nulled out after splitting. @type {THREE.Vector3[]|null}</p>
+</div>
+
+
+
+
+
+
+
+
+        
+            
+<h4 class="name" id="points"><span class="type-signature"></span>points<span class="type-signature"></span></h4>
+
+
+
+
+
+<dl class="details">
+    
+    <dt class="tag-description">Description:</dt>
+    <dd class="tag-description"><ul class="dummy"><li><p>Points held during construction; nulled out after splitting. @type {THREE.Vector3[]|null}</p></li></ul></dd>
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="algorithms_treeNode.js.html">algorithms/treeNode.js</a>, <a href="algorithms_treeNode.js.html#line19">line 19</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description usertext">
+    <p>Points held during construction; nulled out after splitting. @type {THREE.Vector3[]|null}</p>
+</div>
+
+
+
+
+
+
+
+
+        
+    
+
+    
+
+    
+
+    
+</article>
+
+</section>
+
+
+
+
+
+
+
+<section>
+
+<header>
+    
+        <h2>
+        
+            TreeNode
+        
+        </h2>
+        
+            <div class="class-description usertext"><p>A single node in a spatial partitioning tree (Octree, k-d Tree, or BSP Tree).
+Internal nodes store child references; leaf nodes store point counts and,
+for BSP trees, a typed index array into the original geometry buffer.</p></div>
+        
+    
+</header>
+
+<article>
+    
+        <div class="container-overview">
+        
+            
+
+    
+    <h2>Constructor</h2>
+    
+
+    <h4 class="name" id="TreeNode"><span class="type-signature"></span>new TreeNode<span class="signature">(bounds, depth)</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+
+<dl class="details">
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="algorithms_treeNode.js.html">algorithms/treeNode.js</a>, <a href="algorithms_treeNode.js.html#line6">line 6</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <h5 class="h5-parameters">Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>bounds</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">THREE.Box3</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Axis-aligned bounding box for this node's region.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>depth</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Depth of this node in the tree (root = 0).</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+        </div>
+    
+
+    
+
+    
+
+    
+        <h3 class="subsection-title">Classes</h3>
+
+        <dl>
+            <dt><a href="TreeNode.html">TreeNode</a></dt>
+            <dd></dd>
+        
+            <dt><a href="TreeNode.html">TreeNode</a></dt>
+            <dd></dd>
+        </dl>
+    
+    
+    
+
+     
+
+    
+
+    
+        <h3 class="subsection-title">Members</h3>
+
+        
+            
+<h4 class="name" id="bounds"><span class="type-signature"></span>bounds<span class="type-signature"></span></h4>
+
+
+
+
+
+<dl class="details">
+    
+    <dt class="tag-description">Description:</dt>
+    <dd class="tag-description"><ul class="dummy"><li><p>Axis-aligned bounding box of this node's spatial region. @type {THREE.Box3}</p></li></ul></dd>
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="algorithms_treeNode.js.html">algorithms/treeNode.js</a>, <a href="algorithms_treeNode.js.html#line13">line 13</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description usertext">
+    <p>Axis-aligned bounding box of this node's spatial region. @type {THREE.Box3}</p>
+</div>
+
+
+
+
+
+
+
+
+        
+            
+<h4 class="name" id="bounds"><span class="type-signature"></span>bounds<span class="type-signature"></span></h4>
+
+
+
+
+
+<dl class="details">
+    
+    <dt class="tag-description">Description:</dt>
+    <dd class="tag-description"><ul class="dummy"><li><p>Axis-aligned bounding box of this node's spatial region. @type {THREE.Box3}</p></li></ul></dd>
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="algorithms_treeNode.js.html">algorithms/treeNode.js</a>, <a href="algorithms_treeNode.js.html#line13">line 13</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description usertext">
+    <p>Axis-aligned bounding box of this node's spatial region. @type {THREE.Box3}</p>
+</div>
+
+
+
+
+
+
+
+
+        
+            
+<h4 class="name" id="children"><span class="type-signature"></span>children<span class="type-signature"></span></h4>
+
+
+
+
+
+<dl class="details">
+    
+    <dt class="tag-description">Description:</dt>
+    <dd class="tag-description"><ul class="dummy"><li><p>Child nodes. Empty for leaf nodes. @type {TreeNode[]}</p></li></ul></dd>
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="algorithms_treeNode.js.html">algorithms/treeNode.js</a>, <a href="algorithms_treeNode.js.html#line17">line 17</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description usertext">
+    <p>Child nodes. Empty for leaf nodes. @type {TreeNode[]}</p>
+</div>
+
+
+
+
+
+
+
+
+        
+            
+<h4 class="name" id="children"><span class="type-signature"></span>children<span class="type-signature"></span></h4>
+
+
+
+
+
+<dl class="details">
+    
+    <dt class="tag-description">Description:</dt>
+    <dd class="tag-description"><ul class="dummy"><li><p>Child nodes. Empty for leaf nodes. @type {TreeNode[]}</p></li></ul></dd>
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="algorithms_treeNode.js.html">algorithms/treeNode.js</a>, <a href="algorithms_treeNode.js.html#line17">line 17</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description usertext">
+    <p>Child nodes. Empty for leaf nodes. @type {TreeNode[]}</p>
+</div>
+
+
+
+
+
+
+
+
+        
+            
+<h4 class="name" id="depth"><span class="type-signature"></span>depth<span class="type-signature"></span></h4>
+
+
+
+
+
+<dl class="details">
+    
+    <dt class="tag-description">Description:</dt>
+    <dd class="tag-description"><ul class="dummy"><li><p>Depth of this node (root = 0). @type {number}</p></li></ul></dd>
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="algorithms_treeNode.js.html">algorithms/treeNode.js</a>, <a href="algorithms_treeNode.js.html#line15">line 15</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description usertext">
+    <p>Depth of this node (root = 0). @type {number}</p>
+</div>
+
+
+
+
+
+
+
+
+        
+            
+<h4 class="name" id="depth"><span class="type-signature"></span>depth<span class="type-signature"></span></h4>
+
+
+
+
+
+<dl class="details">
+    
+    <dt class="tag-description">Description:</dt>
+    <dd class="tag-description"><ul class="dummy"><li><p>Depth of this node (root = 0). @type {number}</p></li></ul></dd>
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="algorithms_treeNode.js.html">algorithms/treeNode.js</a>, <a href="algorithms_treeNode.js.html#line15">line 15</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description usertext">
+    <p>Depth of this node (root = 0). @type {number}</p>
+</div>
+
+
+
+
+
+
+
+
+        
+            
+<h4 class="name" id="isLeaf"><span class="type-signature"></span>isLeaf<span class="type-signature"></span></h4>
+
+
+
+
+
+<dl class="details">
+    
+    <dt class="tag-description">Description:</dt>
+    <dd class="tag-description"><ul class="dummy"><li><p>True if this node has no children (is a leaf). @type {boolean}</p></li></ul></dd>
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="algorithms_treeNode.js.html">algorithms/treeNode.js</a>, <a href="algorithms_treeNode.js.html#line21">line 21</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description usertext">
+    <p>True if this node has no children (is a leaf). @type {boolean}</p>
+</div>
+
+
+
+
+
+
+
+
+        
+            
+<h4 class="name" id="isLeaf"><span class="type-signature"></span>isLeaf<span class="type-signature"></span></h4>
+
+
+
+
+
+<dl class="details">
+    
+    <dt class="tag-description">Description:</dt>
+    <dd class="tag-description"><ul class="dummy"><li><p>True if this node has no children (is a leaf). @type {boolean}</p></li></ul></dd>
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="algorithms_treeNode.js.html">algorithms/treeNode.js</a>, <a href="algorithms_treeNode.js.html#line21">line 21</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description usertext">
+    <p>True if this node has no children (is a leaf). @type {boolean}</p>
+</div>
+
+
+
+
+
+
+
+
+        
+            
+<h4 class="name" id="pointCount"><span class="type-signature"></span>pointCount<span class="type-signature"></span></h4>
+
+
+
+
+
+<dl class="details">
+    
+    <dt class="tag-description">Description:</dt>
+    <dd class="tag-description"><ul class="dummy"><li><p>Number of points contained in this leaf. @type {number}</p></li></ul></dd>
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="algorithms_treeNode.js.html">algorithms/treeNode.js</a>, <a href="algorithms_treeNode.js.html#line23">line 23</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description usertext">
+    <p>Number of points contained in this leaf. @type {number}</p>
+</div>
+
+
+
+
+
+
+
+
+        
+            
+<h4 class="name" id="pointCount"><span class="type-signature"></span>pointCount<span class="type-signature"></span></h4>
+
+
+
+
+
+<dl class="details">
+    
+    <dt class="tag-description">Description:</dt>
+    <dd class="tag-description"><ul class="dummy"><li><p>Number of points contained in this leaf. @type {number}</p></li></ul></dd>
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="algorithms_treeNode.js.html">algorithms/treeNode.js</a>, <a href="algorithms_treeNode.js.html#line23">line 23</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description usertext">
+    <p>Number of points contained in this leaf. @type {number}</p>
+</div>
+
+
+
+
+
+
+
+
+        
+            
+<h4 class="name" id="points"><span class="type-signature"></span>points<span class="type-signature"></span></h4>
+
+
+
+
+
+<dl class="details">
+    
+    <dt class="tag-description">Description:</dt>
+    <dd class="tag-description"><ul class="dummy"><li><p>Points held during construction; nulled out after splitting. @type {THREE.Vector3[]|null}</p></li></ul></dd>
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="algorithms_treeNode.js.html">algorithms/treeNode.js</a>, <a href="algorithms_treeNode.js.html#line19">line 19</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description usertext">
+    <p>Points held during construction; nulled out after splitting. @type {THREE.Vector3[]|null}</p>
+</div>
+
+
+
+
+
+
+
+
+        
+            
+<h4 class="name" id="points"><span class="type-signature"></span>points<span class="type-signature"></span></h4>
+
+
+
+
+
+<dl class="details">
+    
+    <dt class="tag-description">Description:</dt>
+    <dd class="tag-description"><ul class="dummy"><li><p>Points held during construction; nulled out after splitting. @type {THREE.Vector3[]|null}</p></li></ul></dd>
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="algorithms_treeNode.js.html">algorithms/treeNode.js</a>, <a href="algorithms_treeNode.js.html#line19">line 19</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description usertext">
+    <p>Points held during construction; nulled out after splitting. @type {THREE.Vector3[]|null}</p>
+</div>
+
+
+
+
+
+
+
+
+        
+    
+
+    
+
+    
+
+    
+</article>
+
+</section>
+
+
+
+
+    
+    
+</div>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.5</a> on Tue Mar 31 2026 14:21:29 GMT+0200 (hora de verano de Europa central)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 4.0.5</a> on Tue Mar 31 2026 22:43:12 GMT+0200 (Central European Summer Time) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
 </footer>
 
-<script> prettyPrint(); </script>
-<script src="scripts/linenumber.js"> </script>
+<script>prettyPrint();</script>
+<script src="scripts/polyfill.js"></script>
+<script src="scripts/linenumber.js"></script>
+
+
+<script src="scripts/collapse.js" defer></script>
+
+
 </body>
 </html>

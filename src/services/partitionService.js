@@ -1,3 +1,30 @@
+/** @module services/partitionService */
+
+/**
+ * Factory that creates the partition service responsible for building, caching,
+ * and querying spatial partitioning trees (Octree, k-d Tree, BSP Tree).
+ *
+ * Trees are cached by `algorithm + datasetPath` key so rebuilding is only done once
+ * per session. The service also tracks the current display depth and exposes
+ * `changeDepth` for keyboard-driven depth navigation.
+ *
+ * @param {object} deps
+ * @param {Object.<string, {maxDepth: number, maxPoints: number}>} deps.datasetConfigs
+ *   Per-dataset tree configuration keyed by dataset path.
+ * @param {Object.<string, function(Float32Array, object): BaseTree>} deps.builders
+ *   Map of algorithm name → builder function that constructs and returns a built tree.
+ * @param {{maxDepth: number, maxPoints: number}} [deps.defaultConfig]
+ *   Fallback config used for local files or unknown dataset paths.
+ * @returns {{
+ *   buildOrGetTree: function(object): object,
+ *   changeDepth: function(number): {changed: boolean, depth: number},
+ *   clearCache: function(): void,
+ *   getActiveNodes: function(): TreeNode[],
+ *   getCurrentDepth: function(): number,
+ *   getCurrentTree: function(): BaseTree|null,
+ *   hasTree: function(string, string): boolean
+ * }}
+ */
 export function createPartitionService({ datasetConfigs, builders, defaultConfig = { maxDepth: 6, maxPoints: 50 } }) {
   const treeCache = new Map();
 

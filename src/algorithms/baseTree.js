@@ -11,11 +11,11 @@ export class BaseTree {
    * @param {number} maxPointsPerNode - A node with this many points or fewer becomes a leaf.
    */
   constructor(maxDepth, maxPointsPerNode) {
-    /** @type {number} Maximum allowed depth. */
+    /** Maximum allowed depth. @type {number} */
     this.maxDepth = maxDepth;
-    /** @type {number} Point threshold below which a node is finalized as a leaf. */
+    /** Point threshold below which a node is finalized as a leaf. @type {number} */
     this.maxPointsPerNode = maxPointsPerNode;
-    /** @type {TreeNode|null} Root node, set after {@link BaseTree#build} is called. */
+    /** Root node, set after {@link BaseTree#build} is called. @type {TreeNode|null} */
     this.root = null;
   }
 

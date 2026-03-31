@@ -9,17 +9,17 @@ export class TreeNode {
    * @param {number} depth - Depth of this node in the tree (root = 0).
    */
   constructor(bounds, depth) {
-    /** @type {THREE.Box3} Axis-aligned bounding box of this node's spatial region. */
+    /** Axis-aligned bounding box of this node's spatial region. @type {THREE.Box3} */
     this.bounds = bounds;
-    /** @type {number} Depth of this node (root = 0). */
+    /** Depth of this node (root = 0). @type {number} */
     this.depth = depth;
-    /** @type {TreeNode[]} Child nodes. Empty for leaf nodes. */
+    /** Child nodes. Empty for leaf nodes. @type {TreeNode[]} */
     this.children = [];
-    /** @type {THREE.Vector3[]|null} Points held during construction; nulled out after splitting. */
+    /** Points held during construction; nulled out after splitting. @type {THREE.Vector3[]|null} */
     this.points = [];
-    /** @type {boolean} True if this node has no children (is a leaf). */
+    /** True if this node has no children (is a leaf). @type {boolean} */
     this.isLeaf = true;
-    /** @type {number} Number of points contained in this leaf. */
+    /** Number of points contained in this leaf. @type {number} */
     this.pointCount = 0;
   }
 }

@@ -1,5 +1,14 @@
+/** @module viewer/helpers/axes */
+
 import * as THREE from "three";
 
+/**
+ * Builds a labeled XYZ axis helper as a Three.js Group.
+ * Each axis is a thin cylinder colored red (X), green (Y), or blue (Z),
+ * with a canvas-rendered sprite label at its tip.
+ * The group is unit-scaled; position and scale should be set by the caller.
+ * @returns {THREE.Group}
+ */
 export function createLabeledAxes() {
 
   const group = new THREE.Group();

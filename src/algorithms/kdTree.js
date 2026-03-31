@@ -40,6 +40,11 @@ export class KdTree extends BaseTree {
     this._splitNode(this.root);
   }
 
+  /**
+   * Recursively splits a node by the bounding-box midpoint along the current axis.
+   * Degenerate splits (all points fall on one side) finalize the node as a leaf.
+   * @param {TreeNode} node - The node to split.
+   */
   _splitNode(node) {
     if (node.depth >= this.maxDepth || node.points.length <= this.maxPointsPerNode) {
       this._finalizeLeaf(node);
