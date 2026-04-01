@@ -1,9 +1,16 @@
+/**
+ * @namespace algorithms
+ * @description Spatial partitioning tree implementations.
+ */
+
 import { Box3, Vector3 } from "three";
 
 /**
  * Abstract base class for all spatial partitioning trees.
  * Provides shared construction helpers and the depth-based node query used by visualizers.
  * Subclasses must implement {@link BaseTree#build} and {@link BaseTree#_splitNode}.
+ * @memberof algorithms
+ * @alias BaseTree
  */
 export class BaseTree {
   /**

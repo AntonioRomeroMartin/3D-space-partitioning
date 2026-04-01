@@ -14,7 +14,8 @@
     "sort": true,
     "collapse": true,
     "removeQuotes": "none",
-    "scripts": [],
+    "sectionOrder": ["Namespaces"],
+    "scripts": ["docs-theme.css"],
     "menu": {}
   }
 }

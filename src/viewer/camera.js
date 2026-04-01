@@ -1,9 +1,9 @@
-/** @module viewer/camera */
-
 import * as THREE from "three";
 
 /**
  * Creates a perspective camera with a 75° FOV positioned along the Z axis.
+ * @memberof viewer
+ * @alias createCamera
  * @returns {THREE.PerspectiveCamera}
  */
 export function createCamera() {
@@ -25,6 +25,8 @@ export function createCamera() {
  * Repositions the camera so that the given object fills the view.
  * The camera is placed along the Z axis at a distance proportional to
  * the object's bounding sphere diameter.
+ * @memberof viewer
+ * @alias fitCameraToObject
  * @param {THREE.PerspectiveCamera} camera
  * @param {THREE.Object3D} object
  * @returns {{ center: THREE.Vector3, size: THREE.Vector3 }}

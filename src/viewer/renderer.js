@@ -1,10 +1,10 @@
-/** @module viewer/renderer */
-
 import * as THREE from "three";
 
 /**
  * Creates and configures the Three.js WebGL renderer, sized to the full viewport,
  * and appends its canvas to the document body.
+ * @memberof viewer
+ * @alias createRenderer
  * @returns {THREE.WebGLRenderer}
  */
 export function createRenderer() {

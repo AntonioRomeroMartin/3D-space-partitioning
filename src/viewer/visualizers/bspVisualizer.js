@@ -1,12 +1,10 @@
 import * as THREE from "three";
 
 /**
- * Recursively collects all geometry indices from the leaves of a BSP subtree.
- * Uses an imperative accumulator to avoid intermediate array allocations.
  * @param {TreeNode} node
- * @param {number[]} out - Accumulator array to push indices into.
+ * @param {number[]} out
  * @returns {number[]}
- * @inner
+ * @ignore
  */
 function gatherIndices(node, out = []) {
   if (node.isLeaf) {
@@ -19,12 +17,10 @@ function gatherIndices(node, out = []) {
 }
 
 /**
- * Recursively collects all internal BSP nodes up to (but not including) `maxDepth`.
- * Each collected node carries a `splitPlane` property used to render the cutting plane.
  * @param {TreeNode} node
- * @param {number} maxDepth - Display depth; only nodes with depth < maxDepth are included.
- * @param {TreeNode[]} result - Accumulator array.
- * @inner
+ * @param {number} maxDepth
+ * @param {TreeNode[]} result
+ * @ignore
  */
 function collectSplitPlanes(node, maxDepth, result) {
   if (!node || node.isLeaf || node.depth >= maxDepth) return;
@@ -41,6 +37,8 @@ function collectSplitPlanes(node, maxDepth, result) {
  * as semi-transparent {@link THREE.InstancedMesh} quads oriented to the PCA normal.
  *
  * On {@link BspVisualizer#clear}, the original height-ramp colors are restored.
+ * @memberof viewer.visualizers
+ * @alias BspVisualizer
  */
 export class BspVisualizer {
   /**

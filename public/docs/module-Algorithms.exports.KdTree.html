@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    
+    <meta charset="utf-8">
+    <title>exports.KdTree - Documentation</title>
+    
+    
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc.css">
+    <script src="scripts/nav.js" defer></script>
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
+
+<label for="nav-trigger" class="overlay"></label>
+
+<nav >
+    
+    
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="module-Algorithms.exports.BaseTree.html">exports.BaseTree</a></li><li><a href="module-Algorithms.exports.BspTree.html">exports.BspTree</a></li><li><a href="module-Algorithms.exports.KdTree.html">exports.KdTree</a></li><li><a href="module-Algorithms.exports.Octree.html">exports.Octree</a></li><li><a href="module-Algorithms.exports.TreeNode.html">exports.TreeNode</a></li><li><a href="module-Visualizers.exports.BspVisualizer.html">exports.BspVisualizer</a></li><li><a href="module-Visualizers.exports.KdTreeVisualizer.html">exports.KdTreeVisualizer</a></li><li><a href="module-Visualizers.exports.OctreeVisualizer.html">exports.OctreeVisualizer</a></li><li><a href="module-Visualizers.exports.TreeVisualizer.html">exports.TreeVisualizer</a></li></ul><h3>Modules</h3><ul><li><a href="module-Algorithms.html">Algorithms</a></li><li></li><li></li><li></li><li></li><li><a href="module-Helpers.html">Helpers</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-Helpers.html#.exports.createLabeledAxes">exports.createLabeledAxes</a></li><li data-type='method' style='display: none;'><a href="module-Helpers.html#.exports.getHeightColor">exports.getHeightColor</a></li></ul></li><li></li><li><a href="module-Loaders.html">Loaders</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-Loaders.html#.exports.loadPointCloud">exports.loadPointCloud</a></li></ul></li><li><a href="module-Services.html">Services</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-Services.html#.exports.createDatasetService">exports.createDatasetService</a></li><li data-type='method' style='display: none;'><a href="module-Services.html#.exports.createPartitionService">exports.createPartitionService</a></li></ul></li><li></li><li><a href="module-Viewer.html">Viewer</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-Viewer.html#.exports.createCamera">exports.createCamera</a></li><li data-type='method' style='display: none;'><a href="module-Viewer.html#.exports.createControls">exports.createControls</a></li><li data-type='method' style='display: none;'><a href="module-Viewer.html#.exports.createRenderer">exports.createRenderer</a></li><li data-type='method' style='display: none;'><a href="module-Viewer.html#.exports.createScene">exports.createScene</a></li><li data-type='method' style='display: none;'><a href="module-Viewer.html#.exports.fitCameraToObject">exports.fitCameraToObject</a></li></ul></li><li></li><li></li><li></li><li><a href="module-Visualizers.html">Visualizers</a></li><li></li><li></li><li></li></ul>
+    
+</nav>
+
+<div id="main">
+    
+    <h1 class="page-title">exports.KdTree</h1>
+    
+
+    
+
+
+
+
+<section>
+
+<header>
+    
+        <h2>
+            <span class="ancestors"><a href="module-Algorithms.html">Algorithms</a>.</span>
+        
+        
+            exports.KdTree
+        
+        </h2>
+        
+            <div class="class-description usertext"><p>k-d Tree spatial partitioning structure.</p>
+<p>At each level the splitting axis cycles through X → Y → Z (depth % 3).
+The split plane is placed at the midpoint of the current node's bounding box
+along the active axis, giving O(n log n) total build time. Points are
+partitioned into a left child (coord &lt; splitValue) and a right child
+(coord ≥ splitValue); degenerate splits that produce an empty side
+finalize the node as a leaf instead.</p></div>
+        
+    
+</header>
+
+<article>
+    
+        <div class="container-overview">
+        
+            
+
+    
+    <h2>Constructor</h2>
+    
+
+    <h4 class="name" id="exports.KdTree"><span class="type-signature"></span>new exports.KdTree<span class="signature">(maxDepth, maxPointsPerNode)</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+
+<dl class="details">
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="algorithms_kdTree.js.html">algorithms/kdTree.js</a>, <a href="algorithms_kdTree.js.html#line20">line 20</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <h5 class="h5-parameters">Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>maxDepth</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Maximum recursion depth.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>maxPointsPerNode</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Leaf threshold.</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+        </div>
+    
+
+    
+        <h3 class="subsection-title">Extends</h3>
+
+        
+
+
+    <ul>
+        <li>BaseTree</li>
+    </ul>
+
+
+    
+
+    
+
+    
+    
+    
+
+     
+
+    
+
+    
+
+    
+
+    
+
+    
+</article>
+
+</section>
+
+
+
+
+    
+    
+</div>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 4.0.5</a> on Wed Apr 01 2026 09:51:16 GMT+0200 (hora de verano de Europa central) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+</footer>
+
+<script>prettyPrint();</script>
+<script src="scripts/polyfill.js"></script>
+<script src="scripts/linenumber.js"></script>
+
+
+<script src="scripts/collapse.js" defer></script>
+
+
+</body>
+</html>

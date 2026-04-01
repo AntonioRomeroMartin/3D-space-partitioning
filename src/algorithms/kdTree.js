@@ -12,6 +12,8 @@ import { BaseTree } from "./baseTree.js";
  * (coord ≥ splitValue); degenerate splits that produce an empty side
  * finalize the node as a leaf instead.
  *
+ * @memberof algorithms
+ * @alias KdTree
  * @extends BaseTree
  */
 export class KdTree extends BaseTree {

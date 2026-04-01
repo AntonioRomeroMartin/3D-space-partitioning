@@ -5,6 +5,8 @@ import { TreeVisualizer } from "./treeVisualizer.js";
  * Visualizer for the k-d Tree algorithm.
  * Colors each cell by its splitting axis: red = X, green = Y, blue = Z.
  * The axis is determined by `node.depth % 3`, matching the build strategy.
+ * @memberof viewer.visualizers
+ * @alias KdTreeVisualizer
  * @extends TreeVisualizer
  */
 export class KdTreeVisualizer extends TreeVisualizer {

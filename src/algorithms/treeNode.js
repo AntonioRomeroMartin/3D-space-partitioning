@@ -2,6 +2,8 @@
  * A single node in a spatial partitioning tree (Octree, k-d Tree, or BSP Tree).
  * Internal nodes store child references; leaf nodes store point counts and,
  * for BSP trees, a typed index array into the original geometry buffer.
+ * @memberof algorithms
+ * @alias TreeNode
  */
 export class TreeNode {
   /**

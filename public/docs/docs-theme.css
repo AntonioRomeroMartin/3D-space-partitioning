@@ -1,0 +1,161 @@
+/* =====================================================
+   3D Space Partitioning — docs theme
+   Palette: bg #0a0a0a  |  yellow #ffcc00  |  blue #4da6ff
+   ===================================================== */
+
+/* ── Reset backgrounds ── */
+body, section, header, article, footer,
+#main, .container-overview {
+  background: #0a0a0a !important;
+  color: #ccc !important;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+/* ── All links: blue (overrides every #606 instance) ── */
+a, a:link, a:visited, a:active { color: #4da6ff !important; text-decoration: none; }
+a:hover                         { color: #7fc0ff !important; }
+article a { border-bottom-color: rgba(77,166,255,0.2) !important; }
+
+/* ── Headings ── */
+h1, h2, h3, h4, h5, h6,
+.usertext h1, .usertext h2,
+.usertext h3, .usertext h4,
+.usertext h5, .usertext h6 {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
+  color: #ccc !important;
+}
+h1.page-title { color: #fff !important; }
+h2            { color: #fff !important; }
+
+/* subsection titles (Members, Methods, Classes…) */
+h3.subsection-title,
+h5, .container-overview .subsection-title {
+  color: #4da6ff !important;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  font-size: 11px !important;
+  border-bottom: 1px solid rgba(77,166,255,0.15) !important;
+  padding-bottom: 6px;
+}
+
+/* ── Method / member header bar ── */
+h4.name {
+  background: #111 !important;
+  border-top: 1px solid rgba(255,255,255,0.07) !important;
+  border-bottom: 1px solid rgba(255,255,255,0.07) !important;
+  box-shadow: none !important;
+  color: #ffcc00 !important;
+  border-radius: 6px;
+}
+h4.name a, h4.name a:link,
+h4.name a:visited, h4.name a:hover { color: #ffcc00 !important; border-bottom: none !important; }
+
+/* ── Signature line ── */
+.signature {
+  background: #111 !important;
+  border: 1px solid rgba(255,255,255,0.07) !important;
+  border-left: 3px solid #ffcc00 !important;
+  border-radius: 0 6px 6px 0;
+  color: #ccc !important;        /* override #fc83ff */
+}
+/* remove the | bar inside method headers */
+h4.name .signature {
+  background: transparent !important;
+  border: none !important;
+  color: #aaa !important;
+}
+.signature-attributes { color: #555 !important; }
+
+/* ── Type display (overrides #606 and #CA79CA) ── */
+.type-signature                              { color: #4da6ff !important; }
+.type-signature:last-child                   { color: #777  !important; }
+span.param-type,
+.params td .param-type,
+.param-type dd                               { color: #4da6ff !important; }
+.type                                        { color: #4da6ff !important; }
+
+/* ── ancestors breadcrumb ── */
+.ancestors, .ancestors a { color: #555 !important; }
+
+/* ── Details block (Source, Description labels) ── */
+.details { border-left: 2px solid rgba(255,255,255,0.1) !important; }
+.details dt              { color: #666 !important; }
+.details dd, .details li { color: #aaa !important; }
+.details a               { color: #4da6ff !important; }
+
+/* ── Param/prop tables ── */
+table  { border-color: rgba(255,255,255,0.05) !important; }
+thead tr {
+  background: #111 !important;
+  border-bottom: 1px solid rgba(255,255,255,0.07) !important;
+}
+th {
+  color: #484848 !important;
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  font-size: 11px;
+}
+td { color: #aaa !important; border-color: rgba(255,255,255,0.04) !important; background: transparent !important; }
+tbody tr:nth-child(odd) td { background: rgba(255,255,255,0.02) !important; }
+
+/* param name column */
+.params td, .params .name,
+.props  td, .props  .name,
+.name code { color: #ccc !important; }
+.params td.description p,
+.props  td.description p   { color: #aaa !important; }
+
+/* ── Inline code & pre blocks ── */
+tt, code, kbd, samp {
+  background: #161616 !important;
+  color: #ffcc00 !important;
+  border-radius: 4px;
+}
+pre, pre.prettyprint {
+  background: #0d0d0d !important;
+  border: 1px solid rgba(255,255,255,0.07) !important;
+  border-radius: 6px;
+  color: #ccc !important;
+}
+h4.name code { background: transparent !important; }
+
+/* prettify token colors */
+.pln { color: #ccc !important; }
+.kwd { color: #4da6ff !important; }
+.str { color: #ffcc00 !important; }
+.com { color: #444 !important; font-style: italic; }
+.typ { color: #ffe066 !important; }
+.lit { color: #ffcc00 !important; }
+.pun { color: #777 !important; }
+
+/* ── Sidebar ── */
+nav {
+  background: #080808 !important;
+  border-right: 1px solid rgba(255,255,255,0.07) !important;
+}
+/* "Home" link — original has !important on #606, need to beat it */
+nav h2 a, nav > h2 > a { color: #fff !important; }
+nav h3 {
+  color: #484848 !important;
+  letter-spacing: 1.8px;
+  font-size: 11px !important;
+  text-transform: uppercase;
+}
+/* level 1 — namespace names */
+nav ul > li > a                    { color: #4da6ff !important; }
+/* level 2 — items inside ul.methods (exact class docdash generates) */
+nav ul.methods a,
+nav ul.methods a:active            { color: #1e5a8a !important; }
+nav ul.methods                     { border-left: 1px solid rgba(77,166,255,0.12) !important; margin-left: 8px; }
+/* hover */
+nav ul > li > a:hover              { color: #7fc0ff !important; background: transparent !important; }
+nav ul.methods a:hover             { color: #4da6ff !important; background: transparent !important; }
+/* active page */
+nav ul li.active > a               { color: #7fc0ff !important; }
+
+/* ── Footer ── */
+footer { color: #444 !important; border-top: 1px solid rgba(255,255,255,0.05) !important; }
+footer a { color: #666 !important; }

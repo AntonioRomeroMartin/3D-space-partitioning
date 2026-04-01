@@ -1,3 +1,8 @@
+/**
+ * @namespace viewer.visualizers
+ * @description Renderers for each spatial partitioning algorithm.
+ */
+
 import * as THREE from "three";
 
 /**
@@ -5,6 +10,8 @@ import * as THREE from "three";
  * Renders the active nodes as two overlapping InstancedMeshes: a semi-transparent
  * solid mesh and a wireframe mesh, both sharing the same BoxGeometry.
  * Subclasses override {@link TreeVisualizer#getNodeColor} to supply per-node colors.
+ * @memberof viewer.visualizers
+ * @alias TreeVisualizer
  */
 export class TreeVisualizer {
   /**

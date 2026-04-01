@@ -4,6 +4,8 @@ import { getHeightColor } from "../helpers/colorRamp.js";
 /**
  * Visualizer for the Octree algorithm.
  * Colors each cell by the Z coordinate of its center using the blue → red height ramp.
+ * @memberof viewer.visualizers
+ * @alias OctreeVisualizer
  * @extends TreeVisualizer
  */
 export class OctreeVisualizer extends TreeVisualizer {

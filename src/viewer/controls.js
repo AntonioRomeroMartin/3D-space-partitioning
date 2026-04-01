@@ -1,11 +1,11 @@
-/** @module viewer/controls */
-
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 
 /**
  * Creates OrbitControls with damping enabled.
  * Left-drag orbits, scroll wheel zooms. Right-click and panning are disabled.
+ * @memberof viewer
+ * @alias createControls
  * @param {THREE.Camera} camera
  * @param {HTMLElement} domElement - The renderer's canvas element.
  * @returns {OrbitControls}

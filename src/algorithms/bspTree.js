@@ -8,6 +8,8 @@ import { BaseTree } from "./baseTree.js";
  * Recursively splits the point cloud using planes aligned to the principal axis (PCA) of the points in each node.
  * Each split divides the node into two children (front and back) until the maximum depth or minimum point threshold is reached.
  *
+ * @memberof algorithms
+ * @alias BspTree
  * @extends BaseTree
  */
 export class BspTree extends BaseTree {

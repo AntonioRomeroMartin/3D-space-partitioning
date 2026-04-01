@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    
+    <meta charset="utf-8">
+    <title>exports.TreeVisualizer - Documentation</title>
+    
+    
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc.css">
+    <script src="scripts/nav.js" defer></script>
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
+
+<label for="nav-trigger" class="overlay"></label>
+
+<nav >
+    
+    
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="algorithms.exports.BaseTree.html">exports.BaseTree</a></li><li><a href="algorithms.exports.BspTree.html">exports.BspTree</a><ul class='methods'><li data-type='method' style='display: none;'><a href="algorithms.exports.BspTree.html#_finalizeLeaf">_finalizeLeaf</a></li><li data-type='method' style='display: none;'><a href="algorithms.exports.BspTree.html#_positionsToPointsAndBounds">_positionsToPointsAndBounds</a></li><li data-type='method' style='display: none;'><a href="algorithms.exports.BspTree.html#_splitNode">_splitNode</a></li><li data-type='method' style='display: none;'><a href="algorithms.exports.BspTree.html#build">build</a></li><li data-type='method' style='display: none;'><a href="algorithms.exports.BspTree.html#getNodesAtDepth">getNodesAtDepth</a></li></ul></li><li><a href="algorithms.exports.KdTree.html">exports.KdTree</a><ul class='methods'><li data-type='method' style='display: none;'><a href="algorithms.exports.KdTree.html#_finalizeLeaf">_finalizeLeaf</a></li><li data-type='method' style='display: none;'><a href="algorithms.exports.KdTree.html#_positionsToPointsAndBounds">_positionsToPointsAndBounds</a></li><li data-type='method' style='display: none;'><a href="algorithms.exports.KdTree.html#_splitNode">_splitNode</a></li><li data-type='method' style='display: none;'><a href="algorithms.exports.KdTree.html#build">build</a></li><li data-type='method' style='display: none;'><a href="algorithms.exports.KdTree.html#getNodesAtDepth">getNodesAtDepth</a></li></ul></li><li><a href="algorithms.exports.Octree.html">exports.Octree</a><ul class='methods'><li data-type='method' style='display: none;'><a href="algorithms.exports.Octree.html#_finalizeLeaf">_finalizeLeaf</a></li><li data-type='method' style='display: none;'><a href="algorithms.exports.Octree.html#_positionsToPointsAndBounds">_positionsToPointsAndBounds</a></li><li data-type='method' style='display: none;'><a href="algorithms.exports.Octree.html#_splitNode">_splitNode</a></li><li data-type='method' style='display: none;'><a href="algorithms.exports.Octree.html#build">build</a></li><li data-type='method' style='display: none;'><a href="algorithms.exports.Octree.html#getNodesAtDepth">getNodesAtDepth</a></li></ul></li><li><a href="algorithms.exports.TreeNode.html">exports.TreeNode</a></li><li><a href="viewer.visualizers.exports.BspVisualizer.html">exports.BspVisualizer</a></li><li><a href="viewer.visualizers.exports.KdTreeVisualizer.html">exports.KdTreeVisualizer</a><ul class='methods'><li data-type='method' style='display: none;'><a href="viewer.visualizers.exports.KdTreeVisualizer.html#clear">clear</a></li><li data-type='method' style='display: none;'><a href="viewer.visualizers.exports.KdTreeVisualizer.html#getNodeColor">getNodeColor</a></li><li data-type='method' style='display: none;'><a href="viewer.visualizers.exports.KdTreeVisualizer.html#setVisibility">setVisibility</a></li><li data-type='method' style='display: none;'><a href="viewer.visualizers.exports.KdTreeVisualizer.html#update">update</a></li></ul></li><li><a href="viewer.visualizers.exports.OctreeVisualizer.html">exports.OctreeVisualizer</a><ul class='methods'><li data-type='method' style='display: none;'><a href="viewer.visualizers.exports.OctreeVisualizer.html#clear">clear</a></li><li data-type='method' style='display: none;'><a href="viewer.visualizers.exports.OctreeVisualizer.html#getNodeColor">getNodeColor</a></li><li data-type='method' style='display: none;'><a href="viewer.visualizers.exports.OctreeVisualizer.html#setVisibility">setVisibility</a></li><li data-type='method' style='display: none;'><a href="viewer.visualizers.exports.OctreeVisualizer.html#update">update</a></li></ul></li><li><a href="viewer.visualizers.exports.TreeVisualizer.html">exports.TreeVisualizer</a></li></ul><h3>Namespaces</h3><ul><li><a href="algorithms.html">algorithms</a></li><li><a href="loaders.html">loaders</a><ul class='methods'><li data-type='method' style='display: none;'><a href="loaders.html#.exports.loadPointCloud">exports.loadPointCloud</a></li></ul></li><li><a href="services.html">services</a><ul class='methods'><li data-type='method' style='display: none;'><a href="services.html#.exports.createDatasetService">exports.createDatasetService</a></li><li data-type='method' style='display: none;'><a href="services.html#.exports.createPartitionService">exports.createPartitionService</a></li></ul></li><li><a href="viewer.html">viewer</a><ul class='methods'><li data-type='method' style='display: none;'><a href="viewer.html#.exports.createCamera">exports.createCamera</a></li><li data-type='method' style='display: none;'><a href="viewer.html#.exports.createControls">exports.createControls</a></li><li data-type='method' style='display: none;'><a href="viewer.html#.exports.createRenderer">exports.createRenderer</a></li><li data-type='method' style='display: none;'><a href="viewer.html#.exports.createScene">exports.createScene</a></li><li data-type='method' style='display: none;'><a href="viewer.html#.exports.fitCameraToObject">exports.fitCameraToObject</a></li></ul></li><li><a href="viewer.helpers.html">helpers</a><ul class='methods'><li data-type='method' style='display: none;'><a href="viewer.helpers.html#.exports.createLabeledAxes">exports.createLabeledAxes</a></li><li data-type='method' style='display: none;'><a href="viewer.helpers.html#.exports.getHeightColor">exports.getHeightColor</a></li></ul></li><li><a href="viewer.visualizers.html">visualizers</a></li></ul>
+    
+</nav>
+
+<div id="main">
+    
+    <h1 class="page-title">exports.TreeVisualizer</h1>
+    
+
+    
+
+
+
+
+<section>
+
+<header>
+    
+        <h2>
+            <span class="ancestors"><a href="viewer.html">viewer</a><a href="viewer.visualizers.html">.visualizers</a>.</span>
+        
+        
+            exports.TreeVisualizer
+        
+        </h2>
+        
+            <div class="class-description usertext"><p>Base visualizer for axis-aligned tree structures (Octree, k-d Tree).
+Renders the active nodes as two overlapping InstancedMeshes: a semi-transparent
+solid mesh and a wireframe mesh, both sharing the same BoxGeometry.
+Subclasses override <a href="TreeVisualizer.html#getNodeColor">TreeVisualizer#getNodeColor</a> to supply per-node colors.</p></div>
+        
+    
+</header>
+
+<article>
+    
+        <div class="container-overview">
+        
+            
+
+    
+    <h2>Constructor</h2>
+    
+
+    <h4 class="name" id="exports.TreeVisualizer"><span class="type-signature"></span>new exports.TreeVisualizer<span class="signature">(scene)</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+
+<dl class="details">
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="viewer_visualizers_treeVisualizer.js.html">viewer/visualizers/treeVisualizer.js</a>, <a href="viewer_visualizers_treeVisualizer.js.html#line16">line 16</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <h5 class="h5-parameters">Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>scene</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">THREE.Scene</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>The scene to add meshes to.</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+        </div>
+    
+
+    
+
+    
+
+    
+    
+    
+
+     
+
+    
+
+    
+
+    
+
+    
+
+    
+</article>
+
+</section>
+
+
+
+
+    
+    
+</div>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 4.0.5</a> on Wed Apr 01 2026 10:05:04 GMT+0200 (hora de verano de Europa central) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+</footer>
+
+<script>prettyPrint();</script>
+<script src="scripts/polyfill.js"></script>
+<script src="scripts/linenumber.js"></script>
+
+
+<script src="scripts/collapse.js" defer></script>
+
+
+</body>
+</html>

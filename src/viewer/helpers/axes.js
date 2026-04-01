@@ -1,5 +1,3 @@
-/** @module viewer/helpers/axes */
-
 import * as THREE from "three";
 
 /**
@@ -7,6 +5,8 @@ import * as THREE from "three";
  * Each axis is a thin cylinder colored red (X), green (Y), or blue (Z),
  * with a canvas-rendered sprite label at its tip.
  * The group is unit-scaled; position and scale should be set by the caller.
+ * @memberof viewer.helpers
+ * @alias createLabeledAxes
  * @returns {THREE.Group}
  */
 export function createLabeledAxes() {

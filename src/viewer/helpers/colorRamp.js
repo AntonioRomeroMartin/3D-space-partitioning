@@ -1,4 +1,7 @@
-/** @module viewer/helpers/colorRamp */
+/**
+ * @namespace viewer.helpers
+ * @description Utility helpers for color mapping and scene decorations.
+ */
 
 import * as THREE from "three";
 
@@ -6,6 +9,8 @@ import * as THREE from "three";
  * Maps a Z coordinate to a color on the blue → red HSL gradient.
  * Low Z values map to hue 0.7 (purple/blue); high Z values map to hue 0.0 (red).
  * The result is written into `outColor` to avoid allocating a new Color object per point.
+ * @memberof viewer.helpers
+ * @alias getHeightColor
  * @param {number} z - The Z coordinate of the point.
  * @param {number} zMin - Minimum Z in the dataset (maps to blue).
  * @param {number} zMax - Maximum Z in the dataset (maps to red).

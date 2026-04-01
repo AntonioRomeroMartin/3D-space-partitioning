@@ -10,6 +10,8 @@ import { BaseTree } from "./baseTree.js";
  * contains at least one point. The root bounds are forced into a perfect cube
  * so all child cells remain axis-aligned cubes at every depth level.
  *
+ * @memberof algorithms
+ * @alias Octree
  * @extends BaseTree
  */
 export class Octree extends BaseTree {

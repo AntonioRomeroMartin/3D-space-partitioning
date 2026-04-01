@@ -1,4 +1,7 @@
-/** @module services/datasetService */
+/**
+ * @namespace services
+ * @description Application-level services for dataset and partition management.
+ */
 
 import * as THREE from "three";
 
@@ -14,6 +17,8 @@ import { createLabeledAxes } from "../viewer/helpers/axes.js";
  * Remote datasets (URL strings) are cached by URL so subsequent loads are instant.
  * Local files (File objects) are never cached.
  *
+ * @memberof services
+ * @alias createDatasetService
  * @param {object} deps
  * @param {THREE.Scene} deps.scene
  * @param {THREE.PerspectiveCamera} deps.camera

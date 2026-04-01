@@ -1,5 +1,3 @@
-/** @module services/partitionService */
-
 /**
  * Factory that creates the partition service responsible for building, caching,
  * and querying spatial partitioning trees (Octree, k-d Tree, BSP Tree).
@@ -8,6 +6,8 @@
  * per session. The service also tracks the current display depth and exposes
  * `changeDepth` for keyboard-driven depth navigation.
  *
+ * @memberof services
+ * @alias createPartitionService
  * @param {object} deps
  * @param {Object.<string, {maxDepth: number, maxPoints: number}>} deps.datasetConfigs
  *   Per-dataset tree configuration keyed by dataset path.

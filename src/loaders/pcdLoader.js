@@ -1,4 +1,7 @@
-/** @module loaders/pcdLoader */
+/**
+ * @namespace loaders
+ * @description Point cloud file loaders.
+ */
 
 import { PCDLoader } from "three/addons/loaders/PCDLoader.js";
 
@@ -6,6 +9,8 @@ import { PCDLoader } from "three/addons/loaders/PCDLoader.js";
  * Loads a PCD point cloud from a remote URL or a local File object and adds it to the scene.
  * For local files a temporary object URL is created and revoked after loading.
  * Parsing is performed synchronously on the main thread by Three.js's PCDLoader.
+ * @memberof loaders
+ * @alias loadPointCloud
  * @param {THREE.Scene} scene - Scene to add the loaded points to.
  * @param {string|File} source - Remote URL string or local File (binary or ASCII PCD).
  * @param {function(THREE.Points): void} onLoaded - Called with the loaded Points object.
