@@ -2,6 +2,10 @@
  * A single node in a spatial partitioning tree (Octree, k-d Tree, or BSP Tree).
  * Internal nodes store child references; leaf nodes store point counts and,
  * for BSP trees, a typed index array into the original geometry buffer.
+ *
+ * BSP trees add two extra properties at runtime:
+ * - `splitPlane` `{nx,ny,nz,ox,oy,oz}` on internal nodes (the PCA split plane).
+ * - `indices` `{Int32Array}` on leaf nodes (geometry buffer indices for recoloring).
  * @memberof algorithms
  * @alias TreeNode
  */
@@ -18,10 +22,20 @@ export class TreeNode {
     /** Child nodes. Empty for leaf nodes. @type {TreeNode[]} */
     this.children = [];
     /** Points held during construction; nulled out after splitting. @type {THREE.Vector3[]|null} */
-    this.points = [];
+    this.points = null;
     /** True if this node has no children (is a leaf). @type {boolean} */
     this.isLeaf = true;
     /** Number of points contained in this leaf. @type {number} */
     this.pointCount = 0;
+    /**
+     * Inclusive start index into the tree's shared points array.
+     * Set by index-range trees (e.g. KdTree); 0 for others. @type {number}
+     */
+    this.pointsStart = 0;
+    /**
+     * Exclusive end index into the tree's shared points array.
+     * Set by index-range trees (e.g. KdTree); 0 for others. @type {number}
+     */
+    this.pointsEnd = 0;
   }
 }

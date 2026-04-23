@@ -153,10 +153,13 @@ function syncControlsForAlgorithm() {
 
 // --- VISUAL TOGGLES ---
 function syncTreeVisibility() {
+  const algo = currentAlgorithm();
   const showCubes = showCubesCheckbox ? showCubesCheckbox.checked : true;
   const showWireframes = showWireframesCheckbox ? showWireframesCheckbox.checked : true;
-  const visualizer = visualizersByAlgorithm[currentAlgorithm()] || octreeVisualizer;
-  visualizer.setVisibility(showCubes, showWireframes);
+  const visualizer = visualizersByAlgorithm[algo] || octreeVisualizer;
+  // "Cubes" is hidden for BSP — ignore its stale state so the point cloud is never
+  // inadvertently hidden when switching from an algorithm that had it unchecked.
+  visualizer.setVisibility(algo === "bsp" ? true : showCubes, showWireframes);
 }
 
 function syncAxesVisibility() {
@@ -207,6 +210,8 @@ function updateVisualization() {
     partitionService.getCurrentTree()?.root,
     partitionService.getCurrentDepth()
   );
+
+  syncTreeVisibility();
 
   if (depthDisplay) depthDisplay.innerText = partitionService.getCurrentDepth();
 

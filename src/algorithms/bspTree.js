@@ -23,6 +23,9 @@ export class BspTree extends BaseTree {
 
   /**
    * Builds the BSP tree from a flat interleaved position array.
+   * Pre-allocates three Float32Arrays (`this._wx`, `this._wy`, `this._wz`) sized
+   * to the total point count, reused by every `_computePrincipalAxis` call to
+   * avoid per-node typed-array allocation during recursive splitting.
    * @param {Float32Array} positions - Flat [x,y,z, …] array from PCD geometry.
    */
   build(positions) {
@@ -31,6 +34,10 @@ export class BspTree extends BaseTree {
       this.root = null;
       return;
     }
+
+    this._wx = new Float32Array(points.length);
+    this._wy = new Float32Array(points.length);
+    this._wz = new Float32Array(points.length);
 
     this.root = new TreeNode(bounds, 0);
     this.root.points = points;
@@ -70,19 +77,21 @@ export class BspTree extends BaseTree {
   }
 
   /**
-   * Computes the principal axis (dominant eigenvector) of the covariance matrix of the points using power iteration.
+   * Computes the principal axis (dominant eigenvector) of the covariance matrix
+   * of the points using power iteration (20 iterations).
    * Returns the axis (nx, ny, nz) and the centroid (ox, oy, oz) as the split origin.
+   * Coordinates are copied into the pre-allocated `this._wx/_wy/_wz` arrays for
+   * cache-friendly covariance computation — no per-call allocations.
    * @param {THREE.Vector3[]} points
    * @returns {{ nx: number, ny: number, nz: number, ox: number, oy: number, oz: number }}
    * @protected
    */
   _computePrincipalAxis(points) {
     const n = points.length;
+    const xs = this._wx;
+    const ys = this._wy;
+    const zs = this._wz;
 
-    // Extract to flat arrays and compute centroid in one pass.
-    const xs = new Float32Array(n);
-    const ys = new Float32Array(n);
-    const zs = new Float32Array(n);
     let mx = 0, my = 0, mz = 0;
     for (let i = 0; i < n; i++) {
       const p = points[i];

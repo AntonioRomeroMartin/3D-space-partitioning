@@ -64,6 +64,8 @@ export class TreeVisualizer {
 
   /**
    * Rebuilds both instanced meshes from a list of active tree nodes.
+   * Extra arguments beyond `zMax` are accepted but ignored; they exist so all
+   * visualizers can be called with the same signature as {@link BspVisualizer#update}.
    * @param {TreeNode[]} nodes - Nodes returned by {@link BaseTree#getNodesAtDepth}.
    * @param {number} zMin - Dataset minimum Z (used for height coloring).
    * @param {number} zMax - Dataset maximum Z (used for height coloring).

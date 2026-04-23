@@ -482,7 +482,7 @@ so all child cells remain axis-aligned cubes at every depth level.</p></div>
 
     
 
-    <h4 class="name" id="_finalizeLeaf"><span class="type-signature"></span>_finalizeLeaf<span class="signature">(node)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="_finalizeLeaf"><span class="type-signature"></span>_finalizeLeaf<span class="signature">(node, pointCount<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h4>
 
     
 
@@ -492,13 +492,15 @@ so all child cells remain axis-aligned cubes at every depth level.</p></div>
 <dl class="details">
     
     <dt class="tag-description">Description:</dt>
-    <dd class="tag-description"><ul class="dummy"><li><p>Marks a node as a leaf, records its point count, and frees the point array.</p></li></ul></dd>
+    <dd class="tag-description"><ul class="dummy"><li><p>Marks a node as a leaf, records its point count, and frees the point array.
+Pass <code>pointCount</code> explicitly when the subclass manages points outside <code>node.points</code>
+(e.g. index-range trees that keep a shared array on the tree itself).</p></li></ul></dd>
     
 
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="algorithms_baseTree.js.html">algorithms/baseTree.js</a>, <a href="algorithms_baseTree.js.html#line80">line 80</a>
+        <a href="algorithms_baseTree.js.html">algorithms/baseTree.js</a>, <a href="algorithms_baseTree.js.html#line83">line 83</a>
     </li></ul></dd>
     
 
@@ -563,6 +565,8 @@ so all child cells remain axis-aligned cubes at every depth level.</p></div>
         <th>Type</th>
 
         
+        <th>Attributes</th>
+        
 
         
 
@@ -588,6 +592,48 @@ so all child cells remain axis-aligned cubes at every depth level.</p></div>
             
             </td>
 
+            
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>pointCount</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
             
 
             
@@ -638,7 +684,7 @@ so all child cells remain axis-aligned cubes at every depth level.</p></div>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="algorithms_baseTree.js.html">algorithms/baseTree.js</a>, <a href="algorithms_baseTree.js.html#line91">line 91</a>
+        <a href="algorithms_baseTree.js.html">algorithms/baseTree.js</a>, <a href="algorithms_baseTree.js.html#line94">line 94</a>
     </li></ul></dd>
     
 
@@ -793,13 +839,15 @@ so all child cells remain axis-aligned cubes at every depth level.</p></div>
     <dt class="tag-description">Description:</dt>
     <dd class="tag-description"><ul class="dummy"><li><p>Recursively divides a node into up to 8 octants.
 Points are assigned to octants using bitwise flags on the X, Y, Z axes.
-Only octants that contain at least one point produce a child node.</p></li></ul></dd>
+Only octants that contain at least one point produce a child node.
+Reuses the pre-allocated bucket arrays from <code>this._buckets[node.depth]</code>,
+resetting each via <code>.length = 0</code> to avoid per-node array allocation.</p></li></ul></dd>
     
 
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="algorithms_ocTree.js.html">algorithms/ocTree.js</a>, <a href="algorithms_ocTree.js.html#line65">line 65</a>
+        <a href="algorithms_ocTree.js.html">algorithms/ocTree.js</a>, <a href="algorithms_ocTree.js.html#line74">line 74</a>
     </li></ul></dd>
     
 
@@ -934,13 +982,15 @@ Only octants that contain at least one point produce a child node.</p></li></ul>
     
     <dt class="tag-description">Description:</dt>
     <dd class="tag-description"><ul class="dummy"><li><p>Builds the Octree from a flat interleaved position array.
-The global bounding box is expanded to a perfect cube before splitting begins.</p></li></ul></dd>
+The global bounding box is expanded to a perfect cube before splitting begins.
+Pre-allocates one set of 8 point buckets per depth level in <code>this._buckets</code>
+so that no new arrays are created during recursive splitting.</p></li></ul></dd>
     
 
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="algorithms_ocTree.js.html">algorithms/ocTree.js</a>, <a href="algorithms_ocTree.js.html#line31">line 31</a>
+        <a href="algorithms_ocTree.js.html">algorithms/ocTree.js</a>, <a href="algorithms_ocTree.js.html#line33">line 33</a>
     </li></ul></dd>
     
 
@@ -1240,7 +1290,7 @@ that are already leaves are also included so the tree always appears complete.</
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 4.0.5</a> on Wed Apr 01 2026 11:50:19 GMT+0200 (hora de verano de Europa central) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 4.0.5</a> on Thu Apr 23 2026 23:31:19 GMT+0200 (hora de verano de Europa central) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
 </footer>
 
 <script>prettyPrint();</script>

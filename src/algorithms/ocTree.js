@@ -26,6 +26,8 @@ export class Octree extends BaseTree {
   /**
    * Builds the Octree from a flat interleaved position array.
    * The global bounding box is expanded to a perfect cube before splitting begins.
+   * Pre-allocates one set of 8 point buckets per depth level in `this._buckets`
+   * so that no new arrays are created during recursive splitting.
    * @param {Float32Array} positions - Flat [x,y,z, …] array from PCD geometry.
    */
   build(positions) {
@@ -48,11 +50,16 @@ export class Octree extends BaseTree {
     bounds.max.set(center.x + maxDim / 2, center.y + maxDim / 2, center.z + maxDim / 2);
     // --------------------------------------------------
 
-    // 2. Initialize the root node with the global bounds and all points
+    // Pre-allocate one set of 8 buckets per depth level, reused across all nodes
+    // at that level via .length = 0 reset (avoids 8 new arrays per internal node).
+    this._buckets = Array.from(
+      { length: this.maxDepth + 1 },
+      () => Array.from({ length: 8 }, () => [])
+    );
+
     this.root = new TreeNode(bounds, 0);
     this.root.points = points;
 
-    // 3. Begin the recursive splitting
     this._splitNode(this.root);
   }
 
@@ -60,6 +67,8 @@ export class Octree extends BaseTree {
    * Recursively divides a node into up to 8 octants.
    * Points are assigned to octants using bitwise flags on the X, Y, Z axes.
    * Only octants that contain at least one point produce a child node.
+   * Reuses the pre-allocated bucket arrays from `this._buckets[node.depth]`,
+   * resetting each via `.length = 0` to avoid per-node array allocation.
    * @param {TreeNode} node - The node to split.
    */
   _splitNode(node) {
@@ -73,10 +82,9 @@ export class Octree extends BaseTree {
     const centerY = (node.bounds.min.y + node.bounds.max.y) * 0.5;
     const centerZ = (node.bounds.min.z + node.bounds.max.z) * 0.5;
 
-    // Create 8 empty buckets for our points
-    const pointBuckets = Array.from({ length: 8 }, () => []);
+    const pointBuckets = this._buckets[node.depth];
+    for (let i = 0; i < 8; i++) pointBuckets[i].length = 0;
 
-    // Distribute points into the 8 buckets based on their position relative to the center
     for (const point of node.points) {
       let octantIndex = 0;
       if (point.x >= centerX) octantIndex |= 1; // Bit 0 represents X

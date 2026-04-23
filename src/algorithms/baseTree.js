@@ -75,11 +75,14 @@ export class BaseTree {
 
   /**
    * Marks a node as a leaf, records its point count, and frees the point array.
+   * Pass `pointCount` explicitly when the subclass manages points outside `node.points`
+   * (e.g. index-range trees that keep a shared array on the tree itself).
    * @param {TreeNode} node
+   * @param {number} [pointCount]
    */
-  _finalizeLeaf(node) {
+  _finalizeLeaf(node, pointCount) {
     node.isLeaf = true;
-    node.pointCount = node.points ? node.points.length : 0;
+    node.pointCount = pointCount ?? (node.points ? node.points.length : 0);
     node.points = null;
   }
 

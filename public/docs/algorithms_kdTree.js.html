@@ -45,7 +45,7 @@
     
     <section>
         <article>
-            <pre class="prettyprint source linenums"><code>import { Box3 } from "three";
+            <pre class="prettyprint source linenums"><code>import { Box3, Vector3 } from "three";
 import { TreeNode } from "./treeNode.js";
 import { BaseTree } from "./baseTree.js";
 
@@ -53,11 +53,12 @@ import { BaseTree } from "./baseTree.js";
  * k-d Tree spatial partitioning structure.
  *
  * At each level the splitting axis cycles through X → Y → Z (depth % 3).
- * The split plane is placed at the midpoint of the current node's bounding box
- * along the active axis, giving O(n log n) total build time. Points are
- * partitioned into a left child (coord &lt; splitValue) and a right child
- * (coord ≥ splitValue); degenerate splits that produce an empty side
- * finalize the node as a leaf instead.
+ * The split plane is placed at the median point coordinate on the active axis.
+ * Points are partitioned into a left child (indices &lt; median index) and a
+ * right child (indices >= median index); the median is included in the right
+ * child so every point appears in exactly one leaf range.
+ * Tight bounding boxes are computed from actual point distributions.
+ * Degenerate splits that produce an empty left side finalize the node as a leaf.
  *
  * @memberof algorithms
  * @alias KdTree
@@ -83,77 +84,132 @@ export class KdTree extends BaseTree {
       return;
     }
 
+    this._points = points;
     this.root = new TreeNode(bounds, 0);
-    this.root.points = points;
-
     this._splitNode(this.root);
   }
 
   /**
-   * Recursively splits a node by the bounding-box midpoint along the current axis.
-   * Degenerate splits (all points fall on one side) finalize the node as a leaf.
-   * @param {TreeNode} node - The node to split.
+   * Entry point required by the BaseTree contract. Kicks off the recursive split
+   * over the full point array. Called once by `build()`.
+   * @param {TreeNode} node
    */
   _splitNode(node) {
-    if (node.depth >= this.maxDepth || node.points.length &lt;= this.maxPointsPerNode) {
-      this._finalizeLeaf(node);
+    this._split(node, 0, this._points.length);
+  }
+
+  /**
+   * Recursive workhorse. Operates on the shared `this._points` array in-place
+   * over the range [start, end). Every node receives its range as
+   * `pointsStart`/`pointsEnd` for rendering access. The median is included in
+   * the right child so no point is ever lost. Bounding boxes are computed from
+   * the actual point distribution after partitioning.
+   * @param {TreeNode} node
+   * @param {number} start - Inclusive start index into `this._points`.
+   * @param {number} end   - Exclusive end index into `this._points`.
+   */
+  _split(node, start, end) {
+    const count = end - start;
+
+    node.pointsStart = start;
+    node.pointsEnd = end;
+
+    if (node.depth >= this.maxDepth || count &lt;= this.maxPointsPerNode) {
+      this._finalizeLeaf(node, count);
       return;
     }
 
     const axis = node.depth % 3;
-    const min = node.bounds.min;
-    const max = node.bounds.max;
+    const key = axis === 0 ? "x" : axis === 1 ? "y" : "z";
 
-    // Midpoint split: O(1) to compute, O(n) to partition — keeps total build at O(n log n).
-    const splitValue = axis === 0
-      ? (min.x + max.x) * 0.5
-      : axis === 1
-      ? (min.y + max.y) * 0.5
-      : (min.z + max.z) * 0.5;
+    const medianIndex = start + Math.floor(count / 2);
+    this._selectNth(start, end, medianIndex, key);
 
-    const leftPoints = [];
-    const rightPoints = [];
+    // Median is included in the right child — every point lands in exactly one leaf.
+    const leftEnd = medianIndex;       // left:  [start,       medianIndex)
+    const rightStart = medianIndex;    // right: [medianIndex, end)
 
-    for (const point of node.points) {
-      const coord = axis === 0 ? point.x : axis === 1 ? point.y : point.z;
-      if (coord &lt; splitValue) leftPoints.push(point);
-      else rightPoints.push(point);
-    }
-
-    if (leftPoints.length === 0 || rightPoints.length === 0) {
-      this._finalizeLeaf(node);
+    if (leftEnd === start) {
+      this._finalizeLeaf(node, count);
       return;
     }
 
     node.isLeaf = false;
 
-    const leftMin = min.clone();
-    const leftMax = max.clone();
-    const rightMin = min.clone();
-    const rightMax = max.clone();
-
-    if (axis === 0) {
-      leftMax.x = splitValue;
-      rightMin.x = splitValue;
-    } else if (axis === 1) {
-      leftMax.y = splitValue;
-      rightMin.y = splitValue;
-    } else {
-      leftMax.z = splitValue;
-      rightMin.z = splitValue;
-    }
-
-    const leftNode = new TreeNode(new Box3(leftMin, leftMax), node.depth + 1);
-    leftNode.points = leftPoints;
-
-    const rightNode = new TreeNode(new Box3(rightMin, rightMax), node.depth + 1);
-    rightNode.points = rightPoints;
+    const leftNode = new TreeNode(this._computeBounds(start, leftEnd), node.depth + 1);
+    const rightNode = new TreeNode(this._computeBounds(rightStart, end), node.depth + 1);
 
     node.children.push(leftNode, rightNode);
-    node.points = null;
 
-    this._splitNode(leftNode);
-    this._splitNode(rightNode);
+    this._split(leftNode, start, leftEnd);
+    this._split(rightNode, rightStart, end);
+  }
+
+  /**
+   * Rearranges `this._points` within [start, end) so that the element at `nth`
+   * is the value that would be there after a full sort (3-way / Dutch National Flag
+   * quickselect). Equal-valued points are grouped into a pivot zone in a single pass,
+   * so duplicate coordinates do not cause degraded partitions. O(n) average.
+   * @param {number} start
+   * @param {number} end
+   * @param {number} nth - Target index to place the median at.
+   * @param {string} key - "x", "y", or "z"
+   */
+  _selectNth(start, end, nth, key) {
+    const points = this._points;
+    let lo = start;
+    let hi = end - 1;
+
+    while (lo &lt; hi) {
+      const pivot = points[(lo + hi) >> 1][key];
+      let lt = lo;   // boundary of the &lt; zone:  [lo, lt) &lt; pivot
+      let gt = hi;   // boundary of the > zone:  (gt, hi] > pivot
+      let i  = lo;   // scan pointer:             [lt, i)  = pivot
+
+      while (i &lt;= gt) {
+        const v = points[i][key];
+        if (v &lt; pivot) {
+          const tmp = points[lt]; points[lt] = points[i]; points[i] = tmp;
+          lt++; i++;
+        } else if (v > pivot) {
+          const tmp = points[i]; points[i] = points[gt]; points[gt] = tmp;
+          gt--;
+        } else {
+          i++;
+        }
+      }
+      // [lo, lt) &lt; pivot  |  [lt, gt] = pivot  |  (gt, hi] > pivot
+
+      if      (nth &lt; lt) hi = lt - 1;
+      else if (nth > gt) lo = gt + 1;
+      else               break;      // nth sits in the pivot zone — done
+    }
+  }
+
+  /**
+   * Computes a tight axis-aligned bounding box by scanning `this._points[start, end)`.
+   * No array allocations beyond the two Vector3 objects required by Box3.
+   * @param {number} start
+   * @param {number} end
+   * @returns {THREE.Box3}
+   */
+  _computeBounds(start, end) {
+    const points = this._points;
+    const p0 = points[start];
+    let minX = p0.x, minY = p0.y, minZ = p0.z;
+    let maxX = minX, maxY = minY, maxZ = minZ;
+
+    for (let i = start + 1; i &lt; end; i++) {
+      const p = points[i];
+      if      (p.x &lt; minX) minX = p.x;
+      else if (p.x > maxX) maxX = p.x;
+      if      (p.y &lt; minY) minY = p.y;
+      else if (p.y > maxY) maxY = p.y;
+      if      (p.z &lt; minZ) minZ = p.z;
+      else if (p.z > maxZ) maxZ = p.z;
+    }
+
+    return new Box3(new Vector3(minX, minY, minZ), new Vector3(maxX, maxY, maxZ));
   }
 }
 </code></pre>
@@ -170,7 +226,7 @@ export class KdTree extends BaseTree {
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 4.0.5</a> on Wed Apr 01 2026 11:50:19 GMT+0200 (hora de verano de Europa central) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 4.0.5</a> on Thu Apr 23 2026 23:31:19 GMT+0200 (hora de verano de Europa central) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
 </footer>
 
 <script>prettyPrint();</script>

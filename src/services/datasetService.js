@@ -39,6 +39,21 @@ export function createDatasetService({ scene, camera, controls }) {
   let globalZMax = 0;
   const datasetCache = new Map();
 
+  function disposeAxes(group) {
+    const seen = new Set();
+    group.traverse(obj => {
+      // Only dispose Mesh geometries — Sprite geometry is a shared Three.js singleton.
+      if (obj.isMesh && obj.geometry && !seen.has(obj.geometry)) {
+        obj.geometry.dispose();
+        seen.add(obj.geometry);
+      }
+      if (obj.material) {
+        if (obj.material.map) obj.material.map.dispose();
+        obj.material.dispose();
+      }
+    });
+  }
+
   function clearCurrentView() {
     if (currentPointCloud) {
       scene.remove(currentPointCloud);
@@ -46,6 +61,7 @@ export function createDatasetService({ scene, camera, controls }) {
     }
     if (axes) {
       scene.remove(axes);
+      disposeAxes(axes);
       axes = null;
     }
   }
@@ -92,7 +108,6 @@ export function createDatasetService({ scene, camera, controls }) {
   }
 
   function updateAxes(center, size) {
-    if (axes) scene.remove(axes);
     const axisScale = Math.max(size.x, size.y, size.z) / 2;
     axes = createLabeledAxes();
     axes.position.copy(center);
@@ -178,8 +193,8 @@ export function createDatasetService({ scene, camera, controls }) {
   }
 
   return {
-    clear,
     load,
+    clear,
     setAxesVisible,
     getPointCloud,
     getHeightRange,
