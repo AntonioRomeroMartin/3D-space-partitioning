@@ -2,19 +2,419 @@
 
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
-\usepackage{graphicx}
+\usepackage[draft]{graphicx}   % remove [draft] once figures are in place
 \usepackage{amsmath}
+\usepackage{hyperref}
+\usepackage{booktabs}
+\usepackage{geometry}
+\usepackage{float}
+\geometry{margin=2.5cm}
 
-\title{3D Space Partitioning Report}
-\author{Antonio Romero Martín\\Siebe Ternest}
+\title{3D Space Partitioning Viewer\\[0.5em]
+       \large Computer Graphics (E016712A) -- Project Report}
+\author{Antonio Romero Mart\'in \and Siebe Ternest}
 \date{\today}
 
 \begin{document}
 
 \maketitle
 \newpage
-
 \tableofcontents
 \newpage
+
+% ---------------------------------------------------------------------------
+\section{Introduction}
+% ---------------------------------------------------------------------------
+
+This report documents the design decisions, implementation challenges, and
+comparative analysis of a 3D space partitioning viewer built for LiDAR point
+clouds. Three hierarchical data structures were implemented: an \textbf{Octree},
+a \textbf{k-d Tree}, and a \textbf{Binary Space Partitioning (BSP) Tree}.
+
+Rather than raw OpenGL, the viewer is built with \textbf{Three.js} (WebGL).
+This let us focus on algorithm design and rendering concepts (scene graph,
+instanced geometry, depth testing, camera control) without low-level shader
+boilerplate. The project is structured as a single-page web application served
+by Vite, with all three algorithms living in a shared \texttt{src/algorithms/}
+module and all visualization logic in \texttt{src/viewer/}.
+
+% ---------------------------------------------------------------------------
+\section{Reading the Input Data}
+\textit{(Both authors)}
+% ---------------------------------------------------------------------------
+
+Input datasets are PCD (Point Cloud Data) files from LiDAR scanners. We
+implemented a custom PCD parser that handles both \textbf{ASCII} and
+\textbf{binary} encodings. The header is parsed line-by-line to extract the
+point count, field layout (\texttt{FIELDS}, \texttt{SIZE}, \texttt{TYPE}), and
+data format. For binary files a \texttt{DataView} reads the raw byte buffer
+directly into a \texttt{Float32Array}, which is handed to Three.js as a
+\texttt{BufferGeometry} position attribute.
+
+The main challenge was that PCD files often include non-positional fields
+(intensity, normals, RGB). We handle this by computing per-point byte offsets
+from the \texttt{SIZE} header, extracting only the X, Y, Z channels and
+discarding the rest.
+
+% ---------------------------------------------------------------------------
+\section{Space Partitioning Algorithms}
+% ---------------------------------------------------------------------------
+
+\subsection{Octree}
+\textit{(Antonio Romero Mart\'in)}
+
+\subsubsection*{Design decisions}
+
+The tree is built top-down: starting from a bounding box around all points, it
+is recursively subdivided into 8 equal octants. The first design decision was
+to \textbf{force the root bounding box into a perfect cube} by extending the
+two shorter axes to match the longest one. This ensures that every voxel at a
+given depth has the same side length, making the leaf-size display meaningful
+and the visual output consistent.
+
+A second decision was \textbf{pre-allocating eight point-bucket arrays per
+depth level} instead of creating them inside each recursive call. On a 200k
+point cloud, the na\"ive version allocated eight new arrays per internal node,
+generating significant garbage-collection pressure. With the pre-allocated
+table each bucket is reset to length zero and reused, keeping allocation
+overhead constant.
+
+Only non-empty octants produce child nodes, so the tree never stores empty
+nodes.
+
+\subsubsection*{Complexity and memory}
+
+\begin{itemize}
+  \item \textbf{Build:} $O(n \log n)$ -- each point traverses $O(\log n)$
+        levels, with $O(1)$ work per level (the split plane is always the
+        geometric midpoint, computed without examining the points).
+  \item \textbf{Single-point update:} $O(\log n)$ -- follow the path from
+        root to leaf and add/remove the point from the appropriate voxel;
+        the split planes never change.
+  \item \textbf{Memory:} $O(n)$ -- at most $n$ leaf nodes at maximum depth;
+        internal nodes free their point arrays once split.
+\end{itemize}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.48\linewidth]{figures/octree_depth_low.png}
+  \hfill
+  \includegraphics[width=0.48\linewidth]{figures/octree_depth_high.png}
+  \caption{Octree on the Hasselt dataset at a low depth (left) and a high
+           depth (right). Color encodes the Z coordinate (blue = low,
+           red = high). The wireframe outlines show voxel boundaries.}
+  \label{fig:octree}
+\end{figure}
+
+% ---------------------------------------------------------------------------
+\subsection{K-d Tree}
+\textit{(Siebe Ternest)}
+% ---------------------------------------------------------------------------
+
+\subsubsection*{Design decisions}
+
+The k-d tree cycles through the X, Y, Z axes at successive depths
+(\texttt{depth~\%~3}) and places the split plane at the \textbf{median} of
+the active coordinate. Using the median rather than the geometric midpoint is
+the key choice: it guarantees that each split divides the point set into two
+roughly equal halves regardless of point density, keeping the tree balanced.
+
+Finding the median without a full sort is done with a
+\textbf{3-way quickselect} (Dutch National Flag partitioning). This is
+$O(n)$ average per node and handles duplicate coordinates correctly by grouping
+equal-valued points into a pivot zone in a single pass, so repeated coordinates
+in the cloud do not degrade performance to $O(n^2)$ as they would with a
+na\"ive quicksort.
+
+All points are stored in a \textbf{single shared array} that is partitioned
+in-place during construction. Each node records a \texttt{[start, end)} range
+into this array -- no per-node point copies are made. Bounding boxes are
+computed from the actual point distribution after partitioning, giving tight
+cuboids instead of the oversized AABB of the raw split range.
+
+\subsubsection*{Balancing}
+
+Because the split is always at the median, the k-d tree is
+\textbf{perfectly balanced by construction}: the depth difference between any
+two leaves is at most 1. A degenerate edge case -- all points sharing the same
+coordinate on the split axis -- is caught by detecting an empty left partition
+and finalizing the node as a leaf immediately.
+
+A balanced tree is especially important for ray traversal: in a balanced tree
+the worst-case traversal depth is $O(\log n)$, whereas an unbalanced tree can
+degrade to $O(n)$.
+
+\subsubsection*{Complexity and memory}
+
+\begin{itemize}
+  \item \textbf{Build:} $O(n \log n)$ -- quickselect is $O(n)$ per node;
+        there are $O(\log n)$ levels; total work per level is $O(n)$.
+  \item \textbf{Query / ray intersection:} $O(\log n)$ average due to balance.
+  \item \textbf{Single-point update:} $O(\log n)$ for search; however,
+        na\"ive insertion without rebalancing degrades the tree over time.
+  \item \textbf{Memory:} $O(n)$ -- the in-place design uses one contiguous
+        array for all points.
+\end{itemize}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.48\linewidth]{figures/kdtree_corridor.png}
+  \hfill
+  \includegraphics[width=0.48\linewidth]{figures/kdtree_ufo.png}
+  \caption{K-d Tree on the Corridor dataset (left) and the UFO dataset
+           (right). The cuboids are non-uniform because the median split
+           follows the actual point distribution, not a fixed midpoint.}
+  \label{fig:kdtree}
+\end{figure}
+
+% ---------------------------------------------------------------------------
+\subsection{BSP Tree}
+\textit{(Antonio Romero Mart\'in)}
+% ---------------------------------------------------------------------------
+
+\subsubsection*{Design decisions}
+
+A BSP tree splits space with \textbf{arbitrarily oriented planes}. The central
+design challenge is choosing a good plane at each node. We evaluated three
+strategies:
+
+\begin{enumerate}
+  \item \textbf{Random plane} -- fast but produces uneven splits.
+  \item \textbf{Axis-aligned median} -- equivalent to k-d tree; does not
+        exploit non-axis-aligned structure.
+  \item \textbf{PCA-based plane} -- the plane normal is the dominant
+        eigenvector of the covariance matrix of the node's points; the plane
+        passes through the centroid.
+\end{enumerate}
+
+We chose PCA because it adapts to the local geometry: in a corridor the
+principal axis aligns along the corridor, producing long thin cells; in an
+open area the plane follows the dominant spread of points. This consistently
+avoids degenerate splits where nearly all points fall on one side.
+
+The eigenvector is found by \textbf{power iteration} (20 iterations on the
+$3\times3$ covariance matrix), which converges reliably for real-world point
+clouds. Coordinates are copied into three pre-allocated
+\texttt{Float32Array} buffers for cache-friendly covariance computation,
+avoiding per-node allocations inside the hot loop.
+
+\subsubsection*{Why BSP takes longer to build than an Octree}
+
+An octree's split plane is always the three axis-aligned midplanes of the
+current node -- computed in $O(1)$ regardless of point count. A BSP node
+must \textbf{examine all its points} to compute the mean, the covariance
+matrix, and run power iteration before any child can be created: that is
+$O(n_\text{node})$ per node. Summed across all nodes the asymptotic build cost
+is the same ($O(n \log n)$), but the constant factor is much larger. On the
+Hasselt dataset ($\sim$250k points) we measured BSP taking roughly
+$3\times$ longer than the Octree.
+
+\subsubsection*{Complexity and memory}
+
+\begin{itemize}
+  \item \textbf{Build:} $O(n \log n)$ asymptotically, but with a large
+        constant due to PCA.
+  \item \textbf{Memory:} $O(n)$ -- leaf nodes store a compact
+        \texttt{Int32Array} of geometry indices; full point arrays are freed
+        after splitting each node.
+\end{itemize}
+
+% ---------------------------------------------------------------------------
+\section{Viewer}
+% ---------------------------------------------------------------------------
+
+\subsection{Rendering Architecture}
+\textit{(Both authors)}
+
+The viewer uses a \texttt{PerspectiveCamera} with \texttt{OrbitControls} for
+mouse-driven rotation, pan, and zoom. All three trees are pre-built at dataset
+load time and cached, so switching algorithms or changing depth is instant --
+no rebuild is triggered on interaction.
+
+For Octree and k-d Tree, active nodes at the current depth are rendered as
+\textbf{two \texttt{InstancedMesh} objects}: a semi-transparent solid box mesh
+and a wireframe overlay, both backed by a single shared \texttt{BoxGeometry}.
+Using \texttt{InstancedMesh} instead of one \texttt{Mesh} per node reduces
+draw calls from thousands to one, which proved essential: without instancing,
+rendering depth-8 Octree nodes ($\sim$8000 boxes) dropped the frame rate below
+10~fps; with instancing it stayed above 60~fps.
+
+\subsection{Depth Navigation}
+\textit{(Both authors)}
+
+The \texttt{+} and \texttt{-} keys change the display depth. The tree is
+queried with \texttt{getNodesAtDepth(d)}: nodes exactly at depth $d$ are
+included, and leaves shallower than $d$ are also included so coarser
+resolutions still show all occupied regions. This traversal is
+$O(\text{active nodes})$ per key press, while the expensive build runs only
+once.
+
+\subsection{Coloring}
+\textit{(Both authors)}
+
+Octree and k-d Tree cells are colored by the Z coordinate of their center
+using a \textbf{height ramp}: HSL hue is linearly mapped from 0.7
+(blue/purple, low Z) to 0.0 (red, high Z). This makes the vertical structure
+of urban point clouds immediately visible and matches the conventional LiDAR
+viewer palette.
+
+\subsection{Wireframe}
+\textit{(Both authors)}
+
+Each active node is rendered with a second \texttt{InstancedMesh} using
+\texttt{wireframe: true}, making voxel boundaries visible without obscuring the
+interior color. Solid fill and wireframe can be toggled independently via
+checkboxes in the control panel.
+
+\subsection{BSP Visualization}
+\textit{(Antonio Romero Mart\'in)}
+
+BSP cells are convex polytopes bounded by arbitrary planes, so axis-aligned
+boxes are not a valid representation. We chose to \textbf{recolor the point
+cloud in place}: each leaf cell is assigned a distinct hue by cycling evenly
+across the HSL color wheel. This makes cell boundaries visible directly in the
+data without needing to compute convex hulls (which would be expensive and
+visually complex for thousands of cells).
+
+Additionally, the \textbf{split planes} are shown as semi-transparent quads
+oriented to the PCA normal at each internal node up to the current depth
+(Figure~\ref{fig:bsp}). This gives an intuitive view of how the space is being
+partitioned at each level.
+
+When switching away from BSP mode the original height-ramp colors are restored
+from a saved copy of the color buffer, so the point cloud returns to its
+baseline appearance.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.48\linewidth]{figures/bsp_colored_cells.png}
+  \hfill
+  \includegraphics[width=0.48\linewidth]{figures/bsp_planes.png}
+  \caption{BSP Tree: point cloud colored per leaf cell (left), and split
+           planes shown as semi-transparent quads (right).}
+  \label{fig:bsp}
+\end{figure}
+
+\subsection{UI and Dataset Loading}
+\textit{(Siebe Ternest)}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.36\linewidth]{figures/ui_panel.png}
+  \caption{Control panel with algorithm selector, dataset buttons,
+           depth display, leaf-size readout, and visibility toggles.}
+  \label{fig:ui}
+\end{figure}
+
+The control panel (Figure~\ref{fig:ui}) provides algorithm and dataset
+selection, solid/wireframe visibility toggles, and an XYZ axes toggle. Depth
+and average leaf size are updated in real time. In addition to the three
+bundled datasets (UFO, Corridor, Hasselt), users can drag and drop any
+\texttt{.pcd} file onto the viewer. The application runs entirely in the
+browser; datasets are fetched over HTTP or read from the local file system via
+the File API.
+
+% ---------------------------------------------------------------------------
+\section{Comparative Analysis}
+% ---------------------------------------------------------------------------
+
+\subsection{Main Differences between the Three Trees}
+
+\begin{center}
+\begin{tabular}{@{}lccc@{}}
+\toprule
+ & \textbf{Octree} & \textbf{K-d Tree} & \textbf{BSP Tree} \\
+\midrule
+Split planes per node & 3 axis-aligned & 1 axis-aligned & 1 arbitrary \\
+Children per node     & Up to 8        & Exactly 2      & Exactly 2 \\
+Split position        & Fixed midpoint & Data median    & PCA centroid \\
+Guaranteed balanced   & No             & Yes            & No \\
+Build cost (constant) & Low            & Medium         & High \\
+Cell shape            & Cube           & Cuboid         & Convex polytope \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+The Octree always cuts at the geometric midpoint along all three axes at once,
+giving $O(1)$ split decisions. The k-d tree cuts one axis at a time at the
+median, making it self-balancing at the cost of a linear scan. The BSP tree
+uses an arbitrary plane adapted to the local point geometry, which produces the
+most informative partitions but incurs the highest build cost.
+
+\subsection{Benefits of an Octree over a BSP-Tree}
+
+\begin{itemize}
+  \item \textbf{Simpler, faster construction:} No covariance computation;
+        the split planes are determined in $O(1)$.
+  \item \textbf{Easy updates:} Inserting or removing a point only affects the
+        nodes on its root-to-leaf path; split planes never change, so no
+        structural rebuild is needed.
+  \item \textbf{Predictable cell shapes:} All cells at a given depth are
+        cubes of identical size, simplifying ray-AABB tests and frustum culling.
+  \item \textbf{Implicit empty-space compression:} Only occupied octants
+        create child nodes, making the octree naturally sparse.
+\end{itemize}
+
+\subsection{Ray Intersection Queries}
+
+All three trees support $O(\log n)$ average ray traversal by pruning subtrees
+whose bounding volumes do not intersect the ray. In practice:
+
+\begin{itemize}
+  \item \textbf{Octree:} Ray-AABB intersection (slab method) is very fast
+        with six comparisons per node; the regular grid at each level enables
+        front-to-back ordering.
+  \item \textbf{K-d Tree:} Each internal node test reduces to a single axis
+        comparison (dot product with an axis vector), making it the cheapest
+        per-node test. Balance guarantees $O(\log n)$ depth.
+  \item \textbf{BSP Tree:} Each node requires a full dot product with an
+        arbitrary normal, which is slightly more expensive. The tree is not
+        guaranteed to be balanced, which can increase traversal depth.
+\end{itemize}
+
+For ray casting, the \textbf{k-d tree} is generally the best choice: its
+balance guarantee minimizes tree depth, and axis-aligned planes minimize
+per-node cost.
+
+\subsection{Dynamic Scenes}
+
+For dynamic scenes with moving objects or streaming LiDAR, we would use an
+\textbf{Octree}. Its regular structure makes insertion and deletion local
+operations: a moving point only modifies the nodes on its root-to-leaf path,
+and split planes never need updating. The k-d tree's balance guarantee breaks
+as points are inserted na\"ively (without rebalancing), and the BSP tree's
+data-dependent planes make any update expensive since the PCA result changes
+when the point distribution shifts.
+
+\subsection{Urban Scenes}
+
+For urban scenes we would use an \textbf{Octree}. Urban point clouds are large
+and spatially non-uniform: dense near building facades and the ground plane,
+sparse in open air. The octree handles this well because it only creates nodes
+where points exist, compressing empty space implicitly, and its regular
+structure supports efficient level-of-detail rendering and spatial queries.
+Practical LiDAR mapping tools (e.g.\ OctoMap) confirm this choice.
+
+% ---------------------------------------------------------------------------
+\section{Conclusion}
+% ---------------------------------------------------------------------------
+
+We implemented all three space partitioning algorithms and integrated them into
+a single interactive viewer. The key lessons learned were:
+
+\begin{itemize}
+  \item The \textbf{k-d tree's median split with 3-way quickselect} is
+        significantly more robust than midpoint splitting, particularly for
+        point clouds with non-uniform density or repeated coordinates.
+  \item \textbf{PCA-based BSP} produces visually informative, geometry-adaptive
+        partitions, but its $O(n_\text{node})$ build cost makes it noticeably
+        slower than the other two structures at the same point count.
+  \item \textbf{InstancedMesh rendering} was essential: rendering thousands of
+        voxels in a single draw call kept the frame rate above 60~fps at deep
+        tree levels, where individual \texttt{Mesh} objects failed.
+  \item \textbf{Tree caching} (build once, query at any depth without
+        rebuilding) was the single most impactful UX decision; without it,
+        depth navigation would have been unusable on large datasets.
+\end{itemize}
 
 \end{document}
