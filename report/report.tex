@@ -61,7 +61,7 @@ discarding the rest.
 % ---------------------------------------------------------------------------
 
 \subsection{Octree}
-\textit{(Antonio Romero Mart\'in)}
+\textit{(Both authors)}
 
 \subsubsection*{Design decisions}
 
@@ -79,8 +79,10 @@ generating significant garbage-collection pressure. With the pre-allocated
 table each bucket is reset to length zero and reused, keeping allocation
 overhead constant.
 
-Only non-empty octants produce child nodes, so the tree never stores empty
-nodes.
+Only non-empty octants produce child nodes, the tree never stores empty
+nodes, so technically this implementation of the octree is a sparse octree (no always 8 childs). 
+This is crucial for large, non-uniform point clouds, where many octants would be empty and waste memory and traversal time. 
+It also improves the visibility of occupied regions in the viewer, since only nodes containing points are rendered.  
 
 \subsubsection*{Complexity and memory}
 
@@ -100,7 +102,7 @@ nodes.
   \includegraphics[width=0.48\linewidth]{figures/octree_depth_low.png}
   \hfill
   \includegraphics[width=0.48\linewidth]{figures/octree_depth_high.png}
-  \caption{Octree on the Hasselt dataset at a low depth (left) and a high
+  \caption{Octree on the Corridor dataset at a low depth (left) and a high
            depth (right). Color encodes the Z coordinate (blue = low,
            red = high). The wireframe outlines show voxel boundaries.}
   \label{fig:octree}
@@ -108,7 +110,7 @@ nodes.
 
 % ---------------------------------------------------------------------------
 \subsection{K-d Tree}
-\textit{(Siebe Ternest)}
+\textit{(Both authors)}
 % ---------------------------------------------------------------------------
 
 \subsubsection*{Design decisions}
@@ -136,7 +138,12 @@ cuboids instead of the oversized AABB of the raw split range.
 
 Because the split is always at the median, the k-d tree is
 \textbf{perfectly balanced by construction}: the depth difference between any
-two leaves is at most 1. A degenerate edge case -- all points sharing the same
+two leaves is at most 1 \footnote{While the median split keeps the tree structurally 
+balanced, the \texttt{maxPointsPerNode} threshold can cause branches to terminate at
+ different depths: a sparse branch may become a leaf several levels earlier than a 
+ dense one that keeps splitting. The tree therefore remains \textbf{well-balanced in practice}, 
+ but the strict guarantee of a leaf-depth difference of at most 1 does not hold in general.}. 
+A degenerate edge case -- all points sharing the same
 coordinate on the split axis -- is caught by detecting an empty left partition
 and finalizing the node as a leaf immediately.
 
@@ -181,7 +188,7 @@ strategies:
 \begin{enumerate}
   \item \textbf{Random plane} -- fast but produces uneven splits.
   \item \textbf{Axis-aligned median} -- equivalent to k-d tree; does not
-        exploit non-axis-aligned structure.
+        exploit non-axis-aligned structure. PCA: Principal component analysis.
   \item \textbf{PCA-based plane} -- the plane normal is the dominant
         eigenvector of the covariance matrix of the node's points; the plane
         passes through the centroid.
@@ -189,8 +196,8 @@ strategies:
 
 We chose PCA because it adapts to the local geometry: in a corridor the
 principal axis aligns along the corridor, producing long thin cells; in an
-open area the plane follows the dominant spread of points. This consistently
-avoids degenerate splits where nearly all points fall on one side.
+open area the plane follows the dominant spread of points. reduces the likelihood of degenerate splits compared to random or
+axis-aligned strategies.
 
 The eigenvector is found by \textbf{power iteration} (20 iterations on the
 $3\times3$ covariance matrix), which converges reliably for real-world point
@@ -214,6 +221,10 @@ $3\times$ longer than the Octree.
 \begin{itemize}
   \item \textbf{Build:} $O(n \log n)$ asymptotically, but with a large
         constant due to PCA.
+  \item \textbf{Single-point update:} $O(\log n)$ to locate the correct leaf,
+        but insertion is expensive in practice: adding a point can shift the
+        local PCA plane, potentially invalidating the split for that node and
+        requiring a rebuild of the affected subtree.
   \item \textbf{Memory:} $O(n)$ -- leaf nodes store a compact
         \texttt{Int32Array} of geometry indices; full point arrays are freed
         after splitting each node.
@@ -258,6 +269,8 @@ using a \textbf{height ramp}: HSL hue is linearly mapped from 0.7
 of urban point clouds immediately visible and matches the conventional LiDAR
 viewer palette.
 
+For Octree, the color of the cubes is calculated by the height of the center of the voxel, which is the midpoint of the node's bounding box. 
+For k-d Tree, the color of the cuboids is determined by the last split at that depth.
 \subsection{Wireframe}
 \textit{(Both authors)}
 
@@ -328,7 +341,7 @@ the File API.
 Split planes per node & 3 axis-aligned & 1 axis-aligned & 1 arbitrary \\
 Children per node     & Up to 8        & Exactly 2      & Exactly 2 \\
 Split position        & Fixed midpoint & Data median    & PCA centroid \\
-Guaranteed balanced   & No             & Yes            & No \\
+Guaranteed balanced   & No             & Yes (in practice)      & No \\
 Build cost (constant) & Low            & Medium         & High \\
 Cell shape            & Cube           & Cuboid         & Convex polytope \\
 \bottomrule
@@ -352,7 +365,8 @@ most informative partitions but incurs the highest build cost.
   \item \textbf{Predictable cell shapes:} All cells at a given depth are
         cubes of identical size, simplifying ray-AABB tests and frustum culling.
   \item \textbf{Implicit empty-space compression:} Only occupied octants
-        create child nodes, making the octree naturally sparse.
+        create child nodes, making the octree naturally sparse. Also since we implemented a sparse octree
+        we don't create 8 child nodes for every internal node, but only for the non-empty octants. This is a significant advantage in large, non-uniform point clouds where many octants would be empty and waste memory and traversal time.
 \end{itemize}
 
 \subsection{Ray Intersection Queries}
@@ -363,13 +377,14 @@ whose bounding volumes do not intersect the ray. In practice:
 \begin{itemize}
   \item \textbf{Octree:} Ray-AABB intersection (slab method) is very fast
         with six comparisons per node; the regular grid at each level enables
-        front-to-back ordering.
+        front-to-back ordering, allowing early termination once the first hit
+        is found.
   \item \textbf{K-d Tree:} Each internal node test reduces to a single axis
         comparison (dot product with an axis vector), making it the cheapest
         per-node test. Balance guarantees $O(\log n)$ depth.
   \item \textbf{BSP Tree:} Each node requires a full dot product with an
         arbitrary normal, which is slightly more expensive. The tree is not
-        guaranteed to be balanced, which can increase traversal depth.
+        guaranteed to be balanced, which can increase traversal depth beyond $O(\log n)$ in the worst case.
 \end{itemize}
 
 For ray casting, the \textbf{k-d tree} is generally the best choice: its
@@ -381,40 +396,63 @@ per-node cost.
 For dynamic scenes with moving objects or streaming LiDAR, we would use an
 \textbf{Octree}. Its regular structure makes insertion and deletion local
 operations: a moving point only modifies the nodes on its root-to-leaf path,
-and split planes never need updating. The k-d tree's balance guarantee breaks
-as points are inserted na\"ively (without rebalancing), and the BSP tree's
-data-dependent planes make any update expensive since the PCA result changes
-when the point distribution shifts.
-
+and split planes never need updating. Unlike the k-d tree, which typically requires periodic full rebuilds to restore
+balance after many insertions, the octree supports truly incremental updates
+with no rebalancing step. The BSP tree's data-dependent planes make any update
+expensive since the PCA result changes when the point distribution shifts,
+potentially invalidating the split planes of entire subtrees.
 \subsection{Urban Scenes}
 
-For urban scenes we would use an \textbf{Octree}. Urban point clouds are large
-and spatially non-uniform: dense near building facades and the ground plane,
-sparse in open air. The octree handles this well because it only creates nodes
-where points exist, compressing empty space implicitly, and its regular
-structure supports efficient level-of-detail rendering and spatial queries.
-Practical LiDAR mapping tools (e.g.\ OctoMap) confirm this choice.
+For urban scenes we would use an \textbf{Octree}. While the k-d tree is also a
+valid choice -- its median split adapts well to non-uniform point densities --
+the octree has two practical advantages that matter specifically for urban
+LiDAR data.
+
+First, urban point clouds are extremely large (millions of points) and
+spatially non-uniform: very dense near building facades and the ground plane,
+almost empty in open air. A sparse octree compresses this empty space
+implicitly and at multiple resolutions simultaneously, making it straightforward
+to implement level-of-detail rendering by simply querying a shallower depth.
+The k-d tree does not have a natural notion of uniform resolution levels,
+since its cuboids vary in size and shape across the tree.
+
+Second, urban mapping applications typically require repeated spatial queries
+of the same type (e.g.\ nearest-neighbour search, frustum culling, occupancy
+checks), all of which benefit from the octree's predictable, regular cell
+structure. Practical LiDAR mapping tools such as OctoMap confirm this choice
+as the industry standard for large-scale outdoor scenes.
 
 % ---------------------------------------------------------------------------
 \section{Conclusion}
 % ---------------------------------------------------------------------------
 
-We implemented all three space partitioning algorithms and integrated them into
-a single interactive viewer. The key lessons learned were:
+We implemented three spatial partitioning structures -- Octree, k-d Tree, and
+BSP Tree -- and integrated them into a single interactive browser-based viewer
+for LiDAR point clouds, built with Three.js rather than raw OpenGL. This
+allowed us to focus on algorithm design and rendering architecture without
+low-level graphics boilerplate, at no cost to visual quality or interactivity.
 
-\begin{itemize}
-  \item The \textbf{k-d tree's median split with 3-way quickselect} is
-        significantly more robust than midpoint splitting, particularly for
-        point clouds with non-uniform density or repeated coordinates.
-  \item \textbf{PCA-based BSP} produces visually informative, geometry-adaptive
-        partitions, but its $O(n_\text{node})$ build cost makes it noticeably
-        slower than the other two structures at the same point count.
-  \item \textbf{InstancedMesh rendering} was essential: rendering thousands of
-        voxels in a single draw call kept the frame rate above 60~fps at deep
-        tree levels, where individual \texttt{Mesh} objects failed.
-  \item \textbf{Tree caching} (build once, query at any depth without
-        rebuilding) was the single most impactful UX decision; without it,
-        depth navigation would have been unusable on large datasets.
-\end{itemize}
+The comparative analysis confirmed that no single tree dominates across all
+criteria. The \textbf{octree} is the most practical general-purpose structure:
+fast to build, easy to update incrementally, and naturally suited to
+level-of-detail rendering of large urban scenes. The \textbf{k-d tree} is the
+best choice for ray casting and nearest-neighbour queries, where its balance
+guarantee and cheap per-node axis test minimize traversal cost. The
+\textbf{BSP tree} produces the most geometry-adaptive partitions, but its
+PCA-based build cost and lack of balance make it less suitable for dynamic or
+real-time applications.
+
+On the implementation side, two decisions had the largest practical impact.
+\textbf{InstancedMesh rendering} reduced thousands of draw calls to one,
+keeping the frame rate above 60~fps at deep tree levels where per-node meshes
+failed entirely. \textbf{Tree caching} -- building all three trees once at load
+time and querying at any depth without rebuilding -- was the single most
+impactful UX decision, making depth navigation instant even on datasets of
+250k points.
+
+Overall, the project reinforced that the choice of spatial data structure is
+inseparable from the intended query type, update frequency, and scene
+characteristics -- a lesson that extends well beyond point cloud processing to
+any geometry-heavy application.
 
 \end{document}
