@@ -36,9 +36,17 @@ const loadingText            = document.getElementById("loading-text");
 const loadingProgress        = document.getElementById("loading-progress");
 const showCubesLabel         = showCubesCheckbox?.closest("label");
 const showWireframeLabel     = showWireframesCheckbox?.closest("label");
+const kdSplitSection         = document.getElementById("kd-split-section");
+const kdSplitBtns            = document.querySelectorAll("#kd-split-group .dataset-btn");
+
+let currentKdSplitMode = 'cycle';
 
 function currentAlgorithm() {
   return algorithmSelect?.value || "octree";
+}
+
+function kdVariant() {
+  return currentAlgorithm() === 'kdtree' ? currentKdSplitMode : undefined;
 }
 
 // --- DATASETS (single source of truth) ---
@@ -92,7 +100,7 @@ const partitionService = createPartitionService({
       return tree;
     },
     kdtree: (positions, config) => {
-      const tree = new KdTree(config.maxDepth, config.maxPoints);
+      const tree = new KdTree(config.maxDepth, config.maxPoints, config.splitMode || 'cycle');
       tree.build(positions);
       return tree;
     },
@@ -146,9 +154,11 @@ function computeLeafSize(nodes) {
 }
 
 function syncControlsForAlgorithm() {
-  const isBsp = currentAlgorithm() === "bsp";
+  const algo = currentAlgorithm();
+  const isBsp = algo === "bsp";
   if (showCubesLabel) showCubesLabel.style.display = isBsp ? "none" : "";
   if (showWireframeLabel) showWireframeLabel.lastChild.nodeValue = isBsp ? " Planes" : " Wireframe";
+  if (kdSplitSection) kdSplitSection.style.display = algo === "kdtree" ? "" : "none";
 }
 
 // --- VISUAL TOGGLES ---
@@ -181,6 +191,8 @@ function buildOrGetTree() {
     algorithm: effectiveAlgorithm,
     datasetPath: currentDatasetPath,
     pointCloud,
+    splitMode: currentAlgorithm() === 'kdtree' ? currentKdSplitMode : undefined,
+    cacheVariant: kdVariant(),
   });
 
   if (!result.supported) {
@@ -223,7 +235,7 @@ function updateVisualization() {
 
 async function rebuildTree() {
   syncControlsForAlgorithm();
-  const cached = partitionService.hasTree(currentAlgorithm(), currentDatasetPath);
+  const cached = partitionService.hasTree(currentAlgorithm(), currentDatasetPath, kdVariant());
   if (!cached) {
     showLoading("Building tree…");
     clearVisualizers();
@@ -242,7 +254,7 @@ function setActiveRemoteBtn(path) {
 
 async function loadRemoteDataset(path) {
   const datasetCached = datasetService.hasDataset(path);
-  const treeCached = datasetCached && partitionService.hasTree(currentAlgorithm(), path);
+  const treeCached = datasetCached && partitionService.hasTree(currentAlgorithm(), path, kdVariant());
   setActiveRemoteBtn(path);
   if (!treeCached) {
     showLoading(datasetCached ? "Building tree…" : `Loading ${path.split("/").pop()}…`);
@@ -336,6 +348,15 @@ fileInput.addEventListener("change", () => {
 
 clearLocalFileBtn.addEventListener("click", () => {
   loadRemoteDataset(INITIAL_DATASET);
+});
+
+kdSplitBtns.forEach(btn => {
+  btn.addEventListener("click", () => {
+    if (btn.dataset.mode === currentKdSplitMode) return;
+    currentKdSplitMode = btn.dataset.mode;
+    kdSplitBtns.forEach(b => b.classList.toggle("active", b === btn));
+    rebuildTree();
+  });
 });
 
 showCubesCheckbox?.addEventListener("change", syncTreeVisibility);

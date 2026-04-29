@@ -41,11 +41,12 @@ export function createPartitionService({ datasetConfigs, builders, defaultConfig
     reset();
   }
 
-  function getCacheKey(algorithm, datasetPath) {
-    return `${algorithm}::${datasetPath || "__no_dataset__"}`;
+  function getCacheKey(algorithm, datasetPath, variant) {
+    const base = `${algorithm}::${datasetPath || "__no_dataset__"}`;
+    return variant ? `${base}::${variant}` : base;
   }
 
-  function buildOrGetTree({ algorithm, datasetPath, pointCloud }) {
+  function buildOrGetTree({ algorithm, datasetPath, pointCloud, splitMode, cacheVariant }) {
     if (!pointCloud) {
       return { supported: false, message: "No point cloud loaded." };
     }
@@ -59,7 +60,7 @@ export function createPartitionService({ datasetConfigs, builders, defaultConfig
       };
     }
 
-    const cacheKey = getCacheKey(algorithm, datasetPath);
+    const cacheKey = getCacheKey(algorithm, datasetPath, cacheVariant);
 
     if (treeCache.has(cacheKey)) {
       currentTree = treeCache.get(cacheKey);
@@ -72,7 +73,7 @@ export function createPartitionService({ datasetConfigs, builders, defaultConfig
     }
 
     const positions = pointCloud.geometry.attributes.position.array;
-    const config = datasetConfigs[datasetPath] || defaultConfig;
+    const config = { ...(datasetConfigs[datasetPath] || defaultConfig), splitMode };
     const tree = builder(positions, config);
 
     treeCache.set(cacheKey, tree);
@@ -113,8 +114,8 @@ export function createPartitionService({ datasetConfigs, builders, defaultConfig
     return currentTree;
   }
 
-  function hasTree(algorithm, datasetPath) {
-    return treeCache.has(getCacheKey(algorithm, datasetPath));
+  function hasTree(algorithm, datasetPath, variant) {
+    return treeCache.has(getCacheKey(algorithm, datasetPath, variant));
   }
 
   return {

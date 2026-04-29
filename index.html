@@ -178,6 +178,12 @@
     }
     #clear-local-file:hover { color: #4da6ff; }
 
+    /* KD-Tree split-axis buttons */
+    #kd-split-group {
+      display: flex;
+      gap: 6px;
+    }
+
     /* Algorithm select */
     #algorithm {
       background: #141414;
@@ -311,6 +317,15 @@
       <option value="bsp">BSP Tree</option>
     </select>
 
+
+    <div id="kd-split-section" style="display:none">
+      <div class="section-label">Split Mode</div>
+      <div id="kd-split-group">
+        <button class="dataset-btn active" data-mode="cycle">Cycle</button>
+        <button class="dataset-btn" data-mode="widest">Widest</button>
+        <button class="dataset-btn" data-mode="variance">Variance</button>
+      </div>
+    </div>
 
     <div class="section-label">Display</div>
     <div class="toggle-row">

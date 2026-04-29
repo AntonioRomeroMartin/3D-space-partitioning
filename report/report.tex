@@ -2,10 +2,11 @@
 
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
-\usepackage[draft]{graphicx}   % remove [draft] once figures are in place
+\usepackage{graphicx}
 \usepackage{amsmath}
 \usepackage{hyperref}
 \usepackage{booktabs}
+\usepackage{xcolor}
 \usepackage{geometry}
 \usepackage{float}
 \geometry{margin=2.5cm}
@@ -66,11 +67,19 @@ discarding the rest.
 \subsubsection*{Design decisions}
 
 The tree is built top-down: starting from a bounding box around all points, it
-is recursively subdivided into 8 equal octants. The first design decision was
-to \textbf{force the root bounding box into a perfect cube} by extending the
-two shorter axes to match the longest one. This ensures that every voxel at a
-given depth has the same side length, making the leaf-size display meaningful
-and the visual output consistent.
+is recursively subdivided into 8 equal octants. A node stops splitting when
+either \texttt{maxDepth} is reached \emph{or} its point count falls at or
+below \texttt{maxPointsPerNode} -- whichever comes first.
+
+The first design decision was to \textbf{force the root bounding box into a
+perfect cube} by extending the two shorter axes to match the longest one. This
+guarantees that \emph{every voxel at a given depth has the same side length},
+regardless of the dataset's spatial extent. The consequences are threefold:
+the leaf-size readout in the UI is meaningful because all leaves at the same
+depth are equally sized; ray-AABB intersection tests benefit from uniform cell
+dimensions that allow precomputed slab distances; and level-of-detail rendering
+is straightforward -- querying a shallower depth uniformly coarsens the whole
+scene at the same rate in every direction.
 
 A second decision was \textbf{pre-allocating eight point-bucket arrays per
 depth level} instead of creating them inside each recursive call. On a 200k
@@ -115,12 +124,39 @@ It also improves the visibility of occupied regions in the viewer, since only no
 
 \subsubsection*{Design decisions}
 
-The k-d tree cycles through the X, Y, Z axes at successive depths
-(\texttt{depth~\%~3}) and places the split plane at the \textbf{median} of
-the active coordinate. Using the median rather than the geometric midpoint is
-the key choice: it guarantees that each split divides the point set into two
-roughly equal halves regardless of point density, keeping the tree balanced.
+The split plane is always placed at the \textbf{median} of the active
+coordinate. Using the median rather than the geometric midpoint is the key
+choice: it guarantees that each split divides the point set into two roughly
+equal halves regardless of point density, keeping the tree balanced.
 
+\paragraph{Axis-selection strategies.}
+Three strategies are implemented and selectable at run time via the
+\textbf{Split Mode} control in the viewer:
+
+\begin{itemize}
+  \item \textbf{Cycle} (default): the axis rotates X~$\to$~Y~$\to$~Z with
+        depth (\texttt{depth~\%~3}). Simple and data-independent; all nodes
+        at the same depth always split on the same axis.
+  \item \textbf{Widest}: picks the axis whose bounding-box extent is largest
+        at the current node, using the tight AABB already computed during
+        construction. $O(1)$ per node; ensures the longest dimension is always
+        halved first, producing more cube-like cells and reducing long thin
+        partitions.
+  \item \textbf{Variance}: picks the axis with the highest variance of the
+        point coordinates -- the dominant diagonal entry of the covariance
+        matrix, equivalent to what a full PCA would identify as the principal
+        axis of spread when restricted to axis-aligned splits.
+        Variance is estimated via \textbf{Welford's online algorithm} on a
+        stride sample of up to 1\,024 points, keeping per-node cost $O(1)$ in
+        practice while remaining numerically stable for coordinates of any
+        scale. Unlike \textit{widest}, this strategy responds to the actual
+        distribution of points rather than just the bounding geometry.
+\end{itemize}
+
+A module-level scratch \texttt{Vector3} is reused across all
+\textit{widest} computations to avoid per-call heap allocations.
+
+\paragraph{Median selection.}
 Finding the median without a full sort is done with a
 \textbf{3-way quickselect} (Dutch National Flag partitioning). This is
 $O(n)$ average per node and handles duplicate coordinates correctly by grouping
@@ -136,16 +172,19 @@ cuboids instead of the oversized AABB of the raw split range.
 
 \subsubsection*{Balancing}
 
-Because the split is always at the median, the k-d tree is
-\textbf{perfectly balanced by construction}: the depth difference between any
-two leaves is at most 1 \footnote{While the median split keeps the tree structurally 
-balanced, the \texttt{maxPointsPerNode} threshold can cause branches to terminate at
- different depths: a sparse branch may become a leaf several levels earlier than a 
- dense one that keeps splitting. The tree therefore remains \textbf{well-balanced in practice}, 
- but the strict guarantee of a leaf-depth difference of at most 1 does not hold in general.}. 
-A degenerate edge case -- all points sharing the same
-coordinate on the split axis -- is caught by detecting an empty left partition
-and finalizing the node as a leaf immediately.
+Because every split is at the median, the k-d tree is \textbf{structurally
+balanced}: each partition divides the point set into two equal-count halves,
+bounding the tree depth at $\lceil \log_2 n \rceil$. In practice, however,
+the \texttt{maxPointsPerNode} leaf threshold means that a sparse region can
+become a leaf several levels earlier than a dense region that keeps splitting.
+The tree therefore remains \textbf{well-balanced} -- traversal depth stays
+close to $O(\log n)$ -- but the strict guarantee that all leaves sit at the
+same depth does not hold when the leaf threshold is active.
+
+A degenerate edge case -- all points sharing the same coordinate on the split
+axis -- is caught explicitly: after quickselect, if the left partition is empty
+the node is finalized as a leaf immediately rather than recursing into a
+zero-progress split.
 
 A balanced tree is especially important for ray traversal: in a balanced tree
 the worst-case traversal depth is $O(\log n)$, whereas an unbalanced tree can
@@ -159,8 +198,11 @@ degrade to $O(n)$.
   \item \textbf{Query / ray intersection:} $O(\log n)$ average due to balance.
   \item \textbf{Single-point update:} $O(\log n)$ for search; however,
         na\"ive insertion without rebalancing degrades the tree over time.
-  \item \textbf{Memory:} $O(n)$ -- the in-place design uses one contiguous
-        array for all points.
+  \item \textbf{Memory:} $O(n)$ during construction; $O(\log n)$ per cached
+        tree thereafter. The shared point array ($n$ \texttt{Vector3} objects)
+        is freed immediately after the tree is fully built, so multiple cached
+        variants (Cycle, Widest, Variance) for the same dataset can coexist in
+        memory without each retaining a full copy of the point cloud.
 \end{itemize}
 
 \begin{figure}[H]
@@ -196,14 +238,21 @@ strategies:
 
 We chose PCA because it adapts to the local geometry: in a corridor the
 principal axis aligns along the corridor, producing long thin cells; in an
-open area the plane follows the dominant spread of points. reduces the likelihood of degenerate splits compared to random or
-axis-aligned strategies.
+open area the plane follows the dominant spread of points. This reduces the
+likelihood of degenerate splits compared to random or axis-aligned strategies.
 
-The eigenvector is found by \textbf{power iteration} (20 iterations on the
-$3\times3$ covariance matrix), which converges reliably for real-world point
-clouds. Coordinates are copied into three pre-allocated
+The eigenvector is found by \textbf{power iteration} (up to 20 iterations on
+the $3\times3$ covariance matrix, with early termination when the vector
+magnitude falls below $10^{-10}$), which converges reliably for real-world
+point clouds. Coordinates are copied into three pre-allocated
 \texttt{Float32Array} buffers for cache-friendly covariance computation,
 avoiding per-node allocations inside the hot loop.
+
+A node stops splitting when either \texttt{maxDepth} is reached \emph{or} its
+point count falls at or below \texttt{maxPointsPerNode}. If the PCA plane
+produces a degenerate partition -- all points falling on the same side -- the
+node is finalized as a leaf immediately to avoid infinite recursion on
+numerically degenerate inputs.
 
 \subsubsection*{Why BSP takes longer to build than an Octree}
 
@@ -213,8 +262,8 @@ must \textbf{examine all its points} to compute the mean, the covariance
 matrix, and run power iteration before any child can be created: that is
 $O(n_\text{node})$ per node. Summed across all nodes the asymptotic build cost
 is the same ($O(n \log n)$), but the constant factor is much larger. On the
-Hasselt dataset ($\sim$250k points) we measured BSP taking roughly
-$3\times$ longer than the Octree.
+Hasselt dataset ($\sim$14 million points, 225\,MB) we measured BSP taking
+roughly $3\times$ longer than the Octree.
 
 \subsubsection*{Complexity and memory}
 
@@ -237,10 +286,21 @@ $3\times$ longer than the Octree.
 \subsection{Rendering Architecture}
 \textit{(Both authors)}
 
-The viewer uses a \texttt{PerspectiveCamera} with \texttt{OrbitControls} for
-mouse-driven rotation, pan, and zoom. All three trees are pre-built at dataset
-load time and cached, so switching algorithms or changing depth is instant --
-no rebuild is triggered on interaction.
+The viewer uses a \texttt{PerspectiveCamera} (75° FOV) with
+\texttt{OrbitControls} for mouse-driven orbit. Pan and right-click are
+disabled to keep navigation simple; rotation damping (factor~0.08) smooths
+the motion without overshoot. On each dataset load the camera is automatically
+repositioned via a bounding-sphere fit: the distance is set proportionally to
+the sphere radius so the entire point cloud fills the viewport.
+
+Two services decouple concerns cleanly. \texttt{datasetService} owns point
+cloud loading, height-ramp colorization, and camera fitting.
+\texttt{partitionService} owns tree construction, per-variant caching, and
+depth queries. Trees are built \textbf{on first use} and stored under a
+composite key \texttt{algorithm::dataset::variant}. Switching algorithms,
+changing depth, or toggling between the k-d tree's three split-mode variants
+is instant once the corresponding tree is cached -- no rebuild is triggered on
+subsequent interactions.
 
 For Octree and k-d Tree, active nodes at the current depth are rendered as
 \textbf{two \texttt{InstancedMesh} objects}: a semi-transparent solid box mesh
@@ -263,14 +323,23 @@ once.
 \subsection{Coloring}
 \textit{(Both authors)}
 
-Octree and k-d Tree cells are colored by the Z coordinate of their center
-using a \textbf{height ramp}: HSL hue is linearly mapped from 0.7
-(blue/purple, low Z) to 0.0 (red, high Z). This makes the vertical structure
+\textbf{Octree} cells are colored by the Z coordinate of their bounding-box
+center using a \textbf{height ramp}: HSL hue is linearly mapped from 0.7
+(blue/purple, low~Z) to 0.0 (red, high~Z). This makes the vertical structure
 of urban point clouds immediately visible and matches the conventional LiDAR
 viewer palette.
 
-For Octree, the color of the cubes is calculated by the height of the center of the voxel, which is the midpoint of the node's bounding box. 
-For k-d Tree, the color of the cuboids is determined by the last split at that depth.
+\textbf{K-d Tree} cells are colored by the split axis that created them --
+that is, the axis of the parent split that produced the boundary between a
+node and its sibling. The three colors match the on-screen XYZ axis helper
+exactly: \textcolor{red}{red} for X, \textcolor{green}{green} for Y, and
+\textbf{blue} for Z. Because both children of a split receive the same axis
+tag, sibling cells always share the same hue, making the direction of each
+partition boundary immediately legible without any additional annotation.
+With the \textit{Cycle} mode all cells at a given depth have the same color;
+with \textit{Widest} and \textit{Variance} the colors at a given depth can
+be mixed, directly reflecting the data-driven axis choices made at each node.
+
 \subsection{Wireframe}
 \textit{(Both authors)}
 
@@ -289,14 +358,21 @@ across the HSL color wheel. This makes cell boundaries visible directly in the
 data without needing to compute convex hulls (which would be expensive and
 visually complex for thousands of cells).
 
+Recoloring operates at the GPU buffer level. During construction each BSP leaf
+records a compact \texttt{Int32Array} of the original geometry indices of its
+points. When BSP mode is activated, the visualizer saves a full copy of the
+Three.js \texttt{BufferGeometry} color attribute (the height-ramp colors
+applied at load time) and then writes each leaf's HSL color directly into
+the buffer at the stored indices. When the user switches away from BSP mode,
+the saved copy is written back, restoring the baseline appearance without
+reloading the dataset.
+
 Additionally, the \textbf{split planes} are shown as semi-transparent quads
 oriented to the PCA normal at each internal node up to the current depth
-(Figure~\ref{fig:bsp}). This gives an intuitive view of how the space is being
-partitioned at each level.
-
-When switching away from BSP mode the original height-ramp colors are restored
-from a saved copy of the color buffer, so the point cloud returns to its
-baseline appearance.
+(Figure~\ref{fig:bsp}). Each quad is positioned at the split centroid, scaled
+to the node's bounding-box size, and oriented via quaternion rotation from the
+world up-vector to the plane normal. This gives an intuitive view of how space
+is partitioned level by level.
 
 \begin{figure}[H]
   \centering
@@ -321,11 +397,24 @@ baseline appearance.
 
 The control panel (Figure~\ref{fig:ui}) provides algorithm and dataset
 selection, solid/wireframe visibility toggles, and an XYZ axes toggle. Depth
-and average leaf size are updated in real time. In addition to the three
-bundled datasets (UFO, Corridor, Hasselt), users can drag and drop any
-\texttt{.pcd} file onto the viewer. The application runs entirely in the
-browser; datasets are fetched over HTTP or read from the local file system via
-the File API.
+and average leaf size are updated in real time. The \textbf{leaf size} readout
+displays the mean cube root of active-node volumes,
+$\bar{s} = \frac{1}{N}\sum_{i=1}^{N}\sqrt[3]{V_i}$, giving an intuitive
+single-number summary of the current partitioning resolution that is
+comparable across algorithms and datasets.
+
+In addition to the three bundled datasets (UFO, Corridor, Hasselt), users can
+drag and drop any \texttt{.pcd} file onto the viewer. The application runs
+entirely in the browser; datasets are fetched over HTTP or read from the local
+file system via the File API.
+
+When the k-d Tree algorithm is selected, a \textbf{Split Mode} selector
+appears in the control panel offering the three axis-selection strategies
+(Cycle, Widest, Variance). Each variant is cached independently under a
+composite key \texttt{algorithm::dataset::mode}, so switching between modes
+after the first build is instant. The active mode is highlighted with the
+same yellow accent used for dataset buttons, making the current strategy
+immediately visible.
 
 % ---------------------------------------------------------------------------
 \section{Comparative Analysis}
@@ -445,10 +534,11 @@ real-time applications.
 On the implementation side, two decisions had the largest practical impact.
 \textbf{InstancedMesh rendering} reduced thousands of draw calls to one,
 keeping the frame rate above 60~fps at deep tree levels where per-node meshes
-failed entirely. \textbf{Tree caching} -- building all three trees once at load
-time and querying at any depth without rebuilding -- was the single most
-impactful UX decision, making depth navigation instant even on datasets of
-250k points.
+failed entirely. \textbf{Tree caching} -- building each tree on first use and storing it under
+a composite (algorithm, dataset, variant) key so that depth navigation and
+algorithm or split-mode switching require no rebuild -- was the single most
+impactful UX decision, making all interactions instant even on the largest
+tested dataset (Hasselt, $\sim$14 million points).
 
 Overall, the project reinforced that the choice of spatial data structure is
 inseparable from the intended query type, update frequency, and scene

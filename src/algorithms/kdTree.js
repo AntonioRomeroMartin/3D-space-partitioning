@@ -2,11 +2,17 @@ import { Box3, Vector3 } from "three";
 import { TreeNode } from "./treeNode.js";
 import { BaseTree } from "./baseTree.js";
 
+const _axisSize = new Vector3();
+
 /**
  * k-d Tree spatial partitioning structure.
  *
- * At each level the splitting axis cycles through X → Y → Z (depth % 3).
- * The split plane is placed at the median point coordinate on the active axis.
+ * Three axis-selection strategies are supported via `splitMode`:
+ *  - `'cycle'`    : Cycles X → Y → Z by depth (default).
+ *  - `'widest'`   : Picks the axis with the largest bounding-box extent.
+ *  - `'variance'` : Picks the axis with the highest point variance (PCA diagonal).
+ *
+ * The split plane is placed at the median point coordinate on the chosen axis.
  * Points are partitioned into a left child (indices < median index) and a
  * right child (indices >= median index); the median is included in the right
  * child so every point appears in exactly one leaf range.
@@ -21,9 +27,11 @@ export class KdTree extends BaseTree {
   /**
    * @param {number} maxDepth - Maximum recursion depth.
    * @param {number} maxPointsPerNode - Leaf threshold.
+   * @param {'cycle'|'widest'|'variance'} [splitMode='cycle'] - Axis selection strategy.
    */
-  constructor(maxDepth, maxPointsPerNode) {
+  constructor(maxDepth, maxPointsPerNode, splitMode = 'cycle') {
     super(maxDepth, maxPointsPerNode);
+    this.splitMode = splitMode;
   }
 
   /**
@@ -40,6 +48,10 @@ export class KdTree extends BaseTree {
     this._points = points;
     this.root = new TreeNode(bounds, 0);
     this._splitNode(this.root);
+    // Release the points array — only needed during construction.
+    // Cached trees can hold millions of Vector3 objects; freeing them
+    // keeps peak memory manageable when building multiple variants.
+    this._points = null;
   }
 
   /**
@@ -72,7 +84,7 @@ export class KdTree extends BaseTree {
       return;
     }
 
-    const axis = node.depth % 3;
+    const axis = this._selectAxis(node, start, end);
     const key = axis === 0 ? "x" : axis === 1 ? "y" : "z";
 
     const medianIndex = start + Math.floor(count / 2);
@@ -91,11 +103,62 @@ export class KdTree extends BaseTree {
 
     const leftNode = new TreeNode(this._computeBounds(start, leftEnd), node.depth + 1);
     const rightNode = new TreeNode(this._computeBounds(rightStart, end), node.depth + 1);
+    // Tag children with the axis that created the boundary between them.
+    leftNode.splitAxis = axis;
+    rightNode.splitAxis = axis;
 
     node.children.push(leftNode, rightNode);
 
     this._split(leftNode, start, leftEnd);
     this._split(rightNode, rightStart, end);
+  }
+
+  /**
+   * Chooses the split axis for the current node according to `this.splitMode`.
+   *  - cycle:    depth % 3  (ignores point distribution)
+   *  - widest:   axis with the largest bounding-box extent (O(1))
+   *  - variance: axis with the highest point variance — equivalent to the
+   *              dominant diagonal entry of the covariance matrix (O(n))
+   * @param {TreeNode} node
+   * @param {number} start
+   * @param {number} end
+   * @returns {0|1|2}
+   */
+  _selectAxis(node, start, end) {
+    if (this.splitMode === 'widest') {
+      const size = node.bounds.getSize(_axisSize);
+      if (size.x >= size.y && size.x >= size.z) return 0;
+      if (size.y >= size.z) return 1;
+      return 2;
+    }
+
+    if (this.splitMode === 'variance') {
+      // Welford's online algorithm on a capped sample.
+      // For large nodes, stride-sample up to MAX_SAMPLES points so that
+      // axis selection stays O(1) in practice on datasets with millions of points.
+      const MAX_SAMPLES = 1024;
+      const pts = this._points;
+      const n = end - start;
+      const stride = Math.max(1, Math.floor(n / MAX_SAMPLES));
+      let mx = 0, my = 0, mz = 0;
+      let vx = 0, vy = 0, vz = 0;
+      let k = 0;
+      for (let i = start; i < end; i += stride) {
+        k++;
+        const p = pts[i];
+        const dx = p.x - mx, dy = p.y - my, dz = p.z - mz;
+        mx += dx / k; my += dy / k; mz += dz / k;
+        vx += dx * (p.x - mx);
+        vy += dy * (p.y - my);
+        vz += dz * (p.z - mz);
+      }
+      if (vx >= vy && vx >= vz) return 0;
+      if (vy >= vz) return 1;
+      return 2;
+    }
+
+    // default: cycle
+    return node.depth % 3;
   }
 
   /**
