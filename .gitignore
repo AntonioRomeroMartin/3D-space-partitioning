@@ -16,6 +16,9 @@ space_partitioning_2026.pdf
 .DS_Store
 Thumbs.db
 
+# Claude Code
+.claude/
+
 # Ignore all LaTeX build artifacts in report/ except .tex and .pdf
 report/*
 !report/*.tex
