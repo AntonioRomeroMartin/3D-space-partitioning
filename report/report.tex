@@ -10,9 +10,10 @@
 \usepackage{geometry}
 \usepackage{float}
 \geometry{margin=2.5cm}
+\usepackage[skip=0.8em]{parskip}
 
 \title{3D Space Partitioning Viewer\\[0.5em]
-       \large Computer Graphics (E016712A) -- Project Report}
+       \large Computer Graphics (E016712A)}
 \author{Antonio Romero Mart\'in \and Siebe Ternest}
 \date{\today}
 
@@ -27,83 +28,214 @@
 \section{Introduction}
 % ---------------------------------------------------------------------------
 
+Efficiently organizing millions of 3D points is a fundamental challenge in
+computer graphics and spatial computing. Space partitioning data structures
+address this by hierarchically subdividing 3D space, enabling fast queries such
+as ray intersection, frustum culling, and nearest-neighbour search. As LiDAR
+scanners become ubiquitous in autonomous driving, urban mapping, and robotics,
+the choice of partitioning structure has direct consequences for rendering
+performance, memory usage, and query latency at scales ranging from thousands
+to tens of millions of points.
+
 This report documents the design decisions, implementation challenges, and
 comparative analysis of a 3D space partitioning viewer built for LiDAR point
-clouds. Three hierarchical data structures were implemented: an \textbf{Octree},
-a \textbf{k-d Tree}, and a \textbf{Binary Space Partitioning (BSP) Tree}.
+clouds. Three hierarchical data structures were implemented and compared:
+an \textbf{Octree}, a \textbf{k-d Tree}, and a \textbf{Binary Space
+Partitioning (BSP) Tree}. All three were evaluated on three real-world LiDAR
+datasets -- a small indoor corridor scan, a mid-size UFO-shaped structure, and
+the city of Hasselt ($\sim$19.6 million points) -- covering a wide range of point
+densities and spatial configurations.
 
-Rather than raw OpenGL, the viewer is built with \textbf{Three.js} (WebGL).
-This let us focus on algorithm design and rendering concepts (scene graph,
-instanced geometry, depth testing, camera control) without low-level shader
-boilerplate. The project is structured as a single-page web application served
-by Vite, with all three algorithms living in a shared \texttt{src/algorithms/}
-module and all visualization logic in \texttt{src/viewer/}.
+The viewer is built with \textbf{Three.js} (WebGL), which provides scene-graph
+management, instanced geometry, and camera controls out of the box, allowing
+the implementation effort to focus on algorithm design and rendering
+architecture rather than low-level shader infrastructure.
+The project is structured as a single-page web application served by Vite,
+with all three algorithms in a shared \texttt{src/algorithms/} module and all
+visualization logic in \texttt{src/viewer/}.
+
+Section~\ref{sec:input} describes the input data pipeline and PCD file parsing.
+Section~\ref{sec:algorithms} presents each algorithm's design decisions,
+complexity, and memory characteristics. Section~\ref{sec:viewer} documents the
+viewer and rendering architecture. Section~\ref{sec:analysis} provides a
+comparative analysis across build cost, query performance, and suitability for
+different scene types.
 
 % ---------------------------------------------------------------------------
 \section{Reading the Input Data}
+\label{sec:input}
 \textit{(Both authors)}
 % ---------------------------------------------------------------------------
 
-Input datasets are PCD (Point Cloud Data) files from LiDAR scanners. We
-implemented a custom PCD parser that handles both \textbf{ASCII} and
-\textbf{binary} encodings. The header is parsed line-by-line to extract the
-point count, field layout (\texttt{FIELDS}, \texttt{SIZE}, \texttt{TYPE}), and
-data format. For binary files a \texttt{DataView} reads the raw byte buffer
-directly into a \texttt{Float32Array}, which is handed to Three.js as a
-\texttt{BufferGeometry} position attribute.
+Input datasets are PCD (Point Cloud Data) files from LiDAR scanners.
+The module \texttt{src/loaders/pcdLoader.js} implements a \textbf{fast-path
+parser} for the layout shared by all three bundled datasets:
+\texttt{FIELDS~x~y~z}, \texttt{SIZE~4~4~4}, \texttt{TYPE~F~F~F},
+\texttt{DATA~binary}. The parser reads the ASCII header up to the
+\texttt{DATA~binary\textbackslash n} boundary marker and then wraps the
+remaining raw bytes directly in a \texttt{Float32Array} view, bypassing the
+field-by-field \texttt{DataView.getFloat32()} reads that Three.js
+\texttt{PCDLoader} would otherwise perform. For Hasselt ($\sim$19.6 million
+points, 235\,MB) this eliminates $\sim$58.8 million individual
+\texttt{DataView} calls, reducing the post-download parsing phase from several
+seconds to milliseconds. ASCII files and binary PCD with extra fields or
+non-float types fall back to Three.js \texttt{PCDLoader} automatically.
 
-The main challenge was that PCD files often include non-positional fields
-(intensity, normals, RGB). We handle this by computing per-point byte offsets
-from the \texttt{SIZE} header, extracting only the X, Y, Z channels and
-discarding the rest.
+The module unifies three loading paths behind a single interface:
+
+\begin{itemize}
+  \item \textbf{Bundled datasets} (UFO, Corridor, Hasselt) -- served as static
+        assets by the development server; the URL is fetched via XHR (native
+        progress events) and the resulting \texttt{ArrayBuffer} is handed to
+        the fast-path parser.
+  \item \textbf{Arbitrary URL} -- the control panel exposes a URL input field;
+        any \texttt{.pcd} URL entered by the user follows the same XHR path and
+        is cached by URL string after the first load.
+  \item \textbf{Local files} -- \texttt{.pcd} files dropped onto the viewer or
+        selected via the file picker arrive as browser \texttt{File} objects;
+        \texttt{File.arrayBuffer()} is used to obtain the raw bytes directly,
+        which are then passed to the same parser. Local files are cached under
+        the key \texttt{\_\_local\_\_:<filename>}, so the user can switch to a
+        different dataset and return to the local file instantly without
+        re-reading it.
+\end{itemize}
+
+Once a point cloud is loaded, \texttt{datasetService} performs two passes over
+the position buffer. First, a \textbf{Z-range scan} finds the global minimum and
+maximum Z values using a direct typed-array loop rather than
+\texttt{Box3.setFromObject}, avoiding Three.js method-call overhead for each of
+the 19.6 million points. Second, a \textbf{colorization pass} maps each point's
+Z coordinate linearly to an HSL hue in the range
+$[0.7\text{ (blue)},\, 0.0\text{ (red)}]$ and writes it into a
+\texttt{Float32Array} color attribute. This per-point color is used as the
+baseline appearance for all three algorithms. All loaded datasets are \textbf{cached after the first load}: the colorized
+\texttt{Points} object, the bounding-box extents, and the camera target are
+stored -- URL-based datasets under their URL string, local files under
+\texttt{\_\_local\_\_:<filename>} -- so switching between algorithms, adjusting
+depth, or returning to a previously loaded dataset never triggers a reload or a
+second colorization pass over millions of points.
+
+\subsection{Datasets}
+
+Three binary PCD files were used throughout this project as the primary
+evaluation datasets; the viewer also accepts any user-supplied \texttt{.pcd}
+file via drag-and-drop or URL input.
+Table~\ref{tab:datasets} summarises the key properties of the three bundled
+datasets, derived directly from the file headers and bounding-box statistics.
+
+\begin{table}[H]
+\centering
+\begin{tabular}{@{}lrrrrrr@{}}
+\toprule
+\textbf{Dataset} & \textbf{Points} & \textbf{Size} &
+  \textbf{X span (m)} & \textbf{Y span (m)} & \textbf{Z span (m)} \\
+\midrule
+Corridor & 1{,}622{,}607  & 19.5\,MB  &  86 &  70 & 12 \\
+UFO      & 10{,}750{,}846 & 129\,MB   & 193 &  91 & 37 \\
+Hasselt  & 19{,}615{,}568 & 235\,MB   & 385 & 368 & 24 \\
+\bottomrule
+\end{tabular}
+\caption{Dataset properties extracted from PCD headers and bounding-box sampling.}
+\label{tab:datasets}
+\end{table}
+
+\textbf{Corridor} is the smallest dataset. Its narrow Z extent (12\,m) relative
+to its horizontal footprint is consistent with a ground-level indoor or
+semi-outdoor corridor scan, where the sensor sweeps a bounded vertical range.
+
+\textbf{UFO} is a mid-size outdoor scan ($\sim$10.8 million points). The
+horizontal extents are moderate ($\sim$200\,m) and the Z span (37\,m) is the
+largest of the three, reflecting a more varied vertical structure than the
+other two datasets.
+
+\textbf{Hasselt} is the largest dataset ($\sim$19.6 million points, 235\,MB).
+Its footprint is roughly $385 \times 368$\,m but the Z extent is only 24\,m,
+which is characteristic of a flat urban outdoor scan -- dense near facades and
+the ground plane, sparse in open airspace. This dataset was used for all
+stress-testing of memory usage and build time.
 
 % ---------------------------------------------------------------------------
 \section{Space Partitioning Algorithms}
+\label{sec:algorithms}
 % ---------------------------------------------------------------------------
+
+All three implementations share a common base class (\texttt{BaseTree}) that
+establishes a key memory design: throughout construction every algorithm works
+exclusively with \textbf{integer indices} into the original
+\texttt{Float32Array} rather than allocating one \texttt{Vector3} object per
+point. Each index is a four-byte integer; coordinates are read inline as
+\texttt{positions[idx*3]}, \texttt{positions[idx*3+1]},
+\texttt{positions[idx*3+2]}. For Hasselt ($\sim$19.6 million points) the
+construction index array consumes $\sim$78\,MB, compared to the $\sim$784\,MB
+that a \texttt{Vector3[]} approach would require (roughly 40\,bytes per
+JavaScript object versus 4 bytes per index). The global bounding box is
+computed by the shared helper \texttt{\_computeBoundsFromPositions}, which
+scans the \texttt{Float32Array} in a single pass and creates only two
+\texttt{Vector3} objects (the AABB corners) regardless of point count. After
+each tree is fully built, the algorithm-specific index structures and the
+reference to the positions buffer are nulled, retaining only the node
+structure in memory.
 
 \subsection{Octree}
 \textit{(Both authors)}
 
 \subsubsection*{Design decisions}
 
-The tree is built top-down: starting from a bounding box around all points, it
-is recursively subdivided into 8 equal octants. A node stops splitting when
+The tree is built top-down: starting from a global bounding box, it is
+recursively subdivided into 8 equal octants. A node stops splitting when
 either \texttt{maxDepth} is reached \emph{or} its point count falls at or
 below \texttt{maxPointsPerNode} -- whichever comes first.
 
 The first design decision was to \textbf{force the root bounding box into a
-perfect cube} by extending the two shorter axes to match the longest one. This
-guarantees that \emph{every voxel at a given depth has the same side length},
-regardless of the dataset's spatial extent. The consequences are threefold:
-the leaf-size readout in the UI is meaningful because all leaves at the same
-depth are equally sized; ray-AABB intersection tests benefit from uniform cell
-dimensions that allow precomputed slab distances; and level-of-detail rendering
-is straightforward -- querying a shallower depth uniformly coarsens the whole
-scene at the same rate in every direction.
+perfect cube} by recentering it on the bounding-box centroid and expanding
+all three half-extents to half of the longest side. This guarantees that
+\emph{every voxel at a given depth has the same side length}, regardless of
+the dataset's spatial extent. The consequences are threefold: the leaf-size
+readout in the UI is meaningful because all leaves at the same depth are
+equally sized; ray-AABB intersection tests benefit from uniform cell
+dimensions that allow precomputed slab distances; and level-of-detail
+rendering is straightforward -- querying a shallower depth uniformly
+coarsens the whole scene at the same rate in every direction.
 
 A second decision was \textbf{pre-allocating eight point-bucket arrays per
-depth level} instead of creating them inside each recursive call. On a 200k
-point cloud, the na\"ive version allocated eight new arrays per internal node,
-generating significant garbage-collection pressure. With the pre-allocated
-table each bucket is reset to length zero and reused, keeping allocation
-overhead constant.
+depth level} instead of creating them inside each recursive call. The na\"ive
+approach would allocate eight new arrays per internal node; across thousands
+of recursive calls on large datasets this generates significant
+garbage-collection pressure. With the pre-allocated table each bucket is
+reset to length zero via \texttt{.length = 0} and reused, keeping
+allocation overhead constant regardless of tree size.
 
-Only non-empty octants produce child nodes, the tree never stores empty
-nodes, so technically this implementation of the octree is a sparse octree (no always 8 childs). 
-This is crucial for large, non-uniform point clouds, where many octants would be empty and waste memory and traversal time. 
-It also improves the visibility of occupied regions in the viewer, since only nodes containing points are rendered.  
+Each point is assigned to its octant using a \textbf{3-bit index}: bit~0
+is set if the X coordinate $\geq$~\texttt{centerX}, bit~1 for Y, bit~2 for Z.
+The same index drives the child bounding-box computation in $O(1)$ via bitwise
+conditions, keeping the assignment and the geometry fully consistent without any
+per-axis branching.
+
+Only non-empty octants produce child nodes; technically, this makes the
+implementation a \textbf{sparse octree} (up to 8 children per node, not
+always 8). This is crucial for large, non-uniform point clouds such as
+Hasselt, where most of the airspace above the city produces empty octants
+-- skipping them avoids wasting memory and traversal time, and ensures only
+occupied regions are rendered.
 
 \subsubsection*{Complexity and memory}
 
 \begin{itemize}
-  \item \textbf{Build:} $O(n \log n)$ -- each point traverses $O(\log n)$
-        levels, with $O(1)$ work per level (the split plane is always the
-        geometric midpoint, computed without examining the points).
+  \item \textbf{Build:} $O(n \log n)$ -- the split plane (geometric midpoint)
+        is computed in $O(1)$; classifying each point into an octant requires
+        three comparisons ($O(1)$ per point). Each of the $n$ points is touched
+        once per depth level, across $O(\log n)$ levels.
   \item \textbf{Single-point update:} $O(\log n)$ -- follow the path from
         root to leaf and add/remove the point from the appropriate voxel;
         the split planes never change.
-  \item \textbf{Memory:} $O(n)$ -- at most $n$ leaf nodes at maximum depth;
-        internal nodes free their point arrays once split.
+  \item \textbf{Memory:} $O(n)$ asymptotically -- at most $n$ leaf nodes at
+        maximum depth; internal nodes null their index arrays once split.
+        The dominant allocation during construction is the integer index array
+        ($\sim$78\,MB for Hasselt), which is freed once the build completes,
+        along with the positions reference and the pre-allocated bucket table.
+        The retained node structure size scales with the number of occupied
+        octants, which depends on the dataset's spatial distribution and the
+        chosen depth.
 \end{itemize}
 
 \begin{figure}[H]
@@ -156,6 +288,21 @@ Three strategies are implemented and selectable at run time via the
 A module-level scratch \texttt{Vector3} is reused across all
 \textit{widest} computations to avoid per-call heap allocations.
 
+\IfFileExists{figures/kdtree_cycle.png}{%
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.32\linewidth]{figures/kdtree_cycle.png}
+  \hfill
+  \includegraphics[width=0.32\linewidth]{figures/kdtree_widest.png}
+  \hfill
+  \includegraphics[width=0.32\linewidth]{figures/kdtree_variance.png}
+  \caption{K-d Tree split mode comparison on the Corridor dataset: Cycle (left),
+           Widest (center), Variance (right). In Cycle mode all cells at a given
+           depth share the same color; in Widest and Variance the colors are
+           mixed, reflecting data-driven axis choices at each node.}
+  \label{fig:kdtree_modes}
+\end{figure}}{}
+
 \paragraph{Median selection.}
 Finding the median without a full sort is done with a
 \textbf{3-way quickselect} (Dutch National Flag partitioning). This is
@@ -181,10 +328,11 @@ The tree therefore remains \textbf{well-balanced} -- traversal depth stays
 close to $O(\log n)$ -- but the strict guarantee that all leaves sit at the
 same depth does not hold when the leaf threshold is active.
 
-A degenerate edge case -- all points sharing the same coordinate on the split
-axis -- is caught explicitly: after quickselect, if the left partition is empty
-the node is finalized as a leaf immediately rather than recursing into a
-zero-progress split.
+A degenerate edge case is caught explicitly: after quickselect, if the left
+partition would be empty (\texttt{medianIndex == start}), the node is
+finalized as a leaf immediately rather than recursing into a zero-size split.
+This guards against configurations where the leaf threshold is zero and a
+single remaining point would otherwise produce an empty left child.
 
 A balanced tree is especially important for ray traversal: in a balanced tree
 the worst-case traversal depth is $O(\log n)$, whereas an unbalanced tree can
@@ -198,12 +346,33 @@ degrade to $O(n)$.
   \item \textbf{Query / ray intersection:} $O(\log n)$ average due to balance.
   \item \textbf{Single-point update:} $O(\log n)$ for search; however,
         na\"ive insertion without rebalancing degrades the tree over time.
-  \item \textbf{Memory:} $O(n)$ during construction; $O(\log n)$ per cached
-        tree thereafter. The shared point array ($n$ \texttt{Vector3} objects)
-        is freed immediately after the tree is fully built, so multiple cached
-        variants (Cycle, Widest, Variance) for the same dataset can coexist in
-        memory without each retaining a full copy of the point cloud.
+  \item \textbf{Memory:} $O(n)$ during construction (the shared
+        \texttt{Int32Array} of $n$ indices, $\sim$78\,MB for Hasselt). After
+        build both the index array and the positions reference are freed.
+        The retained structure has at most $2^{\texttt{maxDepth}+1}-1$ nodes;
+        for the depth-8 configuration used here that is $\leq$511 nodes
+        ($\sim$100\,kB), so all three cached variants (Cycle, Widest, Variance)
+        coexist in memory without retaining any copy of the point cloud.
 \end{itemize}
+
+\paragraph{Memory problem encountered.}
+An initial prototype represented each point as a \texttt{Vector3} JavaScript
+object. Each object carries a heap overhead of roughly 40--80\,bytes on top of
+the 12 bytes of coordinate data; the construction array for Hasselt therefore
+consumed $\sim$784\,MB--1.5\,GB, exceeding the browser heap limit and causing
+an out-of-memory crash even for a single tree build.
+
+The solution was to replace the \texttt{Vector3[]} array with a single
+\texttt{Int32Array} of $n$ integer indices into the original \texttt{Float32Array}.
+At 4\,bytes per index the construction array for Hasselt drops to $\sim$78\,MB.
+After the tree is fully built both the index array and the positions reference
+are nulled, leaving each cached variant at $\sim$100\,kB.
+Additionally, the Variance axis-selection computation was capped at a stride
+sample of 1\,024 points per node: without the stride, each node at the top of
+the tree would scan all of its $O(n)$ points, making the per-node \emph{cost}
+$O(n)$ rather than $O(1)$. The stride bounds it to at most 1\,024 iterations
+per node regardless of subtree size. After these changes all three Hasselt
+variants coexist in memory without issue.
 
 \begin{figure}[H]
   \centering
@@ -230,10 +399,11 @@ strategies:
 \begin{enumerate}
   \item \textbf{Random plane} -- fast but produces uneven splits.
   \item \textbf{Axis-aligned median} -- equivalent to k-d tree; does not
-        exploit non-axis-aligned structure. PCA: Principal component analysis.
-  \item \textbf{PCA-based plane} -- the plane normal is the dominant
-        eigenvector of the covariance matrix of the node's points; the plane
-        passes through the centroid.
+        exploit non-axis-aligned structure.
+  \item \textbf{PCA-based plane} (Principal Component Analysis) -- the plane
+        normal is the dominant eigenvector of the covariance matrix of the
+        node's points; the plane is positioned at the \textbf{median
+        projection} of the node's points onto that axis.
 \end{enumerate}
 
 We chose PCA because it adapts to the local geometry: in a corridor the
@@ -244,9 +414,23 @@ likelihood of degenerate splits compared to random or axis-aligned strategies.
 The eigenvector is found by \textbf{power iteration} (up to 20 iterations on
 the $3\times3$ covariance matrix, with early termination when the vector
 magnitude falls below $10^{-10}$), which converges reliably for real-world
-point clouds. Coordinates are copied into three pre-allocated
-\texttt{Float32Array} buffers for cache-friendly covariance computation,
-avoiding per-node allocations inside the hot loop.
+point clouds. The covariance matrix is computed in a \textbf{single pass}
+using \textbf{Welford's online algorithm}: for each point the running mean is
+updated first, then all six covariance entries are accumulated as
+$\Delta_{\text{before}} \times (\text{value} - \mu_{\text{new}})$.
+No scratch buffers are required; only six scalar accumulators are maintained
+alongside the three mean values.
+
+Once the principal axis $\mathbf{n} = (n_x, n_y, n_z)$ and centroid
+$\mathbf{o}$ are known, every point is projected onto the axis:
+$d_i = (\mathbf{p}_i - \mathbf{o}) \cdot \mathbf{n}$.
+The \textbf{median projection} $d_{\text{med}}$ is found via a
+\textbf{3-way quickselect} (Dutch National Flag) in $O(n)$ average, and the
+split plane is placed at $\mathbf{o} + d_{\text{med}}\,\mathbf{n}$.
+Points with $d_i \geq d_{\text{med}}$ go to the front child; the rest go to
+the back child. This guarantees that each split divides the point set into two
+equal-count halves, bounding the tree depth at $\lceil \log_2 n \rceil$ and
+eliminating the $O(n^2)$ worst case of the centroid-based split.
 
 A node stops splitting when either \texttt{maxDepth} is reached \emph{or} its
 point count falls at or below \texttt{maxPointsPerNode}. If the PCA plane
@@ -258,29 +442,55 @@ numerically degenerate inputs.
 
 An octree's split plane is always the three axis-aligned midplanes of the
 current node -- computed in $O(1)$ regardless of point count. A BSP node
-must \textbf{examine all its points} to compute the mean, the covariance
-matrix, and run power iteration before any child can be created: that is
-$O(n_\text{node})$ per node. Summed across all nodes the asymptotic build cost
-is the same ($O(n \log n)$), but the constant factor is much larger. On the
-Hasselt dataset ($\sim$14 million points, 225\,MB) we measured BSP taking
-roughly $3\times$ longer than the Octree.
+must \textbf{examine all its points} to compute the covariance matrix (Welford
+pass), find the median projection (quickselect pass), and classify points
+(one more pass): that is $O(n_\text{node})$ per node with a larger constant
+than the Octree. With the median-projection split the tree is balanced and the
+total work sums to $O(n \log n)$ -- the same asymptotic class as the Octree --
+but the per-node constant is roughly $3\times$ higher. On the Hasselt dataset
+($\sim$19.6 million points, 235\,MB) we measured BSP taking roughly $3\times$
+longer than the Octree.
 
 \subsubsection*{Complexity and memory}
 
 \begin{itemize}
-  \item \textbf{Build:} $O(n \log n)$ asymptotically, but with a large
-        constant due to PCA.
-  \item \textbf{Single-point update:} $O(\log n)$ to locate the correct leaf,
-        but insertion is expensive in practice: adding a point can shift the
-        local PCA plane, potentially invalidating the split for that node and
-        requiring a rebuild of the affected subtree.
-  \item \textbf{Memory:} $O(n)$ -- leaf nodes store a compact
-        \texttt{Int32Array} of geometry indices; full point arrays are freed
-        after splitting each node.
+  \item \textbf{Build:} $O(n \log n)$ \emph{guaranteed} -- the median
+        projection ensures each split divides the point set in half, bounding
+        the tree depth at $\lceil \log_2 n \rceil$; each level processes $O(n)$
+        points in total across three $O(n_\text{node})$ passes (Welford,
+        quickselect, classify). The $O(n^2)$ worst case of the centroid-based
+        split is eliminated.
+  \item \textbf{Single-point update:} $O(\log n)$ to locate the correct leaf
+        (balance is now guaranteed). Insertion is additionally expensive:
+        adding a point can shift the local PCA plane, potentially invalidating
+        the split for that node and requiring a rebuild of the affected subtree.
+  \item \textbf{Memory:} $O(n)$ at all times -- during construction each
+        recursive call allocates a local \texttt{Float32Array} of dot products
+        for its node, freed as the call unwinds. Across the call stack at most
+        ${\sim}2n$ elements exist simultaneously (${\sim}156\,$MB for Hasselt),
+        less than the $3n$ (${\sim}234\,$MB) of the previous scratch-buffer
+        approach. Unlike the k-d tree, the BSP tree \emph{retains} $O(n)$
+        memory after build: each leaf stores a \texttt{Int32Array} of its point
+        indices, needed by the visualizer for per-cell point recolouring. For
+        Hasselt all leaf arrays together hold ${\sim}78\,$MB permanently,
+        versus ${\sim}100\,$kB for the cached k-d tree.
 \end{itemize}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.48\linewidth]{figures/bsp_depth_low.png}
+  \hfill
+  \includegraphics[width=0.48\linewidth]{figures/bsp_depth_high.png}
+  \caption{BSP Tree on the Corridor dataset at depth~2 (left) and depth~6
+           (right). Each cell is assigned a distinct HSL hue; at low depth
+           a few large regions are visible, while at high depth the
+           partitioning follows the fine structure of the point cloud.}
+  \label{fig:bsp_algo}
+\end{figure}
 
 % ---------------------------------------------------------------------------
 \section{Viewer}
+\label{sec:viewer}
 % ---------------------------------------------------------------------------
 
 \subsection{Rendering Architecture}
@@ -290,8 +500,9 @@ The viewer uses a \texttt{PerspectiveCamera} (75° FOV) with
 \texttt{OrbitControls} for mouse-driven orbit. Pan and right-click are
 disabled to keep navigation simple; rotation damping (factor~0.08) smooths
 the motion without overshoot. On each dataset load the camera is automatically
-repositioned via a bounding-sphere fit: the distance is set proportionally to
-the sphere radius so the entire point cloud fills the viewport.
+repositioned via a bounding-box fit: a tight axis-aligned bounding box is
+computed, the longest of its three dimensions is taken, and the camera distance
+is set to $1.6\times$ that value so the entire point cloud fills the viewport.
 
 Two services decouple concerns cleanly. \texttt{datasetService} owns point
 cloud loading, height-ramp colorization, and camera fitting.
@@ -310,14 +521,11 @@ draw calls from thousands to one, which proved essential: without instancing,
 rendering depth-8 Octree nodes ($\sim$8000 boxes) dropped the frame rate below
 10~fps; with instancing it stayed above 60~fps.
 
-\subsection{Depth Navigation}
-\textit{(Both authors)}
-
+\paragraph{Depth navigation.}
 The \texttt{+} and \texttt{-} keys change the display depth. The tree is
-queried with \texttt{getNodesAtDepth(d)}: nodes exactly at depth $d$ are
-included, and leaves shallower than $d$ are also included so coarser
-resolutions still show all occupied regions. This traversal is
-$O(\text{active nodes})$ per key press, while the expensive build runs only
+queried for nodes exactly at depth $d$, and leaves shallower than $d$ are also
+included so coarser resolutions still show all occupied regions. This traversal
+is $O(\text{active nodes})$ per key press, while the expensive build runs only
 once.
 
 \subsection{Coloring}
@@ -340,13 +548,11 @@ With the \textit{Cycle} mode all cells at a given depth have the same color;
 with \textit{Widest} and \textit{Variance} the colors at a given depth can
 be mixed, directly reflecting the data-driven axis choices made at each node.
 
-\subsection{Wireframe}
-\textit{(Both authors)}
-
+\paragraph{Wireframe.}
 Each active node is rendered with a second \texttt{InstancedMesh} using
-\texttt{wireframe: true}, making voxel boundaries visible without obscuring the
-interior color. Solid fill and wireframe can be toggled independently via
-checkboxes in the control panel.
+wireframe mode, making voxel boundaries visible without obscuring the interior
+color. Solid fill and wireframe can be toggled independently via checkboxes in
+the control panel.
 
 \subsection{BSP Visualization}
 \textit{(Antonio Romero Mart\'in)}
@@ -369,9 +575,11 @@ reloading the dataset.
 
 Additionally, the \textbf{split planes} are shown as semi-transparent quads
 oriented to the PCA normal at each internal node up to the current depth
-(Figure~\ref{fig:bsp}). Each quad is positioned at the split centroid, scaled
-to the node's bounding-box size, and oriented via quaternion rotation from the
-world up-vector to the plane normal. This gives an intuitive view of how space
+(Figure~\ref{fig:bsp}). Each quad is positioned at the median-projected origin of the split plane
+(the point $\mathbf{o} + d_{\text{med}}\,\mathbf{n}$ stored in
+\texttt{splitPlane}), scaled to the node's bounding-box size, and oriented via
+quaternion rotation from the Z axis (the default normal of
+\texttt{PlaneGeometry}) to the split plane normal. This gives an intuitive view of how space
 is partitioned level by level.
 
 \begin{figure}[H]
@@ -418,9 +626,11 @@ immediately visible.
 
 % ---------------------------------------------------------------------------
 \section{Comparative Analysis}
+\label{sec:analysis}
 % ---------------------------------------------------------------------------
 
 \subsection{Main Differences between the Three Trees}
+\textit{(Both authors)}
 
 \begin{center}
 \begin{tabular}{@{}lccc@{}}
@@ -429,8 +639,8 @@ immediately visible.
 \midrule
 Split planes per node & 3 axis-aligned & 1 axis-aligned & 1 arbitrary \\
 Children per node     & Up to 8        & Exactly 2      & Exactly 2 \\
-Split position        & Fixed midpoint & Data median    & PCA centroid \\
-Guaranteed balanced   & No             & Yes (in practice)      & No \\
+Split position        & Fixed midpoint & Data median    & PCA median projection \\
+Guaranteed balanced   & No             & Yes (in practice)      & Yes \\
 Build cost (constant) & Low            & Medium         & High \\
 Cell shape            & Cube           & Cuboid         & Convex polytope \\
 \bottomrule
@@ -443,7 +653,20 @@ median, making it self-balancing at the cost of a linear scan. The BSP tree
 uses an arbitrary plane adapted to the local point geometry, which produces the
 most informative partitions but incurs the highest build cost.
 
+\IfFileExists{figures/hasselt_octree.png}{%
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.48\linewidth]{figures/hasselt_octree.png}
+  \hfill
+  \includegraphics[width=0.48\linewidth]{figures/hasselt_kdtree.png}
+  \caption{Hasselt dataset ($\sim$19.6 million points): Octree (left) and k-d Tree
+           (right) at comparable depths. The height ramp and axis-color schemes
+           make the structural differences visible at large scale.}
+  \label{fig:hasselt}
+\end{figure}}{}
+
 \subsection{Benefits of an Octree over a BSP-Tree}
+\textit{(Both authors)}
 
 \begin{itemize}
   \item \textbf{Simpler, faster construction:} No covariance computation;
@@ -454,11 +677,13 @@ most informative partitions but incurs the highest build cost.
   \item \textbf{Predictable cell shapes:} All cells at a given depth are
         cubes of identical size, simplifying ray-AABB tests and frustum culling.
   \item \textbf{Implicit empty-space compression:} Only occupied octants
-        create child nodes, making the octree naturally sparse. Also since we implemented a sparse octree
-        we don't create 8 child nodes for every internal node, but only for the non-empty octants. This is a significant advantage in large, non-uniform point clouds where many octants would be empty and waste memory and traversal time.
+        create child nodes, so the sparse octree uses no memory for empty
+        regions -- a significant advantage for large, non-uniform outdoor point
+        clouds where most of the volume is empty air.
 \end{itemize}
 
 \subsection{Ray Intersection Queries}
+\textit{(Both authors)}
 
 All three trees support $O(\log n)$ average ray traversal by pruning subtrees
 whose bounding volumes do not intersect the ray. In practice:
@@ -472,8 +697,10 @@ whose bounding volumes do not intersect the ray. In practice:
         comparison (dot product with an axis vector), making it the cheapest
         per-node test. Balance guarantees $O(\log n)$ depth.
   \item \textbf{BSP Tree:} Each node requires a full dot product with an
-        arbitrary normal, which is slightly more expensive. The tree is not
-        guaranteed to be balanced, which can increase traversal depth beyond $O(\log n)$ in the worst case.
+        arbitrary normal, which is slightly more expensive per node than a
+        single axis comparison. The median-projection split guarantees balance,
+        so traversal depth is bounded at $O(\log n)$; however the higher
+        per-node cost still makes it slower than the k-d tree in practice.
 \end{itemize}
 
 For ray casting, the \textbf{k-d tree} is generally the best choice: its
@@ -481,6 +708,7 @@ balance guarantee minimizes tree depth, and axis-aligned planes minimize
 per-node cost.
 
 \subsection{Dynamic Scenes}
+\textit{(Both authors)}
 
 For dynamic scenes with moving objects or streaming LiDAR, we would use an
 \textbf{Octree}. Its regular structure makes insertion and deletion local
@@ -491,6 +719,7 @@ with no rebalancing step. The BSP tree's data-dependent planes make any update
 expensive since the PCA result changes when the point distribution shifts,
 potentially invalidating the split planes of entire subtrees.
 \subsection{Urban Scenes}
+\textit{(Both authors)}
 
 For urban scenes we would use an \textbf{Octree}. While the k-d tree is also a
 valid choice -- its median split adapts well to non-uniform point densities --
@@ -513,6 +742,7 @@ as the industry standard for large-scale outdoor scenes.
 
 % ---------------------------------------------------------------------------
 \section{Conclusion}
+\textit{(Both authors)}
 % ---------------------------------------------------------------------------
 
 We implemented three spatial partitioning structures -- Octree, k-d Tree, and
@@ -528,17 +758,25 @@ level-of-detail rendering of large urban scenes. The \textbf{k-d tree} is the
 best choice for ray casting and nearest-neighbour queries, where its balance
 guarantee and cheap per-node axis test minimize traversal cost. The
 \textbf{BSP tree} produces the most geometry-adaptive partitions, but its
-PCA-based build cost and lack of balance make it less suitable for dynamic or
-real-time applications.
+high PCA build cost and the fact that any point insertion invalidates the local
+PCA planes make it less suitable for dynamic or real-time applications.
 
-On the implementation side, two decisions had the largest practical impact.
+On the implementation side, three decisions had the largest practical impact.
+\textbf{Replacing \texttt{Vector3} arrays with integer indices} during tree
+construction reduced peak memory for Hasselt from $\sim$784\,MB to $\sim$78\,MB,
+eliminating out-of-memory crashes and making all three k-d tree split-mode
+variants cacheable simultaneously.
 \textbf{InstancedMesh rendering} reduced thousands of draw calls to one,
 keeping the frame rate above 60~fps at deep tree levels where per-node meshes
-failed entirely. \textbf{Tree caching} -- building each tree on first use and storing it under
-a composite (algorithm, dataset, variant) key so that depth navigation and
-algorithm or split-mode switching require no rebuild -- was the single most
-impactful UX decision, making all interactions instant even on the largest
-tested dataset (Hasselt, $\sim$14 million points).
+failed entirely.
+\textbf{Tree caching} -- building each tree on first use and storing it under a
+composite (algorithm, dataset, variant) key -- was the single most impactful UX
+decision, making all interactions instant even on the largest tested dataset.
+A fast-path binary PCD parser was also implemented: for files with the standard
+\texttt{x~y~z~Float32} layout (all three bundled datasets), the position buffer
+is created directly from the raw bytes after the header, eliminating $\sim$58.8
+million \texttt{DataView} calls for Hasselt and reducing the post-download
+parsing phase from seconds to milliseconds.
 
 Overall, the project reinforced that the choice of spatial data structure is
 inseparable from the intended query type, update frequency, and scene

@@ -1,12 +1,20 @@
-import { Box3 } from "three";
+import { Box3, Vector3 } from "three";
 import { TreeNode } from "./treeNode.js";
 import { BaseTree } from "./baseTree.js";
 
 /**
  * BSP (Binary Space Partitioning) tree spatial partitioning structure.
  *
- * Recursively splits the point cloud using planes aligned to the principal axis (PCA) of the points in each node.
- * Each split divides the node into two children (front and back) until the maximum depth or minimum point threshold is reached.
+ * Recursively splits the point cloud using planes aligned to the principal axis
+ * (PCA) of the points in each node. The split plane is positioned at the
+ * **median projection** of the node's points onto the principal axis, guaranteeing
+ * that each split divides the point set into two equal-count halves (balanced tree).
+ *
+ * The PCA axis is computed via a single-pass Welford covariance algorithm followed
+ * by power iteration — no scratch buffers are needed. Points are tracked as integer
+ * indices into the original Float32Array throughout construction. Leaf nodes store a
+ * compact Int32Array of geometry indices used by the visualizer for point-cloud
+ * recoloring. The positions reference is freed after the tree is fully built.
  *
  * @memberof algorithms
  * @alias BspTree
@@ -23,88 +31,71 @@ export class BspTree extends BaseTree {
 
   /**
    * Builds the BSP tree from a flat interleaved position array.
-   * Pre-allocates three Float32Arrays (`this._wx`, `this._wy`, `this._wz`) sized
-   * to the total point count, reused by every `_computePrincipalAxis` call to
-   * avoid per-node typed-array allocation during recursive splitting.
    * @param {Float32Array} positions - Flat [x,y,z, …] array from PCD geometry.
    */
   build(positions) {
-    const { points, bounds } = this._positionsToPointsAndBounds(positions);
-    if (points.length === 0) {
-      this.root = null;
-      return;
-    }
+    const n = positions.length / 3;
+    if (n === 0) { this.root = null; return; }
 
-    this._wx = new Float32Array(points.length);
-    this._wy = new Float32Array(points.length);
-    this._wz = new Float32Array(points.length);
+    this._positions = positions;
+
+    const bounds = this._computeBoundsFromPositions(positions);
+
+    // Build initial index list [0, 1, …, n-1].
+    const allIndices = [];
+    for (let i = 0; i < n; i++) allIndices.push(i);
 
     this.root = new TreeNode(bounds, 0);
-    this.root.points = points;
+    this.root.points = allIndices;
 
     this._splitNode(this.root);
+
+    this._positions = null;
   }
 
   /**
-   * Converts a flat positions array into an array of Vector3 points and a bounding box.
-   * Stores the original geometry index on each point for later use by the visualizer.
-   * @param {Float32Array} positions - Flat [x,y,z, …] array.
-   * @returns {{ points: THREE.Vector3[], bounds: THREE.Box3 }}
-   * @protected
-   */
-  _positionsToPointsAndBounds(positions) {
-    const result = super._positionsToPointsAndBounds(positions);
-    for (let i = 0; i < result.points.length; i++) {
-      result.points[i].originalIndex = i;
-    }
-    return result;
-  }
-
-  /**
-   * Marks a node as a leaf, records its point count, and stores only the geometry indices as a typed array.
+   * Marks a node as a leaf, stores the geometry indices as a typed array, and
+   * frees the construction-time index array.
    * @param {TreeNode} node
    * @protected
    */
   _finalizeLeaf(node) {
-    node.isLeaf = true;
-    const pts = node.points;
-    const n = pts ? pts.length : 0;
-    node.pointCount = n;
-    const indices = new Int32Array(n);
-    for (let i = 0; i < n; i++) indices[i] = pts[i].originalIndex;
-    node.indices = indices;
-    node.points = null;
+    node.isLeaf     = true;
+    const pts       = node.points;
+    node.pointCount = pts ? pts.length : 0;
+    node.indices    = new Int32Array(pts ?? []);
+    node.points     = null;
   }
 
   /**
    * Computes the principal axis (dominant eigenvector) of the covariance matrix
-   * of the points using power iteration (20 iterations).
-   * Returns the axis (nx, ny, nz) and the centroid (ox, oy, oz) as the split origin.
-   * Coordinates are copied into the pre-allocated `this._wx/_wy/_wz` arrays for
-   * cache-friendly covariance computation — no per-call allocations.
-   * @param {THREE.Vector3[]} points
+   * and the centroid of the node's points in a **single pass** using Welford's
+   * online covariance algorithm, followed by power iteration (up to 20 steps,
+   * with early termination when the vector magnitude falls below 1e-10).
+   *
+   * Mean and all six covariance entries are accumulated as running scalars —
+   * no scratch buffers or per-call allocations are needed.
+   *
+   * @param {number[]} indices - Index array for this node's points.
    * @returns {{ nx: number, ny: number, nz: number, ox: number, oy: number, oz: number }}
    * @protected
    */
-  _computePrincipalAxis(points) {
-    const n = points.length;
-    const xs = this._wx;
-    const ys = this._wy;
-    const zs = this._wz;
+  _computePrincipalAxis(indices) {
+    const n   = indices.length;
+    const pos = this._positions;
 
     let mx = 0, my = 0, mz = 0;
-    for (let i = 0; i < n; i++) {
-      const p = points[i];
-      xs[i] = p.x; ys[i] = p.y; zs[i] = p.z;
-      mx += p.x; my += p.y; mz += p.z;
-    }
-    mx /= n; my /= n; mz /= n;
-
     let cxx = 0, cyy = 0, czz = 0, cxy = 0, cxz = 0, cyz = 0;
+
     for (let i = 0; i < n; i++) {
-      const dx = xs[i] - mx, dy = ys[i] - my, dz = zs[i] - mz;
-      cxx += dx * dx; cyy += dy * dy; czz += dz * dz;
-      cxy += dx * dy; cxz += dx * dz; cyz += dy * dz;
+      const k    = i + 1;
+      const base = indices[i] * 3;
+      const x = pos[base], y = pos[base + 1], z = pos[base + 2];
+      const dx = x - mx, dy = y - my, dz = z - mz;
+      mx += dx / k; my += dy / k; mz += dz / k;
+      // Welford online covariance: (delta_before_update) × (value − new_mean)
+      cxx += dx * (x - mx); cyy += dy * (y - my); czz += dz * (z - mz);
+      cxy += dx * (y - my); cxz += dx * (z - mz); cyz += dy * (z - mz);
     }
 
     let vx = 1, vy = 0, vz = 0;
@@ -121,8 +112,46 @@ export class BspTree extends BaseTree {
   }
 
   /**
-   * Recursively splits a node using a plane aligned to the principal axis of its points.
-   * Each split produces two children (front and back) until the stopping criteria are met.
+   * Rearranges `arr` within [lo, hi) so that `arr[nth]` is the value that would
+   * be there after a full sort (3-way / Dutch National Flag quickselect).
+   * Equal values are grouped into a pivot zone in one pass, preventing O(n²)
+   * behaviour on duplicate projections. O(n) average.
+   * @param {Float32Array} arr
+   * @param {number} lo
+   * @param {number} hi
+   * @param {number} nth
+   * @protected
+   */
+  _selectNthScalar(arr, lo, hi, nth) {
+    while (lo < hi - 1) {
+      const pivot = arr[(lo + hi) >> 1];
+      let lt = lo, gt = hi - 1, i = lo;
+      while (i <= gt) {
+        const v = arr[i];
+        if      (v < pivot) { const t = arr[lt]; arr[lt++] = arr[i]; arr[i++] = t; }
+        else if (v > pivot) { const t = arr[i];  arr[i]    = arr[gt]; arr[gt--] = t; }
+        else                { i++; }
+      }
+      if      (nth < lt) hi = lt;
+      else if (nth > gt) lo = gt + 1;
+      else               break;
+    }
+  }
+
+  /**
+   * Recursively splits a node using a plane whose normal is the principal axis of
+   * its points and whose origin is the **median-projected point** on that axis.
+   * Positioning the plane at the median guarantees that each split divides the
+   * point set into two equal-count halves, bounding tree depth at ⌈log₂ n⌉.
+   *
+   * Implementation:
+   *  1. `_computePrincipalAxis` — Welford pass → axis (nx,ny,nz) and centroid (ox,oy,oz).
+   *  2. Project all points onto the axis into a temporary Float32Array; quickselect
+   *     to find the median projection `d_med` in O(n) average.
+   *  3. Classify: front if projection ≥ d_med, back otherwise; track tight AABBs.
+   *  4. Store `splitPlane` at the median-shifted origin (ox + d_med·nx, …) so the
+   *     visualizer renders planes at the correct position.
+   *
    * @param {TreeNode} node
    * @protected
    */
@@ -133,30 +162,69 @@ export class BspTree extends BaseTree {
     }
 
     const { nx, ny, nz, ox, oy, oz } = this._computePrincipalAxis(node.points);
-    node.splitPlane = { nx, ny, nz, ox, oy, oz };
 
-    // Classify, split, and compute tight bounding boxes in one pass.
-    const frontPoints = [], backPoints = [];
-    const frontBounds = new Box3(), backBounds = new Box3();
-    for (const p of node.points) {
-      const dot = (p.x - ox) * nx + (p.y - oy) * ny + (p.z - oz) * nz;
-      if (dot >= 0) { frontPoints.push(p); frontBounds.expandByPoint(p); }
-      else           { backPoints.push(p);  backBounds.expandByPoint(p);  }
+    // Project all points onto the principal axis; quickselect for the median.
+    const points = node.points;
+    const cnt    = points.length;
+    const pos    = this._positions;
+    const dots   = new Float32Array(cnt);
+    for (let i = 0; i < cnt; i++) {
+      const base = points[i] * 3;
+      dots[i] = (pos[base] - ox) * nx + (pos[base + 1] - oy) * ny + (pos[base + 2] - oz) * nz;
+    }
+    const mid = cnt >> 1;
+    this._selectNthScalar(dots, 0, cnt, mid);
+    const medianDot = dots[mid];
+
+    // Classify points and compute tight bounding boxes in one pass.
+    const frontIndices = [];
+    const backIndices  = [];
+    let fMinX =  Infinity, fMinY =  Infinity, fMinZ =  Infinity;
+    let fMaxX = -Infinity, fMaxY = -Infinity, fMaxZ = -Infinity;
+    let bMinX =  Infinity, bMinY =  Infinity, bMinZ =  Infinity;
+    let bMaxX = -Infinity, bMaxY = -Infinity, bMaxZ = -Infinity;
+
+    for (const idx of points) {
+      const base = idx * 3;
+      const px = pos[base], py = pos[base + 1], pz = pos[base + 2];
+      const dot = (px - ox) * nx + (py - oy) * ny + (pz - oz) * nz;
+
+      if (dot >= medianDot) {
+        frontIndices.push(idx);
+        if (px < fMinX) fMinX = px; else if (px > fMaxX) fMaxX = px;
+        if (py < fMinY) fMinY = py; else if (py > fMaxY) fMaxY = py;
+        if (pz < fMinZ) fMinZ = pz; else if (pz > fMaxZ) fMaxZ = pz;
+      } else {
+        backIndices.push(idx);
+        if (px < bMinX) bMinX = px; else if (px > bMaxX) bMaxX = px;
+        if (py < bMinY) bMinY = py; else if (py > bMaxY) bMaxY = py;
+        if (pz < bMinZ) bMinZ = pz; else if (pz > bMaxZ) bMaxZ = pz;
+      }
     }
 
-    // Degenerate split: keep as leaf.
-    if (frontPoints.length === 0 || backPoints.length === 0) {
+    // Degenerate split (all points share the same projection): keep as leaf.
+    if (frontIndices.length === 0 || backIndices.length === 0) {
       this._finalizeLeaf(node);
       return;
     }
 
     node.isLeaf = false;
 
-    const backNode = new TreeNode(backBounds, node.depth + 1);
-    backNode.points = backPoints;
+    // Shift origin to median-projected position for correct visualizer rendering.
+    node.splitPlane = {
+      nx, ny, nz,
+      ox: ox + medianDot * nx,
+      oy: oy + medianDot * ny,
+      oz: oz + medianDot * nz,
+    };
 
-    const frontNode = new TreeNode(frontBounds, node.depth + 1);
-    frontNode.points = frontPoints;
+    const frontBounds = new Box3(new Vector3(fMinX, fMinY, fMinZ), new Vector3(fMaxX, fMaxY, fMaxZ));
+    const backBounds  = new Box3(new Vector3(bMinX, bMinY, bMinZ), new Vector3(bMaxX, bMaxY, bMaxZ));
+
+    const frontNode  = new TreeNode(frontBounds, node.depth + 1);
+    const backNode   = new TreeNode(backBounds,  node.depth + 1);
+    frontNode.points = frontIndices;
+    backNode.points  = backIndices;
 
     node.children.push(backNode, frontNode);
     node.points = null;

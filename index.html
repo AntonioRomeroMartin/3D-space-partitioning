@@ -157,6 +157,19 @@
       border: 1px solid rgba(77, 166, 255, 0.18);
       border-radius: 6px;
       padding: 6px 10px;
+      cursor: pointer;
+      transition: background 0.12s, border-color 0.12s;
+    }
+    #local-file-tag:hover {
+      background: rgba(77, 166, 255, 0.13);
+      border-color: rgba(77, 166, 255, 0.35);
+    }
+    #local-file-tag.active {
+      background: rgba(255, 204, 0, 0.1);
+      border-color: rgba(255, 204, 0, 0.3);
+    }
+    #local-file-tag.active:hover {
+      background: rgba(255, 204, 0, 0.15);
     }
     #local-file-name {
       flex: 1;
@@ -164,6 +177,9 @@
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
+    }
+    #local-file-tag.active #local-file-name {
+      color: #ffcc00;
     }
     #clear-local-file {
       background: none;
@@ -177,6 +193,37 @@
       transition: color 0.1s;
     }
     #clear-local-file:hover { color: #4da6ff; }
+
+    /* URL input row */
+    #url-input-row {
+      display: flex;
+      gap: 6px;
+    }
+    #url-input {
+      flex: 1;
+      background: #141414;
+      color: #ccc;
+      border: 1px solid #222;
+      padding: 7px 10px;
+      border-radius: 6px;
+      font-size: 13px;
+      min-width: 0;
+    }
+    #url-input::placeholder { color: #383838; }
+    #url-input:focus { outline: 1px solid rgba(255, 204, 0, 0.3); border-color: #333; }
+    #url-load-btn {
+      padding: 7px 12px;
+      background: #141414;
+      color: #777;
+      border: 1px solid #222;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 500;
+      white-space: nowrap;
+      transition: background 0.12s, color 0.12s, border-color 0.12s;
+    }
+    #url-load-btn:hover { background: #1c1c1c; color: #bbb; border-color: #333; }
 
     /* KD-Tree split-axis buttons */
     #kd-split-group {
@@ -308,6 +355,11 @@
     <div id="local-file-tag">
       <span id="local-file-name"></span>
       <button id="clear-local-file" title="Back to examples">✕</button>
+    </div>
+
+    <div id="url-input-row">
+      <input type="text" id="url-input" placeholder="https://…/file.pcd" spellcheck="false" />
+      <button id="url-load-btn">Load URL</button>
     </div>
 
     <div class="section-label">Algorithm</div>

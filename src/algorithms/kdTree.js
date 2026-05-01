@@ -13,11 +13,10 @@ const _axisSize = new Vector3();
  *  - `'variance'` : Picks the axis with the highest point variance (PCA diagonal).
  *
  * The split plane is placed at the median point coordinate on the chosen axis.
- * Points are partitioned into a left child (indices < median index) and a
- * right child (indices >= median index); the median is included in the right
- * child so every point appears in exactly one leaf range.
- * Tight bounding boxes are computed from actual point distributions.
- * Degenerate splits that produce an empty left side finalize the node as a leaf.
+ * Points are tracked as a shared Int32Array of indices into the original Float32Array,
+ * partitioned in-place by quickselect — no per-node point copies are made.
+ * Both the index array and the positions reference are freed immediately after build,
+ * so cached trees have a footprint of only the node structure (~100 kB for Hasselt).
  *
  * @memberof algorithms
  * @alias KdTree
@@ -36,63 +35,66 @@ export class KdTree extends BaseTree {
 
   /**
    * Builds the k-d tree from a flat interleaved position array.
+   * Creates a single Int32Array of indices [0…n-1] that is partitioned in-place
+   * during construction, replacing the previous Vector3[] shared array.
    * @param {Float32Array} positions - Flat [x,y,z, …] array from PCD geometry.
    */
   build(positions) {
-    const { points, bounds } = this._positionsToPointsAndBounds(positions);
-    if (points.length === 0) {
-      this.root = null;
-      return;
-    }
+    const n = positions.length / 3;
+    if (n === 0) { this.root = null; return; }
 
-    this._points = points;
+    this._positions = positions;
+
+    // Index array: each entry is an original point index into _positions.
+    // Quickselect rearranges this array in-place; the positions buffer is never modified.
+    this._indices = new Int32Array(n);
+    for (let i = 0; i < n; i++) this._indices[i] = i;
+
+    const bounds = this._computeBoundsFromPositions(positions);
     this.root = new TreeNode(bounds, 0);
     this._splitNode(this.root);
-    // Release the points array — only needed during construction.
-    // Cached trees can hold millions of Vector3 objects; freeing them
-    // keeps peak memory manageable when building multiple variants.
-    this._points = null;
+
+    // Release construction-time references — only the node structure is retained.
+    this._indices   = null;
+    this._positions = null;
   }
 
   /**
    * Entry point required by the BaseTree contract. Kicks off the recursive split
-   * over the full point array. Called once by `build()`.
+   * over the full index array. Called once by `build()`.
    * @param {TreeNode} node
    */
   _splitNode(node) {
-    this._split(node, 0, this._points.length);
+    this._split(node, 0, this._indices.length);
   }
 
   /**
-   * Recursive workhorse. Operates on the shared `this._points` array in-place
-   * over the range [start, end). Every node receives its range as
-   * `pointsStart`/`pointsEnd` for rendering access. The median is included in
-   * the right child so no point is ever lost. Bounding boxes are computed from
-   * the actual point distribution after partitioning.
+   * Recursive workhorse. Operates on `this._indices` in-place over [start, end).
+   * Every node records its range as `pointsStart`/`pointsEnd`. The median index is
+   * included in the right child so no point is ever lost. Tight bounding boxes are
+   * computed from the actual point distribution after partitioning.
    * @param {TreeNode} node
-   * @param {number} start - Inclusive start index into `this._points`.
-   * @param {number} end   - Exclusive end index into `this._points`.
+   * @param {number} start - Inclusive start index into `this._indices`.
+   * @param {number} end   - Exclusive end index into `this._indices`.
    */
   _split(node, start, end) {
     const count = end - start;
 
     node.pointsStart = start;
-    node.pointsEnd = end;
+    node.pointsEnd   = end;
 
     if (node.depth >= this.maxDepth || count <= this.maxPointsPerNode) {
       this._finalizeLeaf(node, count);
       return;
     }
 
-    const axis = this._selectAxis(node, start, end);
-    const key = axis === 0 ? "x" : axis === 1 ? "y" : "z";
-
+    const axis        = this._selectAxis(node, start, end);
     const medianIndex = start + Math.floor(count / 2);
-    this._selectNth(start, end, medianIndex, key);
+    this._selectNth(start, end, medianIndex, axis);
 
     // Median is included in the right child — every point lands in exactly one leaf.
-    const leftEnd = medianIndex;       // left:  [start,       medianIndex)
-    const rightStart = medianIndex;    // right: [medianIndex, end)
+    const leftEnd    = medianIndex; // left:  [start,       medianIndex)
+    const rightStart = medianIndex; // right: [medianIndex, end)
 
     if (leftEnd === start) {
       this._finalizeLeaf(node, count);
@@ -101,15 +103,15 @@ export class KdTree extends BaseTree {
 
     node.isLeaf = false;
 
-    const leftNode = new TreeNode(this._computeBounds(start, leftEnd), node.depth + 1);
-    const rightNode = new TreeNode(this._computeBounds(rightStart, end), node.depth + 1);
+    const leftNode  = new TreeNode(this._computeBounds(start,      leftEnd), node.depth + 1);
+    const rightNode = new TreeNode(this._computeBounds(rightStart, end),     node.depth + 1);
     // Tag children with the axis that created the boundary between them.
-    leftNode.splitAxis = axis;
+    leftNode.splitAxis  = axis;
     rightNode.splitAxis = axis;
 
     node.children.push(leftNode, rightNode);
 
-    this._split(leftNode, start, leftEnd);
+    this._split(leftNode,  start,      leftEnd);
     this._split(rightNode, rightStart, end);
   }
 
@@ -118,7 +120,8 @@ export class KdTree extends BaseTree {
    *  - cycle:    depth % 3  (ignores point distribution)
    *  - widest:   axis with the largest bounding-box extent (O(1))
    *  - variance: axis with the highest point variance — equivalent to the
-   *              dominant diagonal entry of the covariance matrix (O(n))
+   *              dominant diagonal entry of the covariance matrix, estimated via
+   *              Welford's online algorithm on a stride sample of up to 1024 points.
    * @param {TreeNode} node
    * @param {number} start
    * @param {number} end
@@ -133,24 +136,23 @@ export class KdTree extends BaseTree {
     }
 
     if (this.splitMode === 'variance') {
-      // Welford's online algorithm on a capped sample.
-      // For large nodes, stride-sample up to MAX_SAMPLES points so that
-      // axis selection stays O(1) in practice on datasets with millions of points.
       const MAX_SAMPLES = 1024;
-      const pts = this._points;
-      const n = end - start;
-      const stride = Math.max(1, Math.floor(n / MAX_SAMPLES));
+      const pos     = this._positions;
+      const indices = this._indices;
+      const n       = end - start;
+      const stride  = Math.max(1, Math.floor(n / MAX_SAMPLES));
       let mx = 0, my = 0, mz = 0;
       let vx = 0, vy = 0, vz = 0;
       let k = 0;
       for (let i = start; i < end; i += stride) {
         k++;
-        const p = pts[i];
-        const dx = p.x - mx, dy = p.y - my, dz = p.z - mz;
+        const base = indices[i] * 3;
+        const px = pos[base], py = pos[base + 1], pz = pos[base + 2];
+        const dx = px - mx, dy = py - my, dz = pz - mz;
         mx += dx / k; my += dy / k; mz += dz / k;
-        vx += dx * (p.x - mx);
-        vy += dy * (p.y - my);
-        vz += dz * (p.z - mz);
+        vx += dx * (px - mx);
+        vy += dy * (py - my);
+        vz += dz * (pz - mz);
       }
       if (vx >= vy && vx >= vz) return 0;
       if (vy >= vz) return 1;
@@ -162,67 +164,65 @@ export class KdTree extends BaseTree {
   }
 
   /**
-   * Rearranges `this._points` within [start, end) so that the element at `nth`
+   * Rearranges `this._indices` within [start, end) so that the element at `nth`
    * is the value that would be there after a full sort (3-way / Dutch National Flag
    * quickselect). Equal-valued points are grouped into a pivot zone in a single pass,
    * so duplicate coordinates do not cause degraded partitions. O(n) average.
    * @param {number} start
    * @param {number} end
-   * @param {number} nth - Target index to place the median at.
-   * @param {string} key - "x", "y", or "z"
+   * @param {number} nth  - Target position to place the median at.
+   * @param {0|1|2}  axis - Coordinate axis to compare on.
    */
-  _selectNth(start, end, nth, key) {
-    const points = this._points;
+  _selectNth(start, end, nth, axis) {
+    const indices = this._indices;
+    const pos     = this._positions;
     let lo = start;
     let hi = end - 1;
 
     while (lo < hi) {
-      const pivot = points[(lo + hi) >> 1][key];
-      let lt = lo;   // boundary of the < zone:  [lo, lt) < pivot
-      let gt = hi;   // boundary of the > zone:  (gt, hi] > pivot
-      let i  = lo;   // scan pointer:             [lt, i)  = pivot
+      const pivot = pos[indices[(lo + hi) >> 1] * 3 + axis];
+      let lt = lo;  // [lo, lt) < pivot
+      let gt = hi;  // (gt, hi] > pivot
+      let i  = lo;  // [lt, i)  = pivot
 
       while (i <= gt) {
-        const v = points[i][key];
+        const v = pos[indices[i] * 3 + axis];
         if (v < pivot) {
-          const tmp = points[lt]; points[lt] = points[i]; points[i] = tmp;
+          const tmp = indices[lt]; indices[lt] = indices[i]; indices[i] = tmp;
           lt++; i++;
         } else if (v > pivot) {
-          const tmp = points[i]; points[i] = points[gt]; points[gt] = tmp;
+          const tmp = indices[i]; indices[i] = indices[gt]; indices[gt] = tmp;
           gt--;
         } else {
           i++;
         }
       }
-      // [lo, lt) < pivot  |  [lt, gt] = pivot  |  (gt, hi] > pivot
 
       if      (nth < lt) hi = lt - 1;
       else if (nth > gt) lo = gt + 1;
-      else               break;      // nth sits in the pivot zone — done
+      else               break;
     }
   }
 
   /**
-   * Computes a tight axis-aligned bounding box by scanning `this._points[start, end)`.
-   * No array allocations beyond the two Vector3 objects required by Box3.
+   * Computes a tight axis-aligned bounding box by scanning `this._indices[start, end)`.
    * @param {number} start
    * @param {number} end
    * @returns {THREE.Box3}
    */
   _computeBounds(start, end) {
-    const points = this._points;
-    const p0 = points[start];
-    let minX = p0.x, minY = p0.y, minZ = p0.z;
-    let maxX = minX, maxY = minY, maxZ = minZ;
+    const indices = this._indices;
+    const pos     = this._positions;
+    const base0   = indices[start] * 3;
+    let minX = pos[base0],     minY = pos[base0 + 1], minZ = pos[base0 + 2];
+    let maxX = minX,           maxY = minY,            maxZ = minZ;
 
     for (let i = start + 1; i < end; i++) {
-      const p = points[i];
-      if      (p.x < minX) minX = p.x;
-      else if (p.x > maxX) maxX = p.x;
-      if      (p.y < minY) minY = p.y;
-      else if (p.y > maxY) maxY = p.y;
-      if      (p.z < minZ) minZ = p.z;
-      else if (p.z > maxZ) maxZ = p.z;
+      const base = indices[i] * 3;
+      const x = pos[base], y = pos[base + 1], z = pos[base + 2];
+      if      (x < minX) minX = x; else if (x > maxX) maxX = x;
+      if      (y < minY) minY = y; else if (y > maxY) maxY = y;
+      if      (z < minZ) minZ = z; else if (z > maxZ) maxZ = z;
     }
 
     return new Box3(new Vector3(minX, minY, minZ), new Vector3(maxX, maxY, maxZ));

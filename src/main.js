@@ -31,6 +31,8 @@ const fileInput              = document.getElementById("file-input");
 const localFileTag           = document.getElementById("local-file-tag");
 const localFileName          = document.getElementById("local-file-name");
 const clearLocalFileBtn      = document.getElementById("clear-local-file");
+const urlInput               = document.getElementById("url-input");
+const urlLoadBtn             = document.getElementById("url-load-btn");
 const loadingOverlay         = document.getElementById("loading-overlay");
 const loadingText            = document.getElementById("loading-text");
 const loadingProgress        = document.getElementById("loading-progress");
@@ -72,6 +74,7 @@ const remoteBtns = datasetGroup.querySelectorAll(".dataset-btn");
 // --- STATE ---
 const INITIAL_DATASET = REMOTE_DATASETS[0].path;
 let currentDatasetPath = INITIAL_DATASET;
+let localFile = null;
 
 // --- VISUALIZERS ---
 const octreeVisualizer  = new OctreeVisualizer(scene);
@@ -248,7 +251,7 @@ async function rebuildTree() {
 // --- DATASET SELECTION ---
 function setActiveRemoteBtn(path) {
   remoteBtns.forEach(btn => btn.classList.toggle("active", btn.dataset.path === path));
-  localFileTag.style.display = "none";
+  localFileTag.classList.remove("active");
   currentDatasetPath = path;
 }
 
@@ -282,11 +285,12 @@ async function loadLocalFile(file) {
     return;
   }
 
-  // Show file tag, deselect remote buttons
+  localFile = file;
   remoteBtns.forEach(btn => btn.classList.remove("active"));
   const displayName = file.name.length > 26 ? file.name.slice(0, 23) + "…" : file.name;
   localFileName.textContent = displayName;
   localFileTag.style.display = "flex";
+  localFileTag.classList.add("active");
 
   currentDatasetPath = `__local__:${file.name}`;
 
@@ -302,11 +306,42 @@ async function loadLocalFile(file) {
   } catch (err) {
     console.error("Failed to load local file:", err);
     alert(`Could not load "${file.name}". Make sure it is a valid binary or ASCII PCD file.`);
+    localFile = null;
     localFileTag.style.display = "none";
-    // Revert to the default remote dataset
+    localFileTag.classList.remove("active");
     await loadRemoteDataset(INITIAL_DATASET);
   } finally {
     hideLoading();
+  }
+}
+
+async function switchToLocalDataset() {
+  if (!localFile) return;
+  const path = `__local__:${localFile.name}`;
+  if (currentDatasetPath === path && datasetService.getPointCloud()) return;
+
+  remoteBtns.forEach(btn => btn.classList.remove("active"));
+  localFileTag.classList.add("active");
+  currentDatasetPath = path;
+
+  const datasetCached = datasetService.hasDataset(path);
+  const treeCached = datasetCached && partitionService.hasTree(currentAlgorithm(), path, kdVariant());
+  if (!treeCached) {
+    showLoading(datasetCached ? "Building tree…" : `Loading ${localFile.name}…`);
+    clearVisualizers();
+  }
+  try {
+    await datasetService.load(localFile);
+    syncAxesVisibility();
+    if (!datasetCached) {
+      loadingText.textContent = "Building tree…";
+      await nextFrame();
+    }
+    buildOrGetTree();
+  } catch (err) {
+    console.error("Failed to switch to local file:", err);
+  } finally {
+    if (!treeCached) hideLoading();
   }
 }
 
@@ -346,9 +381,28 @@ fileInput.addEventListener("change", () => {
   fileInput.value = ""; // reset so same file can be picked again
 });
 
-clearLocalFileBtn.addEventListener("click", () => {
+localFileTag.addEventListener("click", () => switchToLocalDataset());
+
+clearLocalFileBtn.addEventListener("click", (e) => {
+  e.stopPropagation();
+  localFile = null;
+  localFileTag.style.display = "none";
+  localFileTag.classList.remove("active");
   loadRemoteDataset(INITIAL_DATASET);
 });
+
+function loadUrlFromInput() {
+  const url = urlInput.value.trim();
+  if (!url) return;
+  if (!url.toLowerCase().endsWith(".pcd")) {
+    alert("URL must point to a .pcd file.");
+    return;
+  }
+  urlInput.value = "";
+  loadRemoteDataset(url);
+}
+urlLoadBtn.addEventListener("click", loadUrlFromInput);
+urlInput.addEventListener("keydown", (e) => { if (e.key === "Enter") loadUrlFromInput(); });
 
 kdSplitBtns.forEach(btn => {
   btn.addEventListener("click", () => {

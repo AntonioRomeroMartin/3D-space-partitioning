@@ -87,25 +87,25 @@ export class BaseTree {
   }
 
   /**
-   * Converts a flat positions array into an array of Vector3 points and a bounding box.
+   * Computes a tight axis-aligned bounding box directly from a flat positions array.
+   * Creates only two Vector3 objects (the Box3 corners) regardless of point count,
+   * avoiding the per-point heap allocation that a Vector3[] approach would incur.
    * @param {Float32Array} positions - Flat [x,y,z, …] array.
-   * @returns {{ points: THREE.Vector3[], bounds: THREE.Box3 }}
+   * @returns {THREE.Box3}
    */
-  _positionsToPointsAndBounds(positions) {
-    const bounds = new Box3();
-    const points = [];
+  _computeBoundsFromPositions(positions) {
+    if (positions.length < 3) return new Box3(new Vector3(), new Vector3());
 
-    for (let i = 0; i + 2 < positions.length; i += 3) {
-      const point = new Vector3(positions[i], positions[i + 1], positions[i + 2]);
-      points.push(point);
-      bounds.expandByPoint(point);
+    let minX = positions[0], minY = positions[1], minZ = positions[2];
+    let maxX = minX,         maxY = minY,         maxZ = minZ;
+
+    for (let i = 3; i < positions.length; i += 3) {
+      const x = positions[i], y = positions[i + 1], z = positions[i + 2];
+      if      (x < minX) minX = x; else if (x > maxX) maxX = x;
+      if      (y < minY) minY = y; else if (y > maxY) maxY = y;
+      if      (z < minZ) minZ = z; else if (z > maxZ) maxZ = z;
     }
 
-    if (points.length === 0) {
-      const zero = new Vector3(0, 0, 0);
-      bounds.set(zero, zero);
-    }
-
-    return { points, bounds };
+    return new Box3(new Vector3(minX, minY, minZ), new Vector3(maxX, maxY, maxZ));
   }
 }
