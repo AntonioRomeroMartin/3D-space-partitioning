@@ -43,6 +43,10 @@ const kdSplitBtns            = document.querySelectorAll("#kd-split-group .datas
 
 let currentKdSplitMode = 'cycle';
 
+// Per-algorithm wireframe/planes checkbox state (defaults to true for all).
+const wireframeStateByAlgorithm = { octree: true, kdtree: true, bsp: true };
+let _previousAlgorithm = null;
+
 function currentAlgorithm() {
   return algorithmSelect?.value || "octree";
 }
@@ -162,6 +166,13 @@ function syncControlsForAlgorithm() {
   if (showCubesLabel) showCubesLabel.style.display = isBsp ? "none" : "";
   if (showWireframeLabel) showWireframeLabel.lastChild.nodeValue = isBsp ? " Planes" : " Wireframe";
   if (kdSplitSection) kdSplitSection.style.display = algo === "kdtree" ? "" : "none";
+  // Save outgoing algorithm's checkbox state, restore incoming algorithm's state.
+  if (showWireframesCheckbox) {
+    if (_previousAlgorithm && _previousAlgorithm !== algo)
+      wireframeStateByAlgorithm[_previousAlgorithm] = showWireframesCheckbox.checked;
+    showWireframesCheckbox.checked = wireframeStateByAlgorithm[algo] ?? true;
+  }
+  _previousAlgorithm = algo;
 }
 
 // --- VISUAL TOGGLES ---
