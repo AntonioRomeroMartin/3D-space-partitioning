@@ -57,6 +57,10 @@ import { BaseTree } from "./baseTree.js";
  * contains at least one point. The root bounds are forced into a perfect cube
  * so all child cells remain axis-aligned cubes at every depth level.
  *
+ * Points are tracked as integer indices into the original Float32Array throughout
+ * construction, avoiding per-point heap allocation. All index arrays are freed
+ * after the tree is built.
+ *
  * @memberof algorithms
  * @alias Octree
  * @extends BaseTree
@@ -73,26 +77,23 @@ export class Octree extends BaseTree {
   /**
    * Builds the Octree from a flat interleaved position array.
    * The global bounding box is expanded to a perfect cube before splitting begins.
-   * Pre-allocates one set of 8 point buckets per depth level in `this._buckets`
-   * so that no new arrays are created during recursive splitting.
+   * Pre-allocates one set of 8 integer-index bucket arrays per depth level so that
+   * no new arrays are created during recursive splitting.
    * @param {Float32Array} positions - Flat [x,y,z, …] array from PCD geometry.
    */
   build(positions) {
-    const { points, bounds } = this._positionsToPointsAndBounds(positions);
-    if (points.length === 0) {
-      this.root = null;
-      return;
-    }
+    const n = positions.length / 3;
+    if (n === 0) { this.root = null; return; }
+
+    this._positions = positions;
+    const bounds = this._computeBoundsFromPositions(positions);
 
     // --- FORCE ROOT BOUNDS INTO A PERFECT CUBE ---
     const size = new Vector3();
     bounds.getSize(size);
     const maxDim = Math.max(size.x, size.y, size.z);
-
     const center = new Vector3();
     bounds.getCenter(center);
-
-    // Expand the box equally in all directions based on the longest side
     bounds.min.set(center.x - maxDim / 2, center.y - maxDim / 2, center.z - maxDim / 2);
     bounds.max.set(center.x + maxDim / 2, center.y + maxDim / 2, center.z + maxDim / 2);
     // --------------------------------------------------
@@ -104,27 +105,39 @@ export class Octree extends BaseTree {
       () => Array.from({ length: 8 }, () => [])
     );
 
+    // Build initial index list [0, 1, …, n-1].
+    const allIndices = [];
+    for (let i = 0; i &lt; n; i++) allIndices.push(i);
+
     this.root = new TreeNode(bounds, 0);
-    this.root.points = points;
+    this.root.points = allIndices;
 
     this._splitNode(this.root);
+
+    // Release construction-time references.
+    this._positions = null;
+    this._buckets = null;
   }
 
   /**
    * Recursively divides a node into up to 8 octants.
-   * Points are assigned to octants using bitwise flags on the X, Y, Z axes.
+   * Points are tracked as integer indices into `this._positions`.
+   * Each point is assigned to an octant using a 3-bit index: bit 0 = X, bit 1 = Y,
+   * bit 2 = Z. The same index drives the child bounding-box computation, keeping
+   * assignment and geometry fully consistent.
    * Only octants that contain at least one point produce a child node.
    * Reuses the pre-allocated bucket arrays from `this._buckets[node.depth]`,
    * resetting each via `.length = 0` to avoid per-node array allocation.
    * @param {TreeNode} node - The node to split.
    */
   _splitNode(node) {
-    // Stopping conditions: Reached max depth, or not enough points to justify a split
+    // Stopping conditions: reached max depth, or not enough points to justify a split.
     if (node.depth >= this.maxDepth || node.points.length &lt;= this.maxPointsPerNode) {
       this._finalizeLeaf(node);
       return;
     }
 
+    const pos     = this._positions;
     const centerX = (node.bounds.min.x + node.bounds.max.x) * 0.5;
     const centerY = (node.bounds.min.y + node.bounds.max.y) * 0.5;
     const centerZ = (node.bounds.min.z + node.bounds.max.z) * 0.5;
@@ -132,27 +145,23 @@ export class Octree extends BaseTree {
     const pointBuckets = this._buckets[node.depth];
     for (let i = 0; i &lt; 8; i++) pointBuckets[i].length = 0;
 
-    for (const point of node.points) {
+    for (const idx of node.points) {
+      const base = idx * 3;
       let octantIndex = 0;
-      if (point.x >= centerX) octantIndex |= 1; // Bit 0 represents X
-      if (point.y >= centerY) octantIndex |= 2; // Bit 1 represents Y
-      if (point.z >= centerZ) octantIndex |= 4; // Bit 2 represents Z
-
-      pointBuckets[octantIndex].push(point);
+      if (pos[base]     >= centerX) octantIndex |= 1; // bit 0 = X
+      if (pos[base + 1] >= centerY) octantIndex |= 2; // bit 1 = Y
+      if (pos[base + 2] >= centerZ) octantIndex |= 4; // bit 2 = Z
+      pointBuckets[octantIndex].push(idx);
     }
 
     node.isLeaf = false;
 
-    // Create child nodes for each octant
     const min = node.bounds.min;
     const max = node.bounds.max;
 
     for (let i = 0; i &lt; 8; i++) {
-      // We only create a child node if it actually contains points.
-      // This is a crucial optimization to save memory.
+      // Only create a child node for non-empty octants (sparse octree).
       if (pointBuckets[i].length > 0) {
-
-        // Calculate the bounding box for this specific octant
         const childMin = new Vector3(
           (i &amp; 1) ? centerX : min.x,
           (i &amp; 2) ? centerY : min.y,
@@ -163,22 +172,20 @@ export class Octree extends BaseTree {
           (i &amp; 2) ? max.y : centerY,
           (i &amp; 4) ? max.z : centerZ
         );
-
         const childBounds = new Box3(childMin, childMax);
-        const childNode = new TreeNode(childBounds, node.depth + 1);
-        childNode.points = pointBuckets[i];
+        const childNode   = new TreeNode(childBounds, node.depth + 1);
+        childNode.points  = pointBuckets[i];
 
         node.children.push(childNode);
-
-        // Recursively split the new child
         this._splitNode(childNode);
       }
     }
 
-    // Free up memory in the parent node since the children now own the points
+    // Free up memory in the parent node — children now own the index arrays.
     node.points = null;
   }
-}</code></pre>
+}
+</code></pre>
         </article>
     </section>
 
@@ -192,7 +199,7 @@ export class Octree extends BaseTree {
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 4.0.5</a> on Thu Apr 23 2026 23:31:19 GMT+0200 (hora de verano de Europa central) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 4.0.5</a> on Fri May 01 2026 22:29:34 GMT+0200 (hora de verano de Europa central) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
 </footer>
 
 <script>prettyPrint();</script>

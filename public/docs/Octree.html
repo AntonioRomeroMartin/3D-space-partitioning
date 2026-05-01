@@ -59,7 +59,10 @@
 <p>Recursively divides a cubic region into 8 equal octants along all three axes
 simultaneously. Each split produces up to 8 children, one per octant that
 contains at least one point. The root bounds are forced into a perfect cube
-so all child cells remain axis-aligned cubes at every depth level.</p></div>
+so all child cells remain axis-aligned cubes at every depth level.</p>
+<p>Points are tracked as integer indices into the original Float32Array throughout
+construction, avoiding per-point heap allocation. All index arrays are freed
+after the tree is built.</p></div>
         
     
 </header>
@@ -87,7 +90,7 @@ so all child cells remain axis-aligned cubes at every depth level.</p></div>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="algorithms_ocTree.js.html">algorithms/ocTree.js</a>, <a href="algorithms_ocTree.js.html#line17">line 17</a>
+        <a href="algorithms_ocTree.js.html">algorithms/ocTree.js</a>, <a href="algorithms_ocTree.js.html#line21">line 21</a>
     </li></ul></dd>
     
 
@@ -482,6 +485,167 @@ so all child cells remain axis-aligned cubes at every depth level.</p></div>
 
     
 
+    <h4 class="name" id="_computeBoundsFromPositions"><span class="type-signature"></span>_computeBoundsFromPositions<span class="signature">(positions)</span><span class="type-signature"> &rarr; {THREE.Box3}</span></h4>
+
+    
+
+
+
+
+<dl class="details">
+    
+    <dt class="tag-description">Description:</dt>
+    <dd class="tag-description"><ul class="dummy"><li><p>Computes a tight axis-aligned bounding box directly from a flat positions array.
+Creates only two Vector3 objects (the Box3 corners) regardless of point count,
+avoiding the per-point heap allocation that a Vector3[] approach would incur.</p></li></ul></dd>
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="algorithms_baseTree.js.html">algorithms/baseTree.js</a>, <a href="algorithms_baseTree.js.html#line96">line 96</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-overrides">Overrides:</dt>
+    <dd class="tag-overrides"><ul class="dummy"><li>
+        <a href="BaseTree.html#_computeBoundsFromPositions">BaseTree#_computeBoundsFromPositions</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <h5 class="h5-parameters">Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>positions</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Float32Array</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Flat [x,y,z, …] array.</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5 class="h5-returns">Returns:</h5>
+
+        
+
+
+<dl class="param-type">
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">THREE.Box3</span>
+
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+        
+            
+
+    
+
     <h4 class="name" id="_finalizeLeaf"><span class="type-signature"></span>_finalizeLeaf<span class="signature">(node, pointCount<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h4>
 
     
@@ -668,165 +832,6 @@ Pass <code>pointCount</code> explicitly when the subclass manages points outside
 
     
 
-    <h4 class="name" id="_positionsToPointsAndBounds"><span class="type-signature"></span>_positionsToPointsAndBounds<span class="signature">(positions)</span><span class="type-signature"> &rarr; {Object}</span></h4>
-
-    
-
-
-
-
-<dl class="details">
-    
-    <dt class="tag-description">Description:</dt>
-    <dd class="tag-description"><ul class="dummy"><li><p>Converts a flat positions array into an array of Vector3 points and a bounding box.</p></li></ul></dd>
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="algorithms_baseTree.js.html">algorithms/baseTree.js</a>, <a href="algorithms_baseTree.js.html#line94">line 94</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-overrides">Overrides:</dt>
-    <dd class="tag-overrides"><ul class="dummy"><li>
-        <a href="BaseTree.html#_positionsToPointsAndBounds">BaseTree#_positionsToPointsAndBounds</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-    <h5 class="h5-parameters">Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>positions</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Float32Array</span>
-
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>Flat [x,y,z, …] array.</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<h5 class="h5-returns">Returns:</h5>
-
-        
-
-
-<dl class="param-type">
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type">Object</span>
-
-
-
-    </dd>
-</dl>
-
-    
-
-
-
-        
-            
-
-    
-
     <h4 class="name" id="_splitNode"><span class="type-signature"></span>_splitNode<span class="signature">(node)</span><span class="type-signature"></span></h4>
 
     
@@ -838,7 +843,10 @@ Pass <code>pointCount</code> explicitly when the subclass manages points outside
     
     <dt class="tag-description">Description:</dt>
     <dd class="tag-description"><ul class="dummy"><li><p>Recursively divides a node into up to 8 octants.
-Points are assigned to octants using bitwise flags on the X, Y, Z axes.
+Points are tracked as integer indices into <code>this._positions</code>.
+Each point is assigned to an octant using a 3-bit index: bit 0 = X, bit 1 = Y,
+bit 2 = Z. The same index drives the child bounding-box computation, keeping
+assignment and geometry fully consistent.
 Only octants that contain at least one point produce a child node.
 Reuses the pre-allocated bucket arrays from <code>this._buckets[node.depth]</code>,
 resetting each via <code>.length = 0</code> to avoid per-node array allocation.</p></li></ul></dd>
@@ -847,7 +855,7 @@ resetting each via <code>.length = 0</code> to avoid per-node array allocation.<
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="algorithms_ocTree.js.html">algorithms/ocTree.js</a>, <a href="algorithms_ocTree.js.html#line74">line 74</a>
+        <a href="algorithms_ocTree.js.html">algorithms/ocTree.js</a>, <a href="algorithms_ocTree.js.html#line86">line 86</a>
     </li></ul></dd>
     
 
@@ -983,14 +991,14 @@ resetting each via <code>.length = 0</code> to avoid per-node array allocation.<
     <dt class="tag-description">Description:</dt>
     <dd class="tag-description"><ul class="dummy"><li><p>Builds the Octree from a flat interleaved position array.
 The global bounding box is expanded to a perfect cube before splitting begins.
-Pre-allocates one set of 8 point buckets per depth level in <code>this._buckets</code>
-so that no new arrays are created during recursive splitting.</p></li></ul></dd>
+Pre-allocates one set of 8 integer-index bucket arrays per depth level so that
+no new arrays are created during recursive splitting.</p></li></ul></dd>
     
 
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="algorithms_ocTree.js.html">algorithms/ocTree.js</a>, <a href="algorithms_ocTree.js.html#line33">line 33</a>
+        <a href="algorithms_ocTree.js.html">algorithms/ocTree.js</a>, <a href="algorithms_ocTree.js.html#line37">line 37</a>
     </li></ul></dd>
     
 
@@ -1290,7 +1298,7 @@ that are already leaves are also included so the tree always appears complete.</
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 4.0.5</a> on Thu Apr 23 2026 23:31:19 GMT+0200 (hora de verano de Europa central) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 4.0.5</a> on Fri May 01 2026 22:29:34 GMT+0200 (hora de verano de Europa central) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
 </footer>
 
 <script>prettyPrint();</script>

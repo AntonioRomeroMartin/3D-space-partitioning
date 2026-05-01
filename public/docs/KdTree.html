@@ -56,13 +56,17 @@
         </h2>
         
             <div class="class-description usertext"><p>k-d Tree spatial partitioning structure.</p>
-<p>At each level the splitting axis cycles through X → Y → Z (depth % 3).
-The split plane is placed at the median point coordinate on the active axis.
-Points are partitioned into a left child (indices &lt; median index) and a
-right child (indices &gt;= median index); the median is included in the right
-child so every point appears in exactly one leaf range.
-Tight bounding boxes are computed from actual point distributions.
-Degenerate splits that produce an empty left side finalize the node as a leaf.</p></div>
+<p>Three axis-selection strategies are supported via <code>splitMode</code>:</p>
+<ul>
+<li><code>'cycle'</code>    : Cycles X → Y → Z by depth (default).</li>
+<li><code>'widest'</code>   : Picks the axis with the largest bounding-box extent.</li>
+<li><code>'variance'</code> : Picks the axis with the highest point variance (PCA diagonal).</li>
+</ul>
+<p>The split plane is placed at the median point coordinate on the chosen axis.
+Points are tracked as a shared Int32Array of indices into the original Float32Array,
+partitioned in-place by quickselect — no per-node point copies are made.
+Both the index array and the positions reference are freed immediately after build,
+so cached trees have a footprint of only the node structure (~100 kB for Hasselt).</p></div>
         
     
 </header>
@@ -77,7 +81,7 @@ Degenerate splits that produce an empty left side finalize the node as a leaf.</
     <h2>Constructor</h2>
     
 
-    <h4 class="name" id="KdTree"><span class="type-signature"></span>new KdTree<span class="signature">(maxDepth, maxPointsPerNode)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="KdTree"><span class="type-signature"></span>new KdTree<span class="signature">(maxDepth, maxPointsPerNode, splitMode<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h4>
 
     
 
@@ -90,7 +94,7 @@ Degenerate splits that produce an empty left side finalize the node as a leaf.</
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="algorithms_kdTree.js.html">algorithms/kdTree.js</a>, <a href="algorithms_kdTree.js.html#line20">line 20</a>
+        <a href="algorithms_kdTree.js.html">algorithms/kdTree.js</a>, <a href="algorithms_kdTree.js.html#line25">line 25</a>
     </li></ul></dd>
     
 
@@ -150,7 +154,11 @@ Degenerate splits that produce an empty left side finalize the node as a leaf.</
         <th>Type</th>
 
         
+        <th>Attributes</th>
+        
 
+        
+        <th>Default</th>
         
 
         <th class="last">Description</th>
@@ -176,7 +184,19 @@ Degenerate splits that produce an empty left side finalize the node as a leaf.</
             </td>
 
             
+                <td class="attributes">
+                
 
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                </td>
             
 
             <td class="description last"><p>Maximum recursion depth.</p></td>
@@ -200,10 +220,68 @@ Degenerate splits that produce an empty left side finalize the node as a leaf.</
             </td>
 
             
+                <td class="attributes">
+                
 
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                </td>
             
 
             <td class="description last"><p>Leaf threshold.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>splitMode</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">'cycle'</span>
+|
+
+<span class="param-type">'widest'</span>
+|
+
+<span class="param-type">'variance'</span>
+
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    <code>'cycle'</code>
+                
+                </td>
+            
+
+            <td class="description last"><p>Axis selection strategy.</p></td>
         </tr>
 
     
@@ -495,14 +573,13 @@ Degenerate splits that produce an empty left side finalize the node as a leaf.</
 <dl class="details">
     
     <dt class="tag-description">Description:</dt>
-    <dd class="tag-description"><ul class="dummy"><li><p>Computes a tight axis-aligned bounding box by scanning <code>this._points[start, end)</code>.
-No array allocations beyond the two Vector3 objects required by Box3.</p></li></ul></dd>
+    <dd class="tag-description"><ul class="dummy"><li><p>Computes a tight axis-aligned bounding box by scanning <code>this._indices[start, end)</code>.</p></li></ul></dd>
     
 
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="algorithms_kdTree.js.html">algorithms/kdTree.js</a>, <a href="algorithms_kdTree.js.html#line149">line 149</a>
+        <a href="algorithms_kdTree.js.html">algorithms/kdTree.js</a>, <a href="algorithms_kdTree.js.html#line213">line 213</a>
     </li></ul></dd>
     
 
@@ -616,6 +693,167 @@ No array allocations beyond the two Vector3 objects required by Box3.</p></li></
             
 
             <td class="description last"></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5 class="h5-returns">Returns:</h5>
+
+        
+
+
+<dl class="param-type">
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">THREE.Box3</span>
+
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="_computeBoundsFromPositions"><span class="type-signature"></span>_computeBoundsFromPositions<span class="signature">(positions)</span><span class="type-signature"> &rarr; {THREE.Box3}</span></h4>
+
+    
+
+
+
+
+<dl class="details">
+    
+    <dt class="tag-description">Description:</dt>
+    <dd class="tag-description"><ul class="dummy"><li><p>Computes a tight axis-aligned bounding box directly from a flat positions array.
+Creates only two Vector3 objects (the Box3 corners) regardless of point count,
+avoiding the per-point heap allocation that a Vector3[] approach would incur.</p></li></ul></dd>
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="algorithms_baseTree.js.html">algorithms/baseTree.js</a>, <a href="algorithms_baseTree.js.html#line96">line 96</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-overrides">Overrides:</dt>
+    <dd class="tag-overrides"><ul class="dummy"><li>
+        <a href="BaseTree.html#_computeBoundsFromPositions">BaseTree#_computeBoundsFromPositions</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <h5 class="h5-parameters">Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>positions</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Float32Array</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Flat [x,y,z, …] array.</p></td>
         </tr>
 
     
@@ -850,7 +1088,7 @@ Pass <code>pointCount</code> explicitly when the subclass manages points outside
 
     
 
-    <h4 class="name" id="_positionsToPointsAndBounds"><span class="type-signature"></span>_positionsToPointsAndBounds<span class="signature">(positions)</span><span class="type-signature"> &rarr; {Object}</span></h4>
+    <h4 class="name" id="_selectAxis"><span class="type-signature"></span>_selectAxis<span class="signature">(node, start, end)</span><span class="type-signature"> &rarr; {0|1|2}</span></h4>
 
     
 
@@ -860,13 +1098,20 @@ Pass <code>pointCount</code> explicitly when the subclass manages points outside
 <dl class="details">
     
     <dt class="tag-description">Description:</dt>
-    <dd class="tag-description"><ul class="dummy"><li><p>Converts a flat positions array into an array of Vector3 points and a bounding box.</p></li></ul></dd>
+    <dd class="tag-description"><ul class="dummy"><li><p>Chooses the split axis for the current node according to <code>this.splitMode</code>.</p>
+<ul>
+<li>cycle:    depth % 3  (ignores point distribution)</li>
+<li>widest:   axis with the largest bounding-box extent (O(1))</li>
+<li>variance: axis with the highest point variance — equivalent to the
+dominant diagonal entry of the covariance matrix, estimated via
+Welford's online algorithm on a stride sample of up to 1024 points.</li>
+</ul></li></ul></dd>
     
 
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="algorithms_baseTree.js.html">algorithms/baseTree.js</a>, <a href="algorithms_baseTree.js.html#line94">line 94</a>
+        <a href="algorithms_kdTree.js.html">algorithms/kdTree.js</a>, <a href="algorithms_kdTree.js.html#line130">line 130</a>
     </li></ul></dd>
     
 
@@ -876,11 +1121,6 @@ Pass <code>pointCount</code> explicitly when the subclass manages points outside
 
     
 
-    
-    <dt class="tag-overrides">Overrides:</dt>
-    <dd class="tag-overrides"><ul class="dummy"><li>
-        <a href="BaseTree.html#_positionsToPointsAndBounds">BaseTree#_positionsToPointsAndBounds</a>
-    </li></ul></dd>
     
 
     
@@ -943,13 +1183,13 @@ Pass <code>pointCount</code> explicitly when the subclass manages points outside
 
         <tr>
             
-                <td class="name"><code>positions</code></td>
+                <td class="name"><code>node</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">Float32Array</span>
+<span class="param-type"><a href="TreeNode.html">TreeNode</a></span>
 
 
 
@@ -960,7 +1200,55 @@ Pass <code>pointCount</code> explicitly when the subclass manages points outside
 
             
 
-            <td class="description last"><p>Flat [x,y,z, …] array.</p></td>
+            <td class="description last"></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>start</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>end</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
         </tr>
 
     
@@ -993,7 +1281,13 @@ Pass <code>pointCount</code> explicitly when the subclass manages points outside
     </dt>
     <dd>
         
-<span class="param-type">Object</span>
+<span class="param-type">0</span>
+|
+
+<span class="param-type">1</span>
+|
+
+<span class="param-type">2</span>
 
 
 
@@ -1009,7 +1303,7 @@ Pass <code>pointCount</code> explicitly when the subclass manages points outside
 
     
 
-    <h4 class="name" id="_selectNth"><span class="type-signature"></span>_selectNth<span class="signature">(start, end, nth, key)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="_selectNth"><span class="type-signature"></span>_selectNth<span class="signature">(start, end, nth, axis)</span><span class="type-signature"></span></h4>
 
     
 
@@ -1019,7 +1313,7 @@ Pass <code>pointCount</code> explicitly when the subclass manages points outside
 <dl class="details">
     
     <dt class="tag-description">Description:</dt>
-    <dd class="tag-description"><ul class="dummy"><li><p>Rearranges <code>this._points</code> within [start, end) so that the element at <code>nth</code>
+    <dd class="tag-description"><ul class="dummy"><li><p>Rearranges <code>this._indices</code> within [start, end) so that the element at <code>nth</code>
 is the value that would be there after a full sort (3-way / Dutch National Flag
 quickselect). Equal-valued points are grouped into a pivot zone in a single pass,
 so duplicate coordinates do not cause degraded partitions. O(n) average.</p></li></ul></dd>
@@ -1028,7 +1322,7 @@ so duplicate coordinates do not cause degraded partitions. O(n) average.</p></li
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="algorithms_kdTree.js.html">algorithms/kdTree.js</a>, <a href="algorithms_kdTree.js.html#line111">line 111</a>
+        <a href="algorithms_kdTree.js.html">algorithms/kdTree.js</a>, <a href="algorithms_kdTree.js.html#line176">line 176</a>
     </li></ul></dd>
     
 
@@ -1165,20 +1459,26 @@ so duplicate coordinates do not cause degraded partitions. O(n) average.</p></li
 
             
 
-            <td class="description last"><p>Target index to place the median at.</p></td>
+            <td class="description last"><p>Target position to place the median at.</p></td>
         </tr>
 
     
 
         <tr>
             
-                <td class="name"><code>key</code></td>
+                <td class="name"><code>axis</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">string</span>
+<span class="param-type">0</span>
+|
+
+<span class="param-type">1</span>
+|
+
+<span class="param-type">2</span>
 
 
 
@@ -1189,7 +1489,7 @@ so duplicate coordinates do not cause degraded partitions. O(n) average.</p></li
 
             
 
-            <td class="description last"><p>&quot;x&quot;, &quot;y&quot;, or &quot;z&quot;</p></td>
+            <td class="description last"><p>Coordinate axis to compare on.</p></td>
         </tr>
 
     
@@ -1229,17 +1529,16 @@ so duplicate coordinates do not cause degraded partitions. O(n) average.</p></li
 <dl class="details">
     
     <dt class="tag-description">Description:</dt>
-    <dd class="tag-description"><ul class="dummy"><li><p>Recursive workhorse. Operates on the shared <code>this._points</code> array in-place
-over the range [start, end). Every node receives its range as
-<code>pointsStart</code>/<code>pointsEnd</code> for rendering access. The median is included in
-the right child so no point is ever lost. Bounding boxes are computed from
-the actual point distribution after partitioning.</p></li></ul></dd>
+    <dd class="tag-description"><ul class="dummy"><li><p>Recursive workhorse. Operates on <code>this._indices</code> in-place over [start, end).
+Every node records its range as <code>pointsStart</code>/<code>pointsEnd</code>. The median index is
+included in the right child so no point is ever lost. Tight bounding boxes are
+computed from the actual point distribution after partitioning.</p></li></ul></dd>
     
 
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="algorithms_kdTree.js.html">algorithms/kdTree.js</a>, <a href="algorithms_kdTree.js.html#line64">line 64</a>
+        <a href="algorithms_kdTree.js.html">algorithms/kdTree.js</a>, <a href="algorithms_kdTree.js.html#line80">line 80</a>
     </li></ul></dd>
     
 
@@ -1352,7 +1651,7 @@ the actual point distribution after partitioning.</p></li></ul></dd>
 
             
 
-            <td class="description last"><p>Inclusive start index into <code>this._points</code>.</p></td>
+            <td class="description last"><p>Inclusive start index into <code>this._indices</code>.</p></td>
         </tr>
 
     
@@ -1376,7 +1675,7 @@ the actual point distribution after partitioning.</p></li></ul></dd>
 
             
 
-            <td class="description last"><p>Exclusive end index into <code>this._points</code>.</p></td>
+            <td class="description last"><p>Exclusive end index into <code>this._indices</code>.</p></td>
         </tr>
 
     
@@ -1417,13 +1716,13 @@ the actual point distribution after partitioning.</p></li></ul></dd>
     
     <dt class="tag-description">Description:</dt>
     <dd class="tag-description"><ul class="dummy"><li><p>Entry point required by the BaseTree contract. Kicks off the recursive split
-over the full point array. Called once by <code>build()</code>.</p></li></ul></dd>
+over the full index array. Called once by <code>build()</code>.</p></li></ul></dd>
     
 
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="algorithms_kdTree.js.html">algorithms/kdTree.js</a>, <a href="algorithms_kdTree.js.html#line50">line 50</a>
+        <a href="algorithms_kdTree.js.html">algorithms/kdTree.js</a>, <a href="algorithms_kdTree.js.html#line67">line 67</a>
     </li></ul></dd>
     
 
@@ -1557,13 +1856,15 @@ over the full point array. Called once by <code>build()</code>.</p></li></ul></d
 <dl class="details">
     
     <dt class="tag-description">Description:</dt>
-    <dd class="tag-description"><ul class="dummy"><li><p>Builds the k-d tree from a flat interleaved position array.</p></li></ul></dd>
+    <dd class="tag-description"><ul class="dummy"><li><p>Builds the k-d tree from a flat interleaved position array.
+Creates a single Int32Array of indices [0…n-1] that is partitioned in-place
+during construction, replacing the previous Vector3[] shared array.</p></li></ul></dd>
     
 
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="algorithms_kdTree.js.html">algorithms/kdTree.js</a>, <a href="algorithms_kdTree.js.html#line33">line 33</a>
+        <a href="algorithms_kdTree.js.html">algorithms/kdTree.js</a>, <a href="algorithms_kdTree.js.html#line42">line 42</a>
     </li></ul></dd>
     
 
@@ -1863,7 +2164,7 @@ that are already leaves are also included so the tree always appears complete.</
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 4.0.5</a> on Thu Apr 23 2026 23:31:19 GMT+0200 (hora de verano de Europa central) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 4.0.5</a> on Fri May 01 2026 22:29:34 GMT+0200 (hora de verano de Europa central) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
 </footer>
 
 <script>prettyPrint();</script>

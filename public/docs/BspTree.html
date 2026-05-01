@@ -56,8 +56,15 @@
         </h2>
         
             <div class="class-description usertext"><p>BSP (Binary Space Partitioning) tree spatial partitioning structure.</p>
-<p>Recursively splits the point cloud using planes aligned to the principal axis (PCA) of the points in each node.
-Each split divides the node into two children (front and back) until the maximum depth or minimum point threshold is reached.</p></div>
+<p>Recursively splits the point cloud using planes aligned to the principal axis
+(PCA) of the points in each node. The split plane is positioned at the
+<strong>median projection</strong> of the node's points onto the principal axis, guaranteeing
+that each split divides the point set into two equal-count halves (balanced tree).</p>
+<p>The PCA axis is computed via a single-pass Welford covariance algorithm followed
+by power iteration — no scratch buffers are needed. Points are tracked as integer
+indices into the original Float32Array throughout construction. Leaf nodes store a
+compact Int32Array of geometry indices used by the visualizer for point-cloud
+recoloring. The positions reference is freed after the tree is fully built.</p></div>
         
     
 </header>
@@ -85,7 +92,7 @@ Each split divides the node into two children (front and back) until the maximum
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="algorithms_bspTree.js.html">algorithms/bspTree.js</a>, <a href="algorithms_bspTree.js.html#line15">line 15</a>
+        <a href="algorithms_bspTree.js.html">algorithms/bspTree.js</a>, <a href="algorithms_bspTree.js.html#line23">line 23</a>
     </li></ul></dd>
     
 
@@ -480,7 +487,168 @@ Each split divides the node into two children (front and back) until the maximum
 
     
 
-    <h4 class="name" id="_computePrincipalAxis"><span class="type-signature type-signature-protected">(protected) </span>_computePrincipalAxis<span class="signature">(points)</span><span class="type-signature"> &rarr; {Object}</span></h4>
+    <h4 class="name" id="_computeBoundsFromPositions"><span class="type-signature"></span>_computeBoundsFromPositions<span class="signature">(positions)</span><span class="type-signature"> &rarr; {THREE.Box3}</span></h4>
+
+    
+
+
+
+
+<dl class="details">
+    
+    <dt class="tag-description">Description:</dt>
+    <dd class="tag-description"><ul class="dummy"><li><p>Computes a tight axis-aligned bounding box directly from a flat positions array.
+Creates only two Vector3 objects (the Box3 corners) regardless of point count,
+avoiding the per-point heap allocation that a Vector3[] approach would incur.</p></li></ul></dd>
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="algorithms_baseTree.js.html">algorithms/baseTree.js</a>, <a href="algorithms_baseTree.js.html#line96">line 96</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-overrides">Overrides:</dt>
+    <dd class="tag-overrides"><ul class="dummy"><li>
+        <a href="BaseTree.html#_computeBoundsFromPositions">BaseTree#_computeBoundsFromPositions</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <h5 class="h5-parameters">Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>positions</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Float32Array</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Flat [x,y,z, …] array.</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5 class="h5-returns">Returns:</h5>
+
+        
+
+
+<dl class="param-type">
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">THREE.Box3</span>
+
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="_computePrincipalAxis"><span class="type-signature type-signature-protected">(protected) </span>_computePrincipalAxis<span class="signature">(indices)</span><span class="type-signature"> &rarr; {Object}</span></h4>
 
     
 
@@ -491,16 +659,17 @@ Each split divides the node into two children (front and back) until the maximum
     
     <dt class="tag-description">Description:</dt>
     <dd class="tag-description"><ul class="dummy"><li><p>Computes the principal axis (dominant eigenvector) of the covariance matrix
-of the points using power iteration (20 iterations).
-Returns the axis (nx, ny, nz) and the centroid (ox, oy, oz) as the split origin.
-Coordinates are copied into the pre-allocated <code>this._wx/_wy/_wz</code> arrays for
-cache-friendly covariance computation — no per-call allocations.</p></li></ul></dd>
+and the centroid of the node's points in a <strong>single pass</strong> using Welford's
+online covariance algorithm, followed by power iteration (up to 20 steps,
+with early termination when the vector magnitude falls below 1e-10).</p>
+<p>Mean and all six covariance entries are accumulated as running scalars —
+no scratch buffers or per-call allocations are needed.</p></li></ul></dd>
     
 
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="algorithms_bspTree.js.html">algorithms/bspTree.js</a>, <a href="algorithms_bspTree.js.html#line89">line 89</a>
+        <a href="algorithms_bspTree.js.html">algorithms/bspTree.js</a>, <a href="algorithms_bspTree.js.html#line83">line 83</a>
     </li></ul></dd>
     
 
@@ -572,13 +741,13 @@ cache-friendly covariance computation — no per-call allocations.</p></li></ul>
 
         <tr>
             
-                <td class="name"><code>points</code></td>
+                <td class="name"><code>indices</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">Array.&lt;THREE.Vector3></span>
+<span class="param-type">Array.&lt;number></span>
 
 
 
@@ -589,7 +758,7 @@ cache-friendly covariance computation — no per-call allocations.</p></li></ul>
 
             
 
-            <td class="description last"></td>
+            <td class="description last"><p>Index array for this node's points.</p></td>
         </tr>
 
     
@@ -648,13 +817,14 @@ cache-friendly covariance computation — no per-call allocations.</p></li></ul>
 <dl class="details">
     
     <dt class="tag-description">Description:</dt>
-    <dd class="tag-description"><ul class="dummy"><li><p>Marks a node as a leaf, records its point count, and stores only the geometry indices as a typed array.</p></li></ul></dd>
+    <dd class="tag-description"><ul class="dummy"><li><p>Marks a node as a leaf, stores the geometry indices as a typed array, and
+frees the construction-time index array.</p></li></ul></dd>
     
 
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="algorithms_bspTree.js.html">algorithms/bspTree.js</a>, <a href="algorithms_bspTree.js.html#line68">line 68</a>
+        <a href="algorithms_bspTree.js.html">algorithms/bspTree.js</a>, <a href="algorithms_bspTree.js.html#line62">line 62</a>
     </li></ul></dd>
     
 
@@ -778,7 +948,7 @@ cache-friendly covariance computation — no per-call allocations.</p></li></ul>
 
     
 
-    <h4 class="name" id="_positionsToPointsAndBounds"><span class="type-signature type-signature-protected">(protected) </span>_positionsToPointsAndBounds<span class="signature">(positions)</span><span class="type-signature"> &rarr; {Object}</span></h4>
+    <h4 class="name" id="_selectNthScalar"><span class="type-signature type-signature-protected">(protected) </span>_selectNthScalar<span class="signature">(arr, lo, hi, nth)</span><span class="type-signature"></span></h4>
 
     
 
@@ -788,14 +958,16 @@ cache-friendly covariance computation — no per-call allocations.</p></li></ul>
 <dl class="details">
     
     <dt class="tag-description">Description:</dt>
-    <dd class="tag-description"><ul class="dummy"><li><p>Converts a flat positions array into an array of Vector3 points and a bounding box.
-Stores the original geometry index on each point for later use by the visualizer.</p></li></ul></dd>
+    <dd class="tag-description"><ul class="dummy"><li><p>Rearranges <code>arr</code> within [lo, hi) so that <code>arr[nth]</code> is the value that would
+be there after a full sort (3-way / Dutch National Flag quickselect).
+Equal values are grouped into a pivot zone in one pass, preventing O(n²)
+behaviour on duplicate projections. O(n) average.</p></li></ul></dd>
     
 
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="algorithms_bspTree.js.html">algorithms/bspTree.js</a>, <a href="algorithms_bspTree.js.html#line55">line 55</a>
+        <a href="algorithms_bspTree.js.html">algorithms/bspTree.js</a>, <a href="algorithms_bspTree.js.html#line125">line 125</a>
     </li></ul></dd>
     
 
@@ -805,11 +977,6 @@ Stores the original geometry index on each point for later use by the visualizer
 
     
 
-    
-    <dt class="tag-overrides">Overrides:</dt>
-    <dd class="tag-overrides"><ul class="dummy"><li>
-        <a href="BaseTree.html#_positionsToPointsAndBounds">BaseTree#_positionsToPointsAndBounds</a>
-    </li></ul></dd>
     
 
     
@@ -872,7 +1039,7 @@ Stores the original geometry index on each point for later use by the visualizer
 
         <tr>
             
-                <td class="name"><code>positions</code></td>
+                <td class="name"><code>arr</code></td>
             
 
             <td class="type">
@@ -889,7 +1056,79 @@ Stores the original geometry index on each point for later use by the visualizer
 
             
 
-            <td class="description last"><p>Flat [x,y,z, …] array.</p></td>
+            <td class="description last"></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>lo</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>hi</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>nth</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
         </tr>
 
     
@@ -911,25 +1150,6 @@ Stores the original geometry index on each point for later use by the visualizer
 
 
 
-<h5 class="h5-returns">Returns:</h5>
-
-        
-
-
-<dl class="param-type">
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type">Object</span>
-
-
-
-    </dd>
-</dl>
-
-    
 
 
 
@@ -948,14 +1168,25 @@ Stores the original geometry index on each point for later use by the visualizer
 <dl class="details">
     
     <dt class="tag-description">Description:</dt>
-    <dd class="tag-description"><ul class="dummy"><li><p>Recursively splits a node using a plane aligned to the principal axis of its points.
-Each split produces two children (front and back) until the stopping criteria are met.</p></li></ul></dd>
+    <dd class="tag-description"><ul class="dummy"><li><p>Recursively splits a node using a plane whose normal is the principal axis of
+its points and whose origin is the <strong>median-projected point</strong> on that axis.
+Positioning the plane at the median guarantees that each split divides the
+point set into two equal-count halves, bounding tree depth at ⌈log₂ n⌉.</p>
+<p>Implementation:</p>
+<ol>
+<li><code>_computePrincipalAxis</code> — Welford pass → axis (nx,ny,nz) and centroid (ox,oy,oz).</li>
+<li>Project all points onto the axis into a temporary Float32Array; quickselect
+to find the median projection <code>d_med</code> in O(n) average.</li>
+<li>Classify: front if projection ≥ d_med, back otherwise; track tight AABBs.</li>
+<li>Store <code>splitPlane</code> at the median-shifted origin (ox + d_med·nx, …) so the
+visualizer renders planes at the correct position.</li>
+</ol></li></ul></dd>
     
 
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="algorithms_bspTree.js.html">algorithms/bspTree.js</a>, <a href="algorithms_bspTree.js.html#line129">line 129</a>
+        <a href="algorithms_bspTree.js.html">algorithms/bspTree.js</a>, <a href="algorithms_bspTree.js.html#line158">line 158</a>
     </li></ul></dd>
     
 
@@ -1089,16 +1320,13 @@ Each split produces two children (front and back) until the stopping criteria ar
 <dl class="details">
     
     <dt class="tag-description">Description:</dt>
-    <dd class="tag-description"><ul class="dummy"><li><p>Builds the BSP tree from a flat interleaved position array.
-Pre-allocates three Float32Arrays (<code>this._wx</code>, <code>this._wy</code>, <code>this._wz</code>) sized
-to the total point count, reused by every <code>_computePrincipalAxis</code> call to
-avoid per-node typed-array allocation during recursive splitting.</p></li></ul></dd>
+    <dd class="tag-description"><ul class="dummy"><li><p>Builds the BSP tree from a flat interleaved position array.</p></li></ul></dd>
     
 
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="algorithms_bspTree.js.html">algorithms/bspTree.js</a>, <a href="algorithms_bspTree.js.html#line31">line 31</a>
+        <a href="algorithms_bspTree.js.html">algorithms/bspTree.js</a>, <a href="algorithms_bspTree.js.html#line36">line 36</a>
     </li></ul></dd>
     
 
@@ -1398,7 +1626,7 @@ that are already leaves are also included so the tree always appears complete.</
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 4.0.5</a> on Thu Apr 23 2026 23:31:19 GMT+0200 (hora de verano de Europa central) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 4.0.5</a> on Fri May 01 2026 22:29:34 GMT+0200 (hora de verano de Europa central) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
 </footer>
 
 <script>prettyPrint();</script>
